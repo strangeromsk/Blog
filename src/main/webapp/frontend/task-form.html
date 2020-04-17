@@ -1,0 +1,28 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<dom-module id="task-form">
+    <template>
+<style include="shared-styles">
+            :host {
+                display: block;
+                height: 100%;
+            }
+        </style>
+
+</template>
+
+    <script>
+        class TaskForm extends Polymer.Element {
+            static get is() {
+                return 'task-form';
+            }
+
+            static get properties() {
+                return {
+                    // Declare your properties here.
+                };
+            }
+        }
+        customElements.define(TaskForm.is, TaskForm);
+    </script>
+</dom-module>
