@@ -2,14 +2,22 @@ package main.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 @Entity
 @Table(name = "tag2post")
 public class TagToPost {
+
+//    @OneToMany(mappedBy = "tagToPost", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+//    private Set<Post> posts;
+//
+//    @OneToMany(mappedBy = "tagToPost", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+//    private Set<Tag> tags;
+
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @NotNull
     @Column(name = "post_id")

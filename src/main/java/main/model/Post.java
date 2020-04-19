@@ -3,6 +3,7 @@ package main.model;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
+import java.util.Set;
 
 @Entity
 @Table(name = "posts")
@@ -11,10 +12,31 @@ public class Post {
     public enum Status{
         NEW, ACCEPTED, DECLINED
     }
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<PostComment> postComments;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<PostVote> postVotes;
+
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
+    private User user;
+
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JoinColumn(name = "id", referencedColumnName = "post_id", nullable = false, insertable = false, updatable = false)
+    private TagToPost tagToPost;
+
+//    @ManyToMany(cascade = CascadeType.ALL)
+//    @JoinTable(name = "TagToPost",
+//            joinColumns = {@JoinColumn(name = "post_id", referencedColumnName = "id")},
+//            inverseJoinColumns = {@JoinColumn(name = "tag_id", referencedColumnName = "id")})
+//    private Set<Tag> tags = new HashSet<>();
+
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @NotNull
     @Column(name = "is_active")
@@ -118,4 +140,12 @@ public class Post {
     public void setTime(Timestamp time) {
         this.time = time;
     }
+
+//    public Set<Tag> getTags() {
+//        return tags;
+//    }
+//
+//    public void setTags(Set<Tag> tags) {
+//        this.tags = tags;
+//    }
 }

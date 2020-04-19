@@ -7,6 +7,15 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "post_comments")
 public class PostComment {
+
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
+    private User user;
+
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false, insertable = false, updatable = false)
+    private Post post;
+
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
