@@ -18,7 +18,7 @@ public class GlobalSetting {
     private String name;
 
     @NotNull
-    private String value;
+    private byte value;
 
     public int getId() {
         return id;
@@ -44,11 +44,11 @@ public class GlobalSetting {
         this.name = name;
     }
 
-    public String getValue() {
+    public byte getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(byte value) {
         this.value = value;
     }
 }

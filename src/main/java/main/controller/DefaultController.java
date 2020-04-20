@@ -22,6 +22,12 @@ public class DefaultController {
 //        }
 //        model.addAttribute("tasks", tasks);
 //        model.addAttribute("tasksCount", tasks.size());
+        model.addAttribute("title");
+        model.addAttribute("subtitle");
+        model.addAttribute("phone");
+        model.addAttribute("email");
+        model.addAttribute("copyright");
+        model.addAttribute("copyrightFrom");
         return "index";
     }
 }
