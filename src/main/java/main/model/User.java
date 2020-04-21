@@ -1,9 +1,15 @@
 package main.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Set;
+
+@Getter
+@Setter
 
 @Entity
 @Table(name = "users")
@@ -25,12 +31,12 @@ public class User {
 
     @NotNull
     @Column(name = "is_moderator")
-    private boolean isModerator;
+    private int isModerator;
 
     @Basic
     @NotNull
     @Column(name = "reg_time")
-    private java.sql.Timestamp regTime;
+    private Date regTime;
 
     @NotNull
     private String name;
@@ -43,70 +49,6 @@ public class User {
 
     private String code;
 
+    @Column(length = 1000)
     private String photo;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public boolean isModerator() {
-        return isModerator;
-    }
-
-    public void setModerator(boolean moderator) {
-        isModerator = moderator;
-    }
-
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
-    }
-
-    public Timestamp getRegTime() {
-        return regTime;
-    }
-
-    public void setRegTime(Timestamp regTime) {
-        this.regTime = regTime;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }

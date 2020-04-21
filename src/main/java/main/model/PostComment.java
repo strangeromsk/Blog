@@ -1,8 +1,14 @@
 package main.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.sql.Timestamp;
+import java.util.Date;
+
+@Getter
+@Setter
 
 @Entity
 @Table(name = "post_comments")
@@ -24,67 +30,19 @@ public class PostComment {
     @Column(name = "parent_id")
     private int parentId;
 
-    @NotNull
-    @Column(name = "post_id")
-    private int postId;
-
-    @NotNull
-    @Column(name = "user_id")
-    private int userId;
+//    @NotNull
+//    @Column(name = "post_id")
+//    private int postId;
+//
+//    @NotNull
+//    @Column(name = "user_id")
+//    private int userId;
 
     @Basic
     @NotNull
-    private java.sql.Timestamp time;
+    private Date time;
 
     @NotNull
+    @Column(length = 1000)
     private String text;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(int parentId) {
-        this.parentId = parentId;
-    }
-
-    public int getPostId() {
-        return postId;
-    }
-
-    public void setPostId(int postId) {
-        this.postId = postId;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Timestamp getTime() {
-        return time;
-    }
-
-    public void setTime(Timestamp time) {
-        this.time = time;
-    }
 }

@@ -1,9 +1,15 @@
 package main.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Set;
+
+@Getter
+@Setter
 
 @Entity
 @Table(name = "posts")
@@ -40,7 +46,7 @@ public class Post {
 
     @NotNull
     @Column(name = "is_active")
-    private boolean isActive;
+    private int isActive;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -50,102 +56,22 @@ public class Post {
     @Column(name = "moderator_id")
     private int moderatorId;
 
-    @NotNull
-    @Column(name = "user_id")
-    private int userId;
+//    @NotNull
+//    @Column(name = "user_id")
+//    private int userId;
 
     @Basic
     @NotNull
-    private java.sql.Timestamp time;
+    private Date time;
 
     @NotNull
     private String title;
 
     @NotNull
+    @Column(length = 1000)
     private String text;
 
     @NotNull
     @Column(name = "view_count")
     private int viewCount;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public int getModeratorId() {
-        return moderatorId;
-    }
-
-    public void setModeratorId(int moderatorId) {
-        this.moderatorId = moderatorId;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public int getViewCount() {
-        return viewCount;
-    }
-
-    public void setViewCount(int viewCount) {
-        this.viewCount = viewCount;
-    }
-
-    public Timestamp getTime() {
-        return time;
-    }
-
-    public void setTime(Timestamp time) {
-        this.time = time;
-    }
-
-//    public Set<Tag> getTags() {
-//        return tags;
-//    }
-//
-//    public void setTags(Set<Tag> tags) {
-//        this.tags = tags;
-//    }
 }

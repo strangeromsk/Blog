@@ -1,8 +1,13 @@
 package main.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
+
+@Getter
+@Setter
 
 @Entity
 @Table(name = "tag2post")
@@ -26,28 +31,4 @@ public class TagToPost {
     @NotNull
     @Column(name = "tag_id")
     private int tagId;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getPostId() {
-        return postId;
-    }
-
-    public void setPostId(int postId) {
-        this.postId = postId;
-    }
-
-    public int getTagId() {
-        return tagId;
-    }
-
-    public void setTagId(int tagId) {
-        this.tagId = tagId;
-    }
 }
