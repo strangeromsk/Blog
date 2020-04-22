@@ -16,8 +16,8 @@ public class DefaultController {
 //    private UserRepository userRepository;
 
 
-    @GetMapping("/api/init/")
-    public String index(Model model) {
+    @GetMapping(value = "/api/init/")
+    public TestUser index(TestUser testUser) {
 //        Iterable<User> userIterable = userRepository.findAll();
 //        ArrayList<User> tasks = new ArrayList<>();
 //        for(User user : userIterable) {
@@ -25,7 +25,7 @@ public class DefaultController {
 //        }
 //        model.addAttribute("tasks", tasks);
 //        model.addAttribute("tasksCount", tasks.size());
-        TestUser testUser = new TestUser("sdsd","32","dsf","dsf","dsf","dsf");
+ //       TestUser testUser = new TestUser("sdsd","32","dsf","dsf","dsf","dsf");
 //
         testUser.setTitle("sd");
         testUser.setCopyright("dfsf");
@@ -34,13 +34,13 @@ public class DefaultController {
         testUser.setPhone("er");
         testUser.setSubtitle("ewrwerwerewrwer");
 
-        model.addAttribute("title",testUser.getTitle());
-        model.addAttribute("subtitle",testUser.getSubtitle());
-        model.addAttribute("phone",testUser.getPhone());
-        model.addAttribute("email",testUser.getEmail());
-        model.addAttribute("copyright",testUser.getCopyright());
-        model.addAttribute("copyrightFrom",testUser.getCopyrightFrom());
+//        model.addAttribute("title",testUser.getTitle());
+//        model.addAttribute("subtitle",testUser.getSubtitle());
+//        model.addAttribute("phone",testUser.getPhone());
+//        model.addAttribute("email",testUser.getEmail());
+//        model.addAttribute("copyright",testUser.getCopyright());
+//        model.addAttribute("copyrightFrom",testUser.getCopyrightFrom());
 
-        return model.toString();
+        return testUser;
     }
 }
