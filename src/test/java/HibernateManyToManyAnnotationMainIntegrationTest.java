@@ -2,7 +2,7 @@
 //import main.model.Tag;
 //import org.hibernate.Session;
 //import org.hibernate.SessionFactory;
-//import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.TestUser;
 //
 //import java.util.HashSet;
 //import java.util.List;
@@ -16,7 +16,7 @@
 //
 //    // ...
 //
-//    @Test
+//    @TestUser
 //    public void givenData_whenInsert_thenCreatesMtoMrelationship() {
 //        String[] postData = { "Peter Oven", "Allan Norman" };
 //        String[] tagData = { "IT Project", "Networking Project" };
@@ -38,7 +38,7 @@
 //        }
 //    }
 //
-//    @Test
+//    @TestUser
 //    public void givenSession_whenRead_thenReturnsMtoMdata() {
 //        @SuppressWarnings("unchecked")
 //        List<Post> postsList = session.createQuery("FROM posts")

@@ -1,15 +1,14 @@
 package main.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
 
-@Getter
-@Setter
+@Data
 
 @Entity
 @Table(name = "posts")
@@ -18,10 +17,11 @@ public class Post {
     public enum Status{
         NEW, ACCEPTED, DECLINED
     }
-
+    @ToString.Exclude
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<PostComment> postComments;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<PostVote> postVotes;
 
@@ -32,12 +32,6 @@ public class Post {
     @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "id", referencedColumnName = "post_id", nullable = false, insertable = false, updatable = false)
     private TagToPost tagToPost;
-
-//    @ManyToMany(cascade = CascadeType.ALL)
-//    @JoinTable(name = "TagToPost",
-//            joinColumns = {@JoinColumn(name = "post_id", referencedColumnName = "id")},
-//            inverseJoinColumns = {@JoinColumn(name = "tag_id", referencedColumnName = "id")})
-//    private Set<Tag> tags = new HashSet<>();
 
     @Id
     @NotNull
@@ -55,10 +49,6 @@ public class Post {
 
     @Column(name = "moderator_id")
     private int moderatorId;
-
-//    @NotNull
-//    @Column(name = "user_id")
-//    private int userId;
 
     @Basic
     @NotNull

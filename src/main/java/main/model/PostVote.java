@@ -1,14 +1,12 @@
 package main.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-@Getter
-@Setter
+@Data
 
 @Entity
 @Table(name = "post_votes")
@@ -26,14 +24,6 @@ public class PostVote {
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-//    @NotNull
-//    @Column(name = "user_id")
-//    private int userId;
-//
-//    @NotNull
-//    @Column(name = "post_id")
-//    private int postId;
 
     @Basic
     @NotNull

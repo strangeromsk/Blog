@@ -1,14 +1,12 @@
 package main.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-@Getter
-@Setter
+@Data
 
 @Entity
 @Table(name = "captcha_codes")

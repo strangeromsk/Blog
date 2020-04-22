@@ -1,13 +1,11 @@
 package main.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
-@Getter
-@Setter
+@Data
 
 @Entity
 @Table(name = "tags")

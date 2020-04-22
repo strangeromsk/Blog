@@ -1,14 +1,12 @@
 package main.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-@Getter
-@Setter
+@Data
 
 @Entity
 @Table(name = "post_comments")
@@ -29,14 +27,6 @@ public class PostComment {
 
     @Column(name = "parent_id")
     private int parentId;
-
-//    @NotNull
-//    @Column(name = "post_id")
-//    private int postId;
-//
-//    @NotNull
-//    @Column(name = "user_id")
-//    private int userId;
 
     @Basic
     @NotNull
