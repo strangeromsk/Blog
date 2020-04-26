@@ -4,24 +4,23 @@ import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 
 @Data
 
 @Entity
-@Table(name = "tag2post")
-public class TagToPost implements Serializable {
-
+@Table(name = "global_settings")
+public class GlobalSetting {
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private int id;
 
     @NotNull
-    @Column(name = "post_id")
-    private int postId;
+    private String code;
 
     @NotNull
-    @Column(name = "tag_id")
-    private int tagId;
+    private String name;
+
+    @NotNull
+    private byte value;
 }

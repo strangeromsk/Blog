@@ -7,11 +7,9 @@ import main.model.DTO.PostDtoView;
 import main.model.Post;
 import main.model.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.stream.Collectors;
 
