@@ -51,6 +51,7 @@ public class PostService {
            .map(e->get(e.getId()))
            .skip(apiPostController.getOffset())
            .limit(apiPostController.getLimit())
+                .peek(e->Comparator.comparing(e.getCommentCount(), Comparator.naturalOrder()))
            //     .sorted(e->Comparator.comparing(e.getCommentCount(),Comparator.reverseOrder()))
            .collect(Collectors.toCollection(ArrayList::new)));
         return postDtoView;
