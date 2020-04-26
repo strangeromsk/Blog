@@ -1,19 +1,15 @@
 package main.model.DTO;
 
 import lombok.Data;
-import main.model.Post;
-import main.model.User;;
 import java.util.Date;
 
 @Data
 public class PostDto {
-    private Post post;
-    private User user;
 
-    private Integer id = post.getId();
-    private Date time = post.getTime();
-    private Integer userId = user.getId();
-    private String name = user.getName();
+    private Integer id;
+    private Date time;
+    private Integer userId;
+    private String name;
     private String title;
     private String announce;
     private int likeCount;

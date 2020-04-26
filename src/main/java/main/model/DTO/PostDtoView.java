@@ -1,21 +1,28 @@
 package main.model.DTO;
 
-import lombok.Data;
-import main.model.Post;
-import main.model.repositories.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-@Data
+@Component
 public class PostDtoView {
-    @Autowired
-    private PostRepository postRepository;
-    long count = postRepository.count();
+    @Getter
+    @Setter
+    long count;
+    @Getter
+    @Setter
+    List<PostDto> posts;
 
-    List<PostDto> posts = Collections.singletonList((PostDto) postRepository.findAll());
+//    public Collection<PostDto> getAll() {
+//        return posts.stream()
+//                .filter(Objects::nonNull)
+//                .collect(Collectors.collectingAndThen(Collectors.toList(), Collections::unmodifiableList));
+//    }
+
+//    List<PostDto> posts = Collections.singletonList((PostDto) postRepository.findAll());
 
 //    public void populateList(){
 //        Iterable<Post> postIterable = postRepository.findAll();
