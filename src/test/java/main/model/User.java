@@ -30,7 +30,7 @@ public class User {
     //@NotNull
     //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "int default 0")
-    private Integer id;
+    private int id;
 
     @NotNull
     @Column(name = "is_moderator")

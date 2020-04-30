@@ -15,7 +15,7 @@ public class TagToPost implements Serializable {
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private int id;
 
     @NotNull
     @Column(name = "post_id")

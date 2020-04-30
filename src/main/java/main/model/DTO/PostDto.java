@@ -2,7 +2,6 @@ package main.model.DTO;
 
 import lombok.Data;
 
-import javax.persistence.Column;
 import java.util.Date;
 
 @Data
@@ -11,7 +10,7 @@ public class PostDto {
     private Integer id;
     private Date time;
 
-    private UserDto userDto = new UserDto();
+    private UserDto user = new UserDto();
 
     private String title;
     private String announce;
