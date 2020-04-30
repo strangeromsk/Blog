@@ -31,5 +31,4 @@ public class PostVote {
 
     @NotNull
     private int value;
-
 }

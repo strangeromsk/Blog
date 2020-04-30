@@ -17,10 +17,11 @@ public class Post {
     public enum Status{
         NEW, ACCEPTED, DECLINED
     }
+    @OrderBy("COUNT(id) DESC")
     @ToString.Exclude
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<PostComment> postComments;
-
+    @OrderBy("COUNT(id) DESC")
     @ToString.Exclude
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<PostVote> postVotes;

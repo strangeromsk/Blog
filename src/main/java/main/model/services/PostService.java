@@ -1,37 +1,33 @@
 package main.model.services;
 
-import main.controllers.ApiPostController;
 import main.mapper.PostMapper;
+import main.mapper.UserMapper;
+import main.model.DTO.ModePostDto;
 import main.model.DTO.PostDto;
 import main.model.DTO.PostDtoView;
 import main.model.Post;
 import main.model.repositories.PostRepository;
+import main.model.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-
 public class PostService {
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private final PostRepository postRepository;
     private final PostMapper postMapper;
 
-    private ApiPostController apiPostController;
-    private PostDtoView postDtoView;
-
     @Autowired
     public PostService(PostRepository postRepository, PostMapper postMapper,
-                       PostDtoView postDtoView,
-                       ApiPostController apiPostController) {
+                       UserRepository userRepository, UserMapper userMapper) {
         this.postRepository = postRepository;
         this.postMapper = postMapper;
-        this.postDtoView = postDtoView;
-        this.apiPostController = apiPostController;
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
     public PostDto save(PostDto postDto){
@@ -42,18 +38,23 @@ public class PostService {
         return postMapper.toDto(postRepository.getOne(id));
     }
 
-    public PostDtoView populateVars(){
+    public PostDtoView populateVars(int offset, int limit, ModePostDto mode){
+        PostDtoView postDtoView = new PostDtoView();
         postDtoView.setCount(postRepository.count());
-        postDtoView.setPosts(postRepository.findAll().stream().filter(e ->
-                e.getIsActive() == 1 &&
-                e.getStatus().equals(Post.Status.ACCEPTED) &&
-                e.getTime().before(new Date()))
-           .map(e->get(e.getId()))
-           .skip(apiPostController.getOffset())
-           .limit(apiPostController.getLimit())
-           //     .peek(e->Comparator.comparing(e.getCommentCount(), Comparator.naturalOrder()))
-           //     .sorted(e->Comparator.comparing(e.getCommentCount(),Comparator.reverseOrder()))
-           .collect(Collectors.toCollection(ArrayList::new)));
+        List<Post> list;
+        if(mode.equals(ModePostDto.recent)){
+            list = postRepository.findPostByDateAsc(offset, limit);
+        }else if(mode.equals(ModePostDto.early)){
+            list = postRepository.findPostByDateDesc(offset, limit);
+        }else if(mode.equals(ModePostDto.best) || mode.equals(ModePostDto.popular)){
+            list = postRepository.findPost(offset, limit);
+        }else {
+            list = null;
+        }
+        assert list != null;
+        postDtoView.setPosts(list.stream()
+                .map(e->get(e.getId()))
+                .collect(Collectors.toList()));
         return postDtoView;
     }
 }
