@@ -5,9 +5,8 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 @Data
 
@@ -21,11 +20,11 @@ public class Post {
     @OrderBy("COUNT(id) DESC")
     @ToString.Exclude
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<PostComment> postComments;
+    private List<PostComment> postComments;
     @OrderBy("COUNT(id) DESC")
     @ToString.Exclude
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<PostVote> postVotes;
+    private List<PostVote> postVotes;
 
     @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)

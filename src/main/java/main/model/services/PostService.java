@@ -9,6 +9,8 @@ import main.model.Post;
 import main.model.repositories.PostRepository;
 import main.model.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,19 +41,17 @@ public class PostService {
     }
 
     public PostDtoView populateVars(int offset, int limit, ModePostDto mode){
+        Pageable pageable = PageRequest.of(offset / limit, limit);
         PostDtoView postDtoView = new PostDtoView();
-        postDtoView.setCount(postRepository.count());
+        postDtoView.setCount(postRepository.findPost(pageable).size());
         List<Post> list;
         if(mode.equals(ModePostDto.recent)){
-            list = postRepository.findPostByDateAsc(offset, limit);
+            list = postRepository.findPostByDateAsc(pageable);
         }else if(mode.equals(ModePostDto.early)){
-            list = postRepository.findPostByDateDesc(offset, limit);
-        }else if(mode.equals(ModePostDto.best) || mode.equals(ModePostDto.popular)){
-            list = postRepository.findPost(offset, limit);
-        }else {
-            list = null;
+            list = postRepository.findPostByDateDesc(pageable);
+        }else{
+            list = postRepository.findPost(pageable);
         }
-        assert list != null;
         postDtoView.setPosts(list.stream()
                 .map(e->get(e.getId()))
                 .collect(Collectors.toList()));

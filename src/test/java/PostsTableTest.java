@@ -1,5 +1,6 @@
 import junit.framework.TestCase;
 import main.model.Post;
+import main.model.PostComment;
 import main.model.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -42,6 +43,7 @@ public class PostsTableTest extends TestCase {
             post.setUser(user);
 
             session.persist(post);
+            session.persist(user);
         }
         session.getTransaction().commit();
     }

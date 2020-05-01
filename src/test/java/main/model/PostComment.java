@@ -21,8 +21,9 @@ public class PostComment {
     private Post post;
 
     @Id
-    @NotNull
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@NotNull
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(columnDefinition = "int default 0")
     private int id;
 
     @Column(name = "parent_id")
