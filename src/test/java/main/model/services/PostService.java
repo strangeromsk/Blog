@@ -1,11 +1,11 @@
-package main.model.services;
+package main.services;
 
 import main.controllers.ApiPostController;
 import main.mapper.PostMapper;
-import main.model.DTO.PostDto;
-import main.model.DTO.PostDtoView;
+import main.DTO.PostDto;
+import main.DTO.PostDtoView;
 import main.model.Post;
-import main.model.repositories.PostRepository;
+import main.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

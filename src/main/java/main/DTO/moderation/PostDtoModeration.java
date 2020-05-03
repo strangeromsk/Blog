@@ -1,12 +1,11 @@
-package main.model.DTO;
+package main.DTO.moderation;
 
 import lombok.Data;
+import main.DTO.UserDto;
 
 import java.util.Date;
-
 @Data
-public class PostDto {
-
+public class PostDtoModeration {
     private Integer id;
     private Date time;
 
@@ -14,8 +13,4 @@ public class PostDto {
 
     private String title;
     private String announce;
-    private int likeCount;
-    private int dislikeCount;
-    private int commentCount;
-    private int viewCount;
 }

@@ -10,7 +10,7 @@ public class PostDto {
     private Integer id;
     private Date time;
 
-    private UserDto userDto;
+    private UserDto user = new UserDto();
 
     private String title;
     private String announce;

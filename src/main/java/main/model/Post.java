@@ -6,7 +6,7 @@ import lombok.ToString;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 @Data
 
@@ -17,14 +17,14 @@ public class Post {
     public enum Status{
         NEW, ACCEPTED, DECLINED
     }
-    @OrderBy("COUNT(id) DESC")
+
     @ToString.Exclude
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PostComment> postComments;
-    @OrderBy("COUNT(id) DESC")
+    private Set<PostComment> postComments;
+
     @ToString.Exclude
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PostVote> postVotes;
+    private Set<PostVote> postVotes;
 
     @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)

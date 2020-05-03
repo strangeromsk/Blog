@@ -1,7 +1,7 @@
 package main.mapper;
 
-import main.model.DTO.UserDto;
-import main.model.Post;
+import main.DTO.PostDTOById.UserDtoById;
+import main.DTO.UserDto;
 import main.model.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,5 +20,9 @@ public class UserMapper {
 
     public UserDto toDto(User user){
         return Objects.isNull(user) ? null : modelMapper.map(user, UserDto.class);
+    }
+
+    public UserDtoById toDtoById(User user){
+        return Objects.isNull(user) ? null : modelMapper.map(user, UserDtoById.class);
     }
 }

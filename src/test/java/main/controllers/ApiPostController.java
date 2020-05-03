@@ -2,9 +2,9 @@ package main.controllers;
 
 import lombok.Getter;
 import lombok.Setter;
-import main.model.DTO.ModePostDto;
-import main.model.DTO.PostDtoView;
-import main.model.services.PostService;
+import main.DTO.ModePostDto;
+import main.DTO.PostDtoView;
+import main.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
