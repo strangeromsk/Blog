@@ -21,18 +21,20 @@ public interface PostRepository extends JpaRepository<Post, Long>, PagingAndSort
     @Query(value = "FROM Post WHERE isActive = 1 AND status = 'ACCEPTED'" +
             " AND time < current_time ORDER BY size(postComments) DESC")
     List<Post> findPostByCommentCount (Pageable pageable);
-    @Query(value = "FROM Post WHERE isActive = 1 AND status = 'ACCEPTED'" +
-            " AND time < current_time ORDER BY size(postVotes) DESC")
+    @Query(value = "SELECT posts.id, posts.is_active, posts.moderation_status, posts.moderator_id, posts.text, posts.time, posts.title," +
+            " posts.view_count, posts.user_id FROM posts JOIN post_votes ON posts.id=post_votes.post_id" +
+            " WHERE posts.is_active = 1 AND posts.moderation_status = 'ACCEPTED' AND posts.time < current_time" +
+            " AND post_votes.value > 0 ORDER BY post_votes.value DESC", nativeQuery = true)
     List<Post> findPostByLikeCount (Pageable pageable);
     @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
             " AND time < current_time AND (text LIKE %:query% OR title LIKE %:query%)", nativeQuery = true)
     List<Post> findPostBySearchQuery (Pageable pageable, @Param("query") String query);
+    @Query(value = "SELECT COUNT(*) FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
+            " AND time < current_time", nativeQuery = true)
+    Long countPost();
     @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
-            " AND time < current_time AND id = :id", nativeQuery = true)
-    Post findPostById (@Param("id") int id);
-    @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
-            " AND time = :sDate", nativeQuery = true)
-    List<Post> findPostWithExactDate (Pageable pageable, @Param("sDate") java.sql.Date sDate);
+            " AND time = :date", nativeQuery = true)
+    List<Post> findPostWithExactDate (Pageable pageable, @Param("date") String date);
     @Query(value = "SELECT * FROM posts JOIN tag2post ON posts.id=tag2post.post_id JOIN tags ON tags.id=tag2post.tag_id " +
             "WHERE posts.is_active = 1 AND posts.moderation_status = 'ACCEPTED' AND posts.time < current_time AND tags.name = :tag",nativeQuery = true)
     List<Post> findPostsByTag (Pageable pageable, @Param("tag") String tag);

@@ -3,8 +3,6 @@ package main.controllers;
 import main.DTO.ModePostDto;
 import main.DTO.PostDTOById.PostDtoById;
 import main.DTO.PostDtoView;
-import main.DTO.moderation.PostDtoViewModeration;
-import main.model.Post;
 import main.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,8 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Date;
 
 @RestController
 public class ApiPostController {
@@ -26,9 +22,6 @@ public class ApiPostController {
     public ResponseEntity<PostDtoView> getAllPosts(@RequestParam int offset,
                                                    @RequestParam int limit,
                                                    @RequestParam ModePostDto mode) {
-        if(offset < 0 || limit <= 0 || !(mode instanceof ModePostDto)){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
         return new ResponseEntity<>(postService.populateVars(offset, limit, mode), HttpStatus.OK);
     }
 
@@ -53,7 +46,7 @@ public class ApiPostController {
     @GetMapping(value = "/api/post/byDate")
     public ResponseEntity<PostDtoView> getPostsWithExactDate(@RequestParam int offset,
                                                              @RequestParam int limit,
-                                                             @RequestParam Date date) {
+                                                             @RequestParam String date) {
         if(offset < 0 || limit <= 0 || date == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

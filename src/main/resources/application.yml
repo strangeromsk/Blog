@@ -5,3 +5,4 @@ spring:
     username: root
     password: dfgIU987fmS
 spring.jpa.hibernate.ddl-auto: update
+spring.datasource.initialization-mode: always

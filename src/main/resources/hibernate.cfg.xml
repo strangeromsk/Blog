@@ -1,32 +1,32 @@
-<!DOCTYPE hibernate-configuration PUBLIC
-        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
-        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
-<hibernate-configuration>
-    <session-factory>
-        <!-- JDBC Database connection settings -->
-        <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
-        <property name="connection.url">jdbc:mysql://localhost:3306/tasklib?allowPublicKeyRetrieval=true</property>
-        <property name="connection.username">root</property>
-        <property name="connection.password">dfgIU987fmS</property>
-        <!-- JDBC connection pool settings ... using built-in test pool -->
-        <property name="connection.pool_size">10</property>
-        <!-- Select our SQL dialect -->
-        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
-        <!-- Echo the SQL to stdout -->
-        <property name="show_sql">true</property>
-        <!-- Set the current session context -->
-        <property name="current_session_context_class">thread</property>
-        <!-- Drop and re-create the database schema on startup -->
-        <property name="hbm2ddl.auto">create-drop</property>
+<!--<!DOCTYPE hibernate-configuration PUBLIC-->
+<!--        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"-->
+<!--        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">-->
+<!--<hibernate-configuration>-->
+<!--    <session-factory>-->
+<!--        &lt;!&ndash; JDBC Database connection settings &ndash;&gt;-->
+<!--        <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>-->
+<!--        <property name="connection.url">jdbc:mysql://localhost:3306/tasklib?allowPublicKeyRetrieval=true</property>-->
+<!--        <property name="connection.username">root</property>-->
+<!--        <property name="connection.password">dfgIU987fmS</property>-->
+<!--        &lt;!&ndash; JDBC connection pool settings ... using built-in test pool &ndash;&gt;-->
+<!--        <property name="connection.pool_size">10</property>-->
+<!--        &lt;!&ndash; Select our SQL dialect &ndash;&gt;-->
+<!--        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>-->
+<!--        &lt;!&ndash; Echo the SQL to stdout &ndash;&gt;-->
+<!--        <property name="show_sql">true</property>-->
+<!--        &lt;!&ndash; Set the current session context &ndash;&gt;-->
+<!--        <property name="current_session_context_class">thread</property>-->
+<!--        &lt;!&ndash; Drop and re-create the database schema on startup &ndash;&gt;-->
+<!--        <property name="hbm2ddl.auto">create-drop</property>-->
 
-        <mapping class="main.model.GlobalSetting"></mapping>
-        <mapping class="main.model.PostComment"></mapping>
-        <mapping class="main.model.PostVote"></mapping>
-        <mapping class="main.model.Tag"></mapping>
-        <mapping class="main.model.TagToPost"></mapping>
-        <mapping class="main.model.Post"></mapping>
-        <mapping class="main.model.User"></mapping>
+<!--        <mapping class="main.model.GlobalSetting"></mapping>-->
+<!--        <mapping class="main.model.PostComment"></mapping>-->
+<!--        <mapping class="main.model.PostVote"></mapping>-->
+<!--        <mapping class="main.model.Tag"></mapping>-->
+<!--        <mapping class="main.model.TagToPost"></mapping>-->
+<!--        <mapping class="main.model.Post"></mapping>-->
+<!--        <mapping class="main.model.User"></mapping>-->
 
-        <mapping class="PostsTableTest"></mapping>
-    </session-factory>
-</hibernate-configuration>
+<!--        <mapping class="PostsTableTest"></mapping>-->
+<!--    </session-factory>-->
+<!--</hibernate-configuration>-->
