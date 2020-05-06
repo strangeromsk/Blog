@@ -4,5 +4,5 @@ spring:
     url: jdbc:mysql://localhost:3306/tasklib?useSSL=false
     username: root
     password: dfgIU987fmS
-spring.jpa.hibernate.ddl-auto: update
+spring.jpa.hibernate.ddl-auto: create
 spring.datasource.initialization-mode: always

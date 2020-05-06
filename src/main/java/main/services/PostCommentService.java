@@ -17,7 +17,7 @@ public class PostCommentService {
         this.postCommentsRepository = postCommentsRepository;
     }
 
-    public CommentDtoById getCommentPostById(Long id){
-        return commentMapper.toDto(postCommentsRepository.getOne(id));
+    public CommentDtoById getCommentPostById(int id){
+        return commentMapper.toDto(postCommentsRepository.getPostCommentById(id));
     }
 }
