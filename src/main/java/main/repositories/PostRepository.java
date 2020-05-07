@@ -32,7 +32,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PagingAndSort
             " AND time < current_time", nativeQuery = true)
     Long countPost();
     @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
-            " AND time = :date", nativeQuery = true)
+            " AND time LIKE %:date%", nativeQuery = true)
     List<Post> findPostWithExactDate (Pageable pageable, @Param("date") String date);
     @Query(value = "SELECT * FROM posts JOIN tag2post ON posts.id=tag2post.post_id JOIN tags ON tags.id=tag2post.tag_id " +
             "WHERE posts.is_active = 1 AND posts.moderation_status = 'ACCEPTED' AND posts.time < current_time AND tags.name = :tag",nativeQuery = true)

@@ -2,9 +2,12 @@ package main.services;
 
 import main.DTO.PostDTOById.CommentDtoById;
 import main.mapper.CommentMapper;
+import main.model.PostComment;
 import main.repositories.PostCommentsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class PostCommentService {
@@ -17,7 +20,11 @@ public class PostCommentService {
         this.postCommentsRepository = postCommentsRepository;
     }
 
-    public CommentDtoById getCommentPostById(int id){
+    public List<PostComment> getCommentsByPostId (int id){
+        return postCommentsRepository.findPostCommentByPostId(id);
+    }
+
+    public CommentDtoById mapCommentPostById(int id){
         return commentMapper.toDto(postCommentsRepository.getPostCommentById(id));
     }
 }
