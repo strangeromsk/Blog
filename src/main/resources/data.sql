@@ -14,9 +14,9 @@ INSERT INTO tags (name) VALUES ('blabla');
 
 --INSERT posts
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
-(1, 1, 'ACCEPTED', 1, '2020-01-01 00:00:10', 'main page', 'blabla', 20);
+(1, 1, 'ACCEPTED', 1, '2020-01-01 00:00:10', 'main page', 'Sed ut perspiciatis unde omnis', 20);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
-(2, 1, 'ACCEPTED', 1, '2020-04-05 00:00:10', 'alalalala', 'blabla2', 1500);
+(2, 1, 'ACCEPTED', 1, '2020-04-05 00:00:10', 'alalalala', 'iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beata', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
 (3, 1, 'NEW', 1, '2020-10-01 00:00:10', 'tralalala', '11111blabla', 9000);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
@@ -42,13 +42,14 @@ INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, ti
 
 --INSERT tag2post
 INSERT INTO tag2post (post_id, tag_id) VALUES (1,1);
+--INSERT INTO tag2post (post_id, tag_id) VALUES (1,2);
 INSERT INTO tag2post (post_id, tag_id) VALUES (2,2);
 
 --INSERT post_comments
-INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (4, 1, 0, '2020-02-01 00:00:10', 'go f*ck urself');
-INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (3, 1, 0, '2020-10-03 00:00:10', 'dog gammit');
-INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (2, 2, 0, '2020-11-01 00:00:10', 'you damn fool');
-INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (1, 1, 0, '2020-10-01 00:00:10', 'dont shit yourself');
+INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (4, 1, 0, '2020-02-01 00:00:10', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.');
+INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (3, 1, 0, '2020-10-03 00:00:10', 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat');
+INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (2, 2, 0, '2020-11-01 00:00:10', 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur');
+INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (1, 1, 0, '2020-10-01 00:00:10', 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 --INSERT post_votes
 INSERT INTO post_votes (user_id, post_id, time, value) VALUES (4, 1, '2020-10-01 00:00:10', 1);

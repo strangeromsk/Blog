@@ -1,5 +1,6 @@
 package main.services;
 
+import main.DTO.CalendarDto.CalendarDto;
 import main.DTO.PostDTOById.PostDtoById;
 import main.mapper.PostMapper;
 import main.DTO.ModePostDto;
@@ -18,7 +19,7 @@ import static java.lang.Math.toIntExact;
 
 import javax.persistence.*;
 import javax.transaction.*;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,10 +42,12 @@ public class PostService {
         this.userService = userService;
     }
     public PostDto mapPost(Post post){
+        PostDto.disableMapper();
         return postMapper.toDto(post);
     }
 
     public PostDtoById mapPostById(Post post){
+        PostDto.disableMapper();
         return postMapper.toDtoById(post);
     }
 
@@ -54,11 +57,12 @@ public class PostService {
                     int commentCount = k.getPostComments().size();
                     long likes = k.getPostVotes().stream().filter(l->l.getValue() == 1).count();
                     long dislikes = k.getPostVotes().stream().filter(l->l.getValue() == -1).count();
-                    PostDto post = mapPost(k);
-                    post.setLikeCount(toIntExact(likes));
-                    post.setDislikeCount(toIntExact(dislikes));
-                    post.setCommentCount(commentCount);
-                    return post;
+                    PostDto postDto = mapPost(k);
+                    postDto.setLikeCount(toIntExact(likes));
+                    postDto.setDislikeCount(toIntExact(dislikes));
+                    postDto.setCommentCount(commentCount);
+                    postDto.setAnnounce(k.getText().substring(0, Math.min(k.getText().length(), 200)));
+                    return postDto;
                 })
                 .collect(Collectors.toList()));
         return postDtoView;
@@ -95,17 +99,12 @@ public class PostService {
     }
     @Transactional
     public PostDtoById populateVarsByPostId(int id) {
-        Query incrementQuery = entityManager.createQuery("UPDATE Post p SET viewCount = viewCount + 1 WHERE p.id =:id")
-                .setParameter("id", id);
-        incrementQuery.executeUpdate();
+        int count = entityManager.createQuery("UPDATE Post p SET viewCount = viewCount + 1 WHERE p.id =:id")
+                .setParameter("id", id).executeUpdate();
+
         Post post = postRepository.getPostById(id);
         PostDtoById postDtoById = mapPostById(post);
         List<PostComment> postCommentList = post.getPostComments();
-//        TypedQuery<Tag> query = entityManager.
-//                createQuery("SELECT t FROM Tag t, TagToPost tp, Post p " +
-//                        "WHERE t.id=tp.tagId AND p.id=tp.postId AND p.id=:postId", Tag.class)
-//                        .setParameter("postId",id);
-//        List<Tag> tagResultList = query.getResultList();
         List<Tag> tagResultList = post.getTagToPost().getTags();
         postDtoById.setCommentCount(postCommentList.size());
         postDtoById.setLikeCount(toIntExact(post.getPostVotes().stream()
@@ -118,6 +117,8 @@ public class PostService {
         postDtoById.setTags(tagResultList.stream()
                     .map(Tag::getName)
                     .collect(Collectors.toList()));
+        postDtoById.setAnnounce(post.getText()
+                .substring(0, Math.min(post.getText().length(), 200)));
         return postDtoById;
     }
 
@@ -141,4 +142,14 @@ public class PostService {
         }
         return populateDtoViewWithStream(postDtoView, list);
     }
+
+//    public CalendarDto populateCalendarVars(int year){
+//        Date date = null; // your date
+//        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"));
+//        cal.setTime(date);
+//        int year = cal.get(Calendar.YEAR);
+//        int month = cal.get(Calendar.MONTH);
+//        int day = cal.get(Calendar.DAY_OF_MONTH);
+//        return CalendarDto;
+//    }
 }

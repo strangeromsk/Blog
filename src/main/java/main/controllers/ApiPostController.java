@@ -3,29 +3,33 @@ package main.controllers;
 import main.DTO.ModePostDto;
 import main.DTO.PostDTOById.PostDtoById;
 import main.DTO.PostDtoView;
+import main.DTO.TagDto;
 import main.services.PostService;
+import main.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+@RequestMapping("/api")
 @RestController
 public class ApiPostController {
 
     @Autowired
     private PostService postService;
+    @Autowired
+    private TagService tagService;
 
-    @GetMapping(value = "/api/post")
+    @GetMapping(value = "/post")
     public ResponseEntity<PostDtoView> getAllPosts(@RequestParam int offset,
                                                    @RequestParam int limit,
                                                    @RequestParam ModePostDto mode) {
         return new ResponseEntity<>(postService.populateVars(offset, limit, mode), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/api/post/search")
+    @GetMapping(value = "/post/search")
     public ResponseEntity<PostDtoView> getSearchPosts(@RequestParam int offset,
                                                       @RequestParam int limit,
                                                       @RequestParam String query) {
@@ -35,7 +39,7 @@ public class ApiPostController {
         return new ResponseEntity<>(postService.populateSearchVars(offset, limit, query), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/api/post/{id}")
+    @GetMapping(value = "/post/{id}")
     public ResponseEntity<PostDtoById> getPostById(@PathVariable Integer id) {
         if(id == null || id < 0){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -53,7 +57,7 @@ public class ApiPostController {
         return new ResponseEntity<>(postService.populateVarsWithExactDate(offset, limit, date), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/api/post/byTag")
+    @GetMapping(value = "/post/byTag")
     public ResponseEntity<PostDtoView> getPostsWithTag(@RequestParam int offset,
                                                       @RequestParam int limit,
                                                       @RequestParam String tag) {
@@ -61,6 +65,11 @@ public class ApiPostController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(postService.populateTagVars(offset, limit, tag), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/post/tag")
+    public ResponseEntity<List<TagDto>> getTagsByQuery(@RequestParam String query) {
+        return new ResponseEntity<>(tagService.getTags(query), HttpStatus.OK);
     }
 
 //    @GetMapping(value = "/api/post/moderation")

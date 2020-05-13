@@ -1,13 +1,10 @@
 package main.model;
-
 import lombok.Data;
 import lombok.ToString;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Data
 

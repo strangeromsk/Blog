@@ -25,5 +25,3 @@ public class Main {
         return mapper;
     }
 }
-//Error Code: 1452. Cannot add or update a child row: a foreign key constraint fails
-// (`tasklib`.`posts`, CONSTRAINT `FK5merodn2sptppbj8dq9e78em1` FOREIGN KEY (`id`) REFERENCES `tag2post` (`post_id`))

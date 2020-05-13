@@ -18,6 +18,6 @@ public class PostCommentService {
     }
 
     public CommentDtoById mapCommentPostById(int id){
-        return commentMapper.toDto(postCommentsRepository.getPostCommentById(id));
+        return commentMapper.toDto(postCommentsRepository.getOne(id));
     }
 }
