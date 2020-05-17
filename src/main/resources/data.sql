@@ -11,16 +11,17 @@ VALUES (0, '2020-01-01 00:00:10', 'Egor', 'egor@example.com', '123232323dfsfdsf'
 --INSERT tags
 INSERT INTO tags (name) VALUES ('bla');
 INSERT INTO tags (name) VALUES ('blabla');
+INSERT INTO tags (name) VALUES ('blablabla');
 
 --INSERT posts
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
-(1, 1, 'ACCEPTED', 1, '2020-01-01 00:00:10', 'main page', 'Sed ut perspiciatis unde omnis', 20);
+(1, 1, 'ACCEPTED', 1, '2020-02-01 00:00:10', 'main page', 'Sed ut perspiciatis unde omnis', 20);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
-(2, 1, 'ACCEPTED', 1, '2020-04-05 00:00:10', 'alalalala', 'iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beata', 1500);
+(2, 1, 'ACCEPTED', 1, '2020-04-05 00:00:10', 'alalalala', 'iste natus error sit voluptatem accusantium doloresi architecto beata', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
 (3, 1, 'NEW', 1, '2020-10-01 00:00:10', 'tralalala', '11111blabla', 9000);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
-(4, 1, 'ACCEPTED', 1, '2020-01-01 00:00:10', 'main234324 page', 'bla234324bla', 2005);
+(4, 1, 'ACCEPTED', 1, '2020-03-21 00:00:10', 'main234324 page', 'bla234324bla', 2005);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
 (1, 1, 'DECLINED', 1, '2020-01-02 00:00:10', 'main page', 'blabla', 20);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
@@ -30,20 +31,25 @@ INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, ti
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
 (4, 1, 'ACCEPTED', 1, '2020-07-01 00:00:10', 'main234324 page', 'bla234324bla', 2005);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
-(1, 1, 'ACCEPTED', 1, '2020-01-01 00:00:10', 'main page', 'blabla', 20);
+(1, 1, 'ACCEPTED', 1, '2019-09-01 00:00:10', 'main page', 'blabla', 20);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
-(2, 1, 'ACCEPTED', 1, '2020-05-05 00:00:10', 'alalalala', 'blabla2', 1500);
+(2, 1, 'ACCEPTED', 1, '2019-05-05 00:00:10', 'alalalala', 'blabla2', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
-(3, 0, 'NEW', 1, '2020-12-01 00:00:10', 'tralalala', '11111blabla', 9000);
+(3, 0, 'NEW', 1, '2020-10-01 00:00:10', 'tralalala', '11111blabla', 9000);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
 (4, 1, 'DECLINED', 1, '2020-11-21 00:00:10', 'main234324 page', 'bla234324bla', 2005);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
-(2, 1, 'ACCEPTED', 1, '2020-05-05 00:00:10', 'alalalala', 'blabla20000', 1500);
+(2, 1, 'ACCEPTED', 1, '2018-05-05 00:00:10', 'alalalala', 'blabla20000', 1500);
+INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
+(2, 1, 'ACCEPTED', 1, '2020-05-05 00:00:10', 'alala121lala', 'blabla2', 1500);
+INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
+(2, 1, 'ACCEPTED', 1, '2020-05-05 00:00:10', 'alalala12la', 'blab222la2', 1500);
 
 --INSERT tag2post
 INSERT INTO tag2post (post_id, tag_id) VALUES (1,1);
---INSERT INTO tag2post (post_id, tag_id) VALUES (1,2);
+INSERT INTO tag2post (post_id, tag_id) VALUES (1,2);
 INSERT INTO tag2post (post_id, tag_id) VALUES (2,2);
+INSERT INTO tag2post (post_id, tag_id) VALUES (2,1);
 
 --INSERT post_comments
 INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (4, 1, 0, '2020-02-01 00:00:10', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.');

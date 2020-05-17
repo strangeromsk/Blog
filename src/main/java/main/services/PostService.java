@@ -1,7 +1,7 @@
 package main.services;
 
 import main.DTO.CalendarDto.CalendarDto;
-import main.DTO.PostDTOById.PostDtoById;
+import main.DTO.PostDtoById.PostDtoById;
 import main.mapper.PostMapper;
 import main.DTO.ModePostDto;
 import main.DTO.PostDto;
@@ -9,15 +9,16 @@ import main.DTO.PostDtoView;
 import main.model.Post;
 import main.model.PostComment;
 import main.model.Tag;
+import main.model.TagToPost;
 import main.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import static java.lang.Math.toDegrees;
 import static java.lang.Math.toIntExact;
 
-import javax.persistence.*;
 import javax.transaction.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,9 +30,6 @@ public class PostService {
     private final PostMapper postMapper;
     private final PostCommentService postCommentService;
     private final UserService userService;
-
-    @PersistenceContext
-    EntityManager entityManager;
 
     @Autowired
     public PostService(PostRepository postRepository, PostMapper postMapper,
@@ -99,13 +97,21 @@ public class PostService {
     }
     @Transactional
     public PostDtoById populateVarsByPostId(int id) {
-        int count = entityManager.createQuery("UPDATE Post p SET viewCount = viewCount + 1 WHERE p.id =:id")
-                .setParameter("id", id).executeUpdate();
+        postRepository.updateViewCount(id);
 
         Post post = postRepository.getPostById(id);
         PostDtoById postDtoById = mapPostById(post);
         List<PostComment> postCommentList = post.getPostComments();
-        List<Tag> tagResultList = post.getTagToPost().getTags();
+        //List<Tag> tagResultList = post.getTagToPost().getTags();
+        List<TagToPost> tagToPost = post.getTagToPosts();
+        List<Tag> tagResultList = new ArrayList<>();
+        if (tagToPost != null) {
+            tagResultList = post.getTagToPosts()
+                    .stream()
+                    .map(TagToPost::getTag)
+                    .collect(Collectors.toList());
+        }
+
         postDtoById.setCommentCount(postCommentList.size());
         postDtoById.setLikeCount(toIntExact(post.getPostVotes().stream()
                     .filter(e->e.getValue() == 1).count()));
@@ -143,13 +149,14 @@ public class PostService {
         return populateDtoViewWithStream(postDtoView, list);
     }
 
-//    public CalendarDto populateCalendarVars(int year){
-//        Date date = null; // your date
-//        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"));
-//        cal.setTime(date);
-//        int year = cal.get(Calendar.YEAR);
-//        int month = cal.get(Calendar.MONTH);
-//        int day = cal.get(Calendar.DAY_OF_MONTH);
-//        return CalendarDto;
-//    }
+    public CalendarDto populateCalendarVars(int year){
+        CalendarDto calendarDto = new CalendarDto();
+        List<Post> posts = postRepository.getPostsByYears(year);
+        Map<Date, Long> postsMap = posts.stream()
+                .collect(Collectors.groupingBy(Post::getTime, Collectors.counting()));
+
+        calendarDto.setPosts(postsMap);
+        calendarDto.setYears(postRepository.getPostsAllYears(year));
+        return calendarDto;
+    }
 }

@@ -1,6 +1,6 @@
 package main.mapper;
 
-import main.DTO.PostDTOById.CommentDtoById;
+import main.DTO.PostDtoById.CommentDtoById;
 import main.model.PostComment;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
 package main.services;
 
-import main.DTO.PostDTOById.UserDtoById;
+import main.DTO.PostDtoById.UserDtoById;
 import main.mapper.UserMapper;
 import main.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

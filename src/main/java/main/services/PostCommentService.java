@@ -1,6 +1,6 @@
 package main.services;
 
-import main.DTO.PostDTOById.CommentDtoById;
+import main.DTO.PostDtoById.CommentDtoById;
 import main.mapper.CommentMapper;
 import main.repositories.PostCommentsRepository;
 import org.springframework.beans.factory.annotation.Autowired;

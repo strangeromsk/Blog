@@ -28,7 +28,10 @@ public class TagService {
             list = tagsRepository.findTagsByQuery(query);
         }
         return list.stream().map(e->{
-            long postsCountByTag = e.getTagToPost().getPosts().size();
+            long postsCountByTag = e.getTagToPosts()
+                    .stream()
+                    .mapToLong(d->d.getTag().getId())
+                    .sum();
             long allPostsCount = postRepository.count();
             double weight = (double)(postsCountByTag / allPostsCount);
 

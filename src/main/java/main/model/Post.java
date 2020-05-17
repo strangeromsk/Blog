@@ -28,9 +28,20 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
     private User user;
 
-    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "post_id", nullable = false, insertable = false, updatable = false)
-    private TagToPost tagToPost;
+//    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+//    @JoinColumn(name = "id", referencedColumnName = "post_id", nullable = false, insertable = false, updatable = false)
+//    private TagToPost tagToPost;
+
+//    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JoinTable(
+//            name = "tag2post",
+//            joinColumns = {@JoinColumn(name = "post_id")},
+//            inverseJoinColumns = {@JoinColumn(name = "id")}
+//    )
+//    private List<TagToPost> tagToPost;
+
+    @OneToMany(mappedBy = "post")
+    List<TagToPost> tagToPosts;
 
     @Id
     @NotNull

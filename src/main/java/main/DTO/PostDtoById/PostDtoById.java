@@ -1,4 +1,4 @@
-package main.DTO.PostDTOById;
+package main.DTO.PostDtoById;
 
 import lombok.Data;
 

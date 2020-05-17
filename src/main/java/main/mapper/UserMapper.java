@@ -1,6 +1,6 @@
 package main.mapper;
 
-import main.DTO.PostDTOById.UserDtoById;
+import main.DTO.PostDtoById.UserDtoById;
 import main.DTO.UserDto;
 import main.model.User;
 import org.modelmapper.ModelMapper;

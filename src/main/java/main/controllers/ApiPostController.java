@@ -1,7 +1,7 @@
 package main.controllers;
 
 import main.DTO.ModePostDto;
-import main.DTO.PostDTOById.PostDtoById;
+import main.DTO.PostDtoById.PostDtoById;
 import main.DTO.PostDtoView;
 import main.DTO.TagDto;
 import main.services.PostService;
@@ -47,7 +47,7 @@ public class ApiPostController {
         return new ResponseEntity<>(postService.populateVarsByPostId(id), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/api/post/byDate")
+    @GetMapping(value = "/post/byDate")
     public ResponseEntity<PostDtoView> getPostsWithExactDate(@RequestParam int offset,
                                                              @RequestParam int limit,
                                                              @RequestParam String date) {

@@ -1,12 +1,13 @@
 package main.DTO.CalendarDto;
 
 import lombok.Data;
-import main.model.Post;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class CalendarDto {
-    List<Integer> listYears;
-    List<Post> posts;
+    List<Integer> years;
+    Map<Date, Long> posts;
 }

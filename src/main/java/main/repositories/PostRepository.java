@@ -3,6 +3,7 @@ package main.repositories;
 import main.model.Post;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -50,4 +51,11 @@ public interface PostRepository extends JpaRepository<Post, Long>, PagingAndSort
     @Query(value = "SELECT COUNT(*) FROM posts JOIN tag2post ON posts.id=tag2post.post_id JOIN tags ON tags.id=tag2post.tag_id" +
             " WHERE posts.is_active = 1 AND posts.moderation_status = 'ACCEPTED' AND posts.time < current_time AND tags.name = :tag", nativeQuery = true)
     Long countPostWithTag(@Param("tag") String tag);
+    @Modifying
+    @Query(value = "UPDATE posts SET view_count = view_count + 1 WHERE id = :id", nativeQuery = true)
+    void updateViewCount(@Param("id") int id);
+    @Query(value = "SELECT * FROM posts WHERE YEAR(time) = :year",nativeQuery = true)
+    List<Post> getPostsByYears (@Param("year") int year);
+    @Query(value = "SELECT YEAR(time) FROM posts WHERE YEAR(time) >= :year GROUP BY YEAR(time) ORDER BY YEAR(time) DESC",nativeQuery = true)
+    List<Integer> getPostsAllYears (@Param("year") int year);
 }
