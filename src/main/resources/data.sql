@@ -7,6 +7,8 @@ INSERT INTO users (is_moderator, reg_time, name, email, password, code, photo)
 VALUES (0, '2019-01-01 00:00:10', 'Petr', 'petr@example.com', '123fsfdsf', '111331', 'dsfsd33fsdf.img');
 INSERT INTO users (is_moderator, reg_time, name, email, password, code, photo)
 VALUES (0, '2020-01-01 00:00:10', 'Egor', 'egor@example.com', '123232323dfsfdsf', '1111311', 'ds3332sdf.img');
+INSERT INTO users (is_moderator, reg_time, name, email, password, code, photo)
+VALUES (1, '2020-01-01 00:00:10', 'Arkadiy', 'arkasha@example.com', '123232323dfsfdsf', '1111311', 'ds3332sdf.img');
 
 --INSERT tags
 INSERT INTO tags (name) VALUES ('bla');
@@ -50,18 +52,21 @@ INSERT INTO tag2post (post_id, tag_id) VALUES (1,1);
 INSERT INTO tag2post (post_id, tag_id) VALUES (1,2);
 INSERT INTO tag2post (post_id, tag_id) VALUES (2,2);
 INSERT INTO tag2post (post_id, tag_id) VALUES (2,1);
+INSERT INTO tag2post (post_id, tag_id) VALUES (3,1);
+INSERT INTO tag2post (post_id, tag_id) VALUES (4,1);
 
 --INSERT post_comments
 INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (4, 1, 0, '2020-02-01 00:00:10', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.');
 INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (3, 1, 0, '2020-10-03 00:00:10', 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat');
-INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (2, 2, 0, '2020-11-01 00:00:10', 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur');
+INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (2, 3, 0, '2020-11-01 00:00:10', 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur');
 INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (1, 1, 0, '2020-10-01 00:00:10', 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+INSERT INTO post_comments (user_id, post_id, parent_id, time, text) VALUES (1, 3, 0, '2020-10-01 00:00:10', 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 --INSERT post_votes
 INSERT INTO post_votes (user_id, post_id, time, value) VALUES (4, 1, '2020-10-01 00:00:10', 1);
 INSERT INTO post_votes (user_id, post_id, time, value) VALUES (3, 1, '2020-10-01 00:11:10', 1);
 INSERT INTO post_votes (user_id, post_id, time, value) VALUES (2, 2, '2020-10-01 00:00:10', 1);
-INSERT INTO post_votes (user_id, post_id, time, value) VALUES (1, 3, '2020-10-01 00:00:10', -1);
+INSERT INTO post_votes (user_id, post_id, time, value) VALUES (1, 4, '2020-10-01 00:00:10', -1);
 INSERT INTO post_votes (user_id, post_id, time, value) VALUES (4, 1, '2020-10-01 00:00:10', 1);
 INSERT INTO post_votes (user_id, post_id, time, value) VALUES (3, 1, '2020-10-01 00:11:10', 1);
 INSERT INTO post_votes (user_id, post_id, time, value) VALUES (2, 2, '2020-10-01 00:00:10', 1);

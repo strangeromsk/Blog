@@ -20,6 +20,7 @@ public class ApiGeneralController {
     public ApiGeneralController(PostService postService) {
         this.postService = postService;
     }
+
     @GetMapping(value = "/api/calendar")
     public ResponseEntity<CalendarDto> getCalendar(@RequestParam int year) {
         if(String.valueOf(year).length() != 4){
@@ -30,7 +31,6 @@ public class ApiGeneralController {
             return new ResponseEntity<>(postService.populateCalendarVars(year), HttpStatus.OK);
         }
         return new ResponseEntity<>(postService.populateCalendarVars(year), HttpStatus.OK);
-
     }
 
 }

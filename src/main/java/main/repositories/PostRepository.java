@@ -58,4 +58,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, PagingAndSort
     List<Post> getPostsByYears (@Param("year") int year);
     @Query(value = "SELECT YEAR(time) FROM posts WHERE YEAR(time) >= :year GROUP BY YEAR(time) ORDER BY YEAR(time) DESC",nativeQuery = true)
     List<Integer> getPostsAllYears (@Param("year") int year);
+    @Query(value = "SELECT COUNT(*) FROM posts WHERE moderation_status = 'NEW'",nativeQuery = true)
+    Long countNewPostsToModerator ();
 }

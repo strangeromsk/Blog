@@ -2,6 +2,7 @@ package main.mapper;
 
 import main.DTO.PostDtoById.UserDtoById;
 import main.DTO.UserDto;
+import main.DTO.moderation.UserModerationDto;
 import main.model.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,5 +25,9 @@ public class UserMapper {
 
     public UserDtoById toDtoById(User user){
         return Objects.isNull(user) ? null : modelMapper.map(user, UserDtoById.class);
+    }
+
+    public UserModerationDto toDtoModeration(User user){
+        return Objects.isNull(user) ? null : modelMapper.map(user, UserModerationDto.class);
     }
 }
