@@ -1,14 +1,14 @@
---INSERT users
+--INSERT users, all passwords are 'password'
 INSERT INTO users (is_moderator, reg_time, name, email, password, code, photo)
-VALUES (0, '2020-01-01 00:00:10', 'Ivan', 'ivan@example.com', '123123dfsfdsf', '111111', 'dsfsdfsdf.img');
+VALUES (0, '2020-01-01 00:00:10', 'Ivan', 'ivan@example.com', '$2y$12$99Sc4oEyBLMXqdUxbExcnu3qdBdZRHh5bn.InU7xE5psl3JfH1qhe', '111111', 'dsfsdfsdf.img');
 INSERT INTO users (is_moderator, reg_time, name, email, password, code, photo)
-VALUES (0, '2020-04-04 00:00:10', 'Semen', 'semen@example.com', '123123dfeesfdsf', '11111', 'dsfsdfsdfe.img');
+VALUES (0, '2020-04-04 00:00:10', 'Semen', 'semen@example.com', '$2y$12$99Sc4oEyBLMXqdUxbExcnu3qdBdZRHh5bn.InU7xE5psl3JfH1qhe', '11111', 'dsfsdfsdfe.img');
 INSERT INTO users (is_moderator, reg_time, name, email, password, code, photo)
-VALUES (0, '2019-01-01 00:00:10', 'Petr', 'petr@example.com', '123fsfdsf', '111331', 'dsfsd33fsdf.img');
+VALUES (0, '2019-01-01 00:00:10', 'Petr', 'petr@example.com', '$2y$12$99Sc4oEyBLMXqdUxbExcnu3qdBdZRHh5bn.InU7xE5psl3JfH1qhe', '111331', 'dsfsd33fsdf.img');
 INSERT INTO users (is_moderator, reg_time, name, email, password, code, photo)
-VALUES (0, '2020-01-01 00:00:10', 'Egor', 'egor@example.com', '123232323dfsfdsf', '1111311', 'ds3332sdf.img');
+VALUES (0, '2020-01-01 00:00:10', 'Egor', 'egor@example.com', '$2y$12$99Sc4oEyBLMXqdUxbExcnu3qdBdZRHh5bn.InU7xE5psl3JfH1qhe', '1111311', 'ds3332sdf.img');
 INSERT INTO users (is_moderator, reg_time, name, email, password, code, photo)
-VALUES (1, '2020-01-01 00:00:10', 'Arkadiy', 'arkasha@example.com', '123232323dfsfdsf', '1111311', 'ds3332sdf.img');
+VALUES (1, '2020-01-01 00:00:10', 'Arkadiy', 'arkasha@example.com', '$2y$12$99Sc4oEyBLMXqdUxbExcnu3qdBdZRHh5bn.InU7xE5psl3JfH1qhe', '1111311', 'ds3332sdf.img');
 
 --INSERT tags
 INSERT INTO tags (name) VALUES ('bla');

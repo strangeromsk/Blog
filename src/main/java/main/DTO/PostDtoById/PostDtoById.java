@@ -1,5 +1,6 @@
 package main.DTO.PostDtoById;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.*;
@@ -7,6 +8,7 @@ import java.util.*;
 @Data
 public class PostDtoById {
     private long id;
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="dd-MM-yyyy hh:mm:ss")
     private Date time;
 
     private UserDtoById user = new UserDtoById();

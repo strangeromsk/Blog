@@ -56,8 +56,17 @@ public interface PostRepository extends JpaRepository<Post, Long>, PagingAndSort
     void updateViewCount(@Param("id") int id);
     @Query(value = "SELECT * FROM posts WHERE YEAR(time) = :year",nativeQuery = true)
     List<Post> getPostsByYears (@Param("year") int year);
-    @Query(value = "SELECT YEAR(time) FROM posts WHERE YEAR(time) >= :year GROUP BY YEAR(time) ORDER BY YEAR(time) DESC",nativeQuery = true)
-    List<Integer> getPostsAllYears (@Param("year") int year);
+    @Query(value = "SELECT YEAR(time) FROM posts GROUP BY YEAR(time) ORDER BY YEAR(time) DESC",nativeQuery = true)
+    List<Integer> getPostsAllYears ();
     @Query(value = "SELECT COUNT(*) FROM posts WHERE moderation_status = 'NEW'",nativeQuery = true)
     Long countNewPostsToModerator ();
+    @Query(value = "SELECT * FROM posts WHERE is_active = 0" +
+            " AND time < current_time ORDER BY time", nativeQuery = true)
+    List<Post> findInactivePosts (Pageable pageable);
+    @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'NEW'" +
+            " AND time < current_time ORDER BY time", nativeQuery = true)
+    List<Post> findPendingPosts (Pageable pageable);
+    @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'DECLINED'" +
+            " AND time < current_time ORDER BY time", nativeQuery = true)
+    List<Post> findDeclinedPosts (Pageable pageable);
 }

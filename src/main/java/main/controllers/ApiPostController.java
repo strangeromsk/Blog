@@ -9,6 +9,8 @@ import main.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -70,6 +72,24 @@ public class ApiPostController {
     @GetMapping(value = "/post/tag")
     public ResponseEntity<List<TagDto>> getTagsByQuery(@RequestParam String query) {
         return new ResponseEntity<>(tagService.getTags(query), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/post/my")
+    public ResponseEntity<PostDtoView> getMyPosts(@RequestParam int offset,
+                                                   @RequestParam int limit,
+                                                   @RequestParam ModePostDto mode) {
+        if(SecurityContextHolder.getContext().getAuthentication() == null &&
+                !SecurityContextHolder.getContext().getAuthentication().isAuthenticated() &&
+                //when Anonymous Authentication is enabled
+                (SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)){
+            return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
+        }
+//        String session = ((WebAuthenticationDetails) SecurityContextHolder
+//                .getContext().getAuthentication().getDetails()).getSessionId();
+//        if(session == null || session.equals("")){
+//            return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
+//        }
+        return new ResponseEntity<>(postService.populateMyVars(offset, limit, mode), HttpStatus.OK);
     }
 
 //    @GetMapping(value = "/api/post/moderation")

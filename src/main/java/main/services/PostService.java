@@ -11,9 +11,12 @@ import main.model.PostComment;
 import main.model.Tag;
 import main.model.TagToPost;
 import main.repositories.PostRepository;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Service;
 
 import static java.lang.Math.toIntExact;
@@ -58,7 +61,7 @@ public class PostService {
                     postDto.setLikeCount(toIntExact(likes));
                     postDto.setDislikeCount(toIntExact(dislikes));
                     postDto.setCommentCount(commentCount);
-                    postDto.setAnnounce(k.getText().substring(0, Math.min(k.getText().length(), 200)));
+                    postDto.setAnnounce(Jsoup.parse(k.getText().substring(0, Math.min(k.getText().length(), 200))).text());
                     return postDto;
                 })
                 .collect(Collectors.toList()));
@@ -101,7 +104,6 @@ public class PostService {
         Post post = postRepository.getPostById(id);
         PostDtoById postDtoById = mapPostById(post);
         List<PostComment> postCommentList = post.getPostComments();
-        //List<Tag> tagResultList = post.getTagToPost().getTags();
         List<TagToPost> tagToPost = post.getTagToPosts();
         List<Tag> tagResultList = new ArrayList<>();
         if (tagToPost != null) {
@@ -110,7 +112,6 @@ public class PostService {
                     .map(TagToPost::getTag)
                     .collect(Collectors.toList());
         }
-
         postDtoById.setCommentCount(postCommentList.size());
         postDtoById.setLikeCount(toIntExact(post.getPostVotes().stream()
                     .filter(e->e.getValue() == 1).count()));
@@ -122,8 +123,8 @@ public class PostService {
         postDtoById.setTags(tagResultList.stream()
                     .map(Tag::getName)
                     .collect(Collectors.toList()));
-        postDtoById.setAnnounce(post.getText()
-                .substring(0, Math.min(post.getText().length(), 200)));
+        postDtoById.setAnnounce(Jsoup.parse(post.getText()
+                .substring(0, Math.min(post.getText().length(), 200))).text());
         return postDtoById;
     }
 
@@ -155,7 +156,24 @@ public class PostService {
                 .collect(Collectors.groupingBy(Post::getTime, Collectors.counting()));
 
         calendarDto.setPosts(postsMap);
-        calendarDto.setYears(postRepository.getPostsAllYears(year));
+        calendarDto.setYears(postRepository.getPostsAllYears());
         return calendarDto;
+    }
+
+    public PostDtoView populateMyVars(int offset, int limit, ModePostDto mode){
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        PostDtoView postDtoView = new PostDtoView();
+        postDtoView.setCount(postRepository.countPost());
+        List<Post> list;
+        if(mode.equals(ModePostDto.inactive)){
+            list = postRepository.findInactivePosts(pageable);
+        }else if(mode.equals(ModePostDto.pending)){
+            list = postRepository.findPendingPosts(pageable);
+        }else if (mode.equals(ModePostDto.declined)){
+            list = postRepository.findDeclinedPosts(pageable);
+        }else {
+            list = postRepository.findPostByDateAsc(pageable);
+        }
+        return populateDtoViewWithStream(postDtoView, list);
     }
 }
