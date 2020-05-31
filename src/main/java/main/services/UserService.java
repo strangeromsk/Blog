@@ -1,9 +1,12 @@
 package main.services;
 
+import lombok.Getter;
+import lombok.Setter;
 import main.DTO.moderation.ResponseApi;
 import main.DTO.moderation.UserModerationDto;
 import main.mapper.UserMapper;
 import main.model.User;
+import main.repositories.CaptchaRepository;
 import main.repositories.PostRepository;
 import main.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,24 +17,32 @@ import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.Math.toIntExact;
 
 @Service
 public class UserService {
+    private final CaptchaService captchaService;
+    private final CaptchaRepository captchaRepository;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;
 
-    protected Map<String, Integer> sessionIds = new HashMap<>();
+    @Getter
+    @Setter
+    protected Map<String, Integer> sessionIds = new ConcurrentHashMap<>();
 
     public UserModerationDto mapUserModeration(User user){
         return userMapper.toDtoModeration(user);
     }
 
     @Autowired
-    public UserService(UserMapper userMapper, UserRepository userRepository, PostRepository postRepository, PasswordEncoder passwordEncoder) {
+    public UserService(CaptchaService captchaService, CaptchaRepository captchaRepository, UserMapper userMapper, UserRepository userRepository,
+                       PostRepository postRepository, PasswordEncoder passwordEncoder) {
+        this.captchaService = captchaService;
+        this.captchaRepository = captchaRepository;
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.postRepository = postRepository;
@@ -42,8 +53,8 @@ public class UserService {
 //        return userMapper.toDtoById(userRepository.getOne(id));
 //    }
 
-    public ResponseApi<UserModerationDto> populateUserOnLogin(String email, String password){
-        Optional<User> userOptional = userRepository.findByEmail(email);
+    public ResponseApi<UserModerationDto> populateUserOnLogin(String e_mail, String password){
+        Optional<User> userOptional = userRepository.findByEmail(e_mail);
         if(userOptional.isEmpty()){
             ResponseApi responseApi = ResponseApi.builder()
                     .result("false").build();
@@ -70,22 +81,17 @@ public class UserService {
 
     public ResponseApi<UserModerationDto> checkUserAuth(int id){
         ResponseApi responseApi;
-        if(sessionIds.containsValue(id)){
-            User user = userRepository.getOne(id);
-            UserModerationDto userModerationDto = mapUserModeration(user);
-            if(user.getIsModerator() == 1){
-                userModerationDto.setModeration(true);
-                userModerationDto.setSettings(true);
-            }
-            userModerationDto.setModerationCount(toIntExact(postRepository.countNewPostsToModerator()));
-            responseApi = ResponseApi.builder()
-                    .result("true")
-                    .user(userModerationDto)
-                    .build();
-        }else {
-            responseApi = ResponseApi.builder()
-                    .result("false").build();
+        User user = userRepository.getOne(id);
+        UserModerationDto userModerationDto = mapUserModeration(user);
+        if (user.getIsModerator() == 1) {
+            userModerationDto.setModeration(true);
+            userModerationDto.setSettings(true);
         }
+        userModerationDto.setModerationCount(toIntExact(postRepository.countNewPostsToModerator()));
+        responseApi = ResponseApi.builder()
+                .result("true")
+                .user(userModerationDto)
+                .build();
         return responseApi;
     }
 
@@ -122,9 +128,16 @@ public class UserService {
         return new ResponseApi().builder().result("true").build();
     }
 
-    public ResponseApi register(String email, String name, String password, String captcha, String secretCode){
+    public ResponseApi register(String email, String name, String password, String captcha, String secretCode, HttpServletRequest request){
         ResponseApi responseApi;
         HashMap<String, String> errors = new HashMap<>(4);
+        //captchaService.captchaGen(request);
+        //captcha = Arrays.toString(Base64.getDecoder().decode(captchaService.getBosToB64()));
+        //boolean captchaSecretMatch = passwordEncoder.matches(captcha,secretCode);
+//        String captchaEncodedBcrypt = passwordEncoder.encode(captcha);
+//        String captchaServer = captchaRepository.getCaptcha(captchaEncodedBcrypt);
+        boolean captchaEq = captcha.equals(captchaService.getCaptchaStr());
+
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isPresent()){
             User user = userOptional.get();
@@ -137,7 +150,7 @@ public class UserService {
             if(password.length() < 6){
                 errors.put("password", "Password is less than 6 symbols");
             }
-            if(!captcha.equals(secretCode)){
+            if(!captchaEq){
                 errors.put("captcha", "Captcha code is incorrect");
             }
             responseApi = ResponseApi.builder()
@@ -149,8 +162,8 @@ public class UserService {
             if(password.length() < 6){
                 errors.put("password", "Password is less than 6 symbols");
             }
-            if(!captcha.equals(secretCode)){
-                errors.put("captcha", "Captcha code is incorrect");
+            if(!captchaEq){
+                errors.put("captcha", "Captcha code is incorrect!");
             }
             responseApi = ResponseApi.builder()
                     .result("false").errors(errors).build();

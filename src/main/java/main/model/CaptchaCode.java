@@ -21,9 +21,10 @@ public class CaptchaCode {
     private Date time;
 
     @NotNull
+    @Column(length = 5000)
     private String code;
 
     @NotNull
-    @Column(name = "secret_code")
+    @Column(name = "secret_code", length = 5000)
     private String secretCode;
 }

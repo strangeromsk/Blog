@@ -4,13 +4,19 @@ import main.DTO.ModePostDto;
 import main.DTO.PostDtoById.PostDtoById;
 import main.DTO.PostDtoView;
 import main.DTO.TagDto;
+import main.DTO.moderation.PostDtoViewModeration;
+import main.model.Post;
+import main.model.User;
 import main.services.PostService;
 import main.services.TagService;
+import main.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +29,8 @@ public class ApiPostController {
     private PostService postService;
     @Autowired
     private TagService tagService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping(value = "/post")
     public ResponseEntity<PostDtoView> getAllPosts(@RequestParam int offset,
@@ -76,23 +84,31 @@ public class ApiPostController {
 
     @GetMapping(value = "/post/my")
     public ResponseEntity<PostDtoView> getMyPosts(@RequestParam int offset,
-                                                   @RequestParam int limit,
-                                                   @RequestParam ModePostDto mode) {
-        if(SecurityContextHolder.getContext().getAuthentication() == null &&
-                !SecurityContextHolder.getContext().getAuthentication().isAuthenticated() &&
-                //when Anonymous Authentication is enabled
-                (SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)){
-            return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
-        }
-//        String session = ((WebAuthenticationDetails) SecurityContextHolder
-//                .getContext().getAuthentication().getDetails()).getSessionId();
-//        if(session == null || session.equals("")){
+                                                    @RequestParam int limit,
+                                                    @RequestParam ModePostDto mode) {
+//        if(SecurityContextHolder.getContext().getAuthentication() == null &&
+//                !SecurityContextHolder.getContext().getAuthentication().isAuthenticated() &&
+//                //when Anonymous Authentication is enabled
+//                (SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)){
 //            return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
 //        }
-        return new ResponseEntity<>(postService.populateMyVars(offset, limit, mode), HttpStatus.OK);
+        String session = ((WebAuthenticationDetails) SecurityContextHolder
+                .getContext().getAuthentication().getDetails()).getSessionId();
+
+        if(session == null || session.equals("")){
+            return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
+        }
+        int sessionId = Integer.parseInt(session);
+        int userId = userService.getSessionIds().get(sessionId);
+        boolean userAuthorized = userService.getSessionIds().containsValue(userId);
+        if(userAuthorized){
+            return new ResponseEntity<>(postService.populateMyVars(userId, offset, limit, mode), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-//    @GetMapping(value = "/api/post/moderation")
+//    @GetMapping(value = "/post/moderation")
 //    public ResponseEntity<PostDtoViewModeration> getAllPostsWithModeration(@RequestParam int offset,
 //                                                                           @RequestParam int limit,
 //                                                                           @RequestParam Post.Status status) {

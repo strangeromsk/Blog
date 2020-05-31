@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long>, PagingAndSortingRepository<Post, Long> {
@@ -54,19 +55,22 @@ public interface PostRepository extends JpaRepository<Post, Long>, PagingAndSort
     @Modifying
     @Query(value = "UPDATE posts SET view_count = view_count + 1 WHERE id = :id", nativeQuery = true)
     void updateViewCount(@Param("id") int id);
-    @Query(value = "SELECT * FROM posts WHERE YEAR(time) = :year",nativeQuery = true)
-    List<Post> getPostsByYears (@Param("year") int year);
+    @Query(value = "SELECT CONCAT(YEAR(time), '-', MONTH(time), '-', DAY(time)) AS date, COUNT(*) FROM posts WHERE YEAR(time) = :year GROUP BY time ORDER BY COUNT(*) DESC",nativeQuery = true)
+    List<Map<String, Integer>> getPostsByYears (@Param("year") int year);
     @Query(value = "SELECT YEAR(time) FROM posts GROUP BY YEAR(time) ORDER BY YEAR(time) DESC",nativeQuery = true)
     List<Integer> getPostsAllYears ();
     @Query(value = "SELECT COUNT(*) FROM posts WHERE moderation_status = 'NEW'",nativeQuery = true)
     Long countNewPostsToModerator ();
     @Query(value = "SELECT * FROM posts WHERE is_active = 0" +
-            " AND time < current_time ORDER BY time", nativeQuery = true)
-    List<Post> findInactivePosts (Pageable pageable);
+            " AND time < current_time AND user_id = :id ORDER BY time", nativeQuery = true)
+    List<Post> findInactivePosts (Pageable pageable, @Param("id") int id);
     @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'NEW'" +
-            " AND time < current_time ORDER BY time", nativeQuery = true)
-    List<Post> findPendingPosts (Pageable pageable);
+            " AND time < current_time AND user_id = :id ORDER BY time", nativeQuery = true)
+    List<Post> findPendingPosts (Pageable pageable, @Param("id") int id);
     @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'DECLINED'" +
-            " AND time < current_time ORDER BY time", nativeQuery = true)
-    List<Post> findDeclinedPosts (Pageable pageable);
+            " AND time < current_time AND user_id = :id ORDER BY time", nativeQuery = true)
+    List<Post> findDeclinedPosts (Pageable pageable, @Param("id") int id);
+    @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
+            " AND time < current_time AND user_id = :id ORDER BY time", nativeQuery = true)
+    List<Post> findAcceptedPosts (Pageable pageable, @Param("id") int id);
 }
