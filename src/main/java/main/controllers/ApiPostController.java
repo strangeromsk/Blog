@@ -4,17 +4,14 @@ import main.DTO.ModePostDto;
 import main.DTO.PostDtoById.PostDtoById;
 import main.DTO.PostDtoView;
 import main.DTO.TagDto;
-import main.DTO.moderation.PostDtoViewModeration;
+import main.DTO.moderation.ResponseApi;
 import main.model.Post;
-import main.model.User;
 import main.services.PostService;
 import main.services.TagService;
 import main.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.bind.annotation.*;
@@ -108,13 +105,43 @@ public class ApiPostController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-//    @GetMapping(value = "/post/moderation")
-//    public ResponseEntity<PostDtoViewModeration> getAllPostsWithModeration(@RequestParam int offset,
-//                                                                           @RequestParam int limit,
-//                                                                           @RequestParam Post.Status status) {
-//        if(offset < 0 || limit <= 0 || !status.equals(Post.Status.NEW)){
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//        return new ResponseEntity<>(postService.populateVarsModeraton(offset, limit, status), HttpStatus.OK);
-//    }
+    @GetMapping(value = "/post/moderation")
+    public ResponseEntity<PostDtoView> getAllPostsWithModeration(@RequestParam int offset,
+                                                                 @RequestParam int limit,
+                                                                 @RequestParam Post.Status status) {
+        String session = ((WebAuthenticationDetails) SecurityContextHolder
+                .getContext().getAuthentication().getDetails()).getSessionId();
+
+        if(session == null || session.equals("")){
+            return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
+        }
+        int sessionId = Integer.parseInt(session);
+        int userId = userService.getSessionIds().get(sessionId);
+        boolean userAuthorized = userService.getSessionIds().containsValue(userId);
+        boolean isModerator = userService.isModerator(userId);
+        if(userAuthorized && isModerator){
+            return new ResponseEntity<>(postService.populateVarsModeration(userId, offset, limit, status), HttpStatus.OK);
+        }
+        if(offset < 0 || limit <= 0 || !status.equals(Post.Status.NEW)){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PostMapping(value = "/post")
+    public ResponseEntity<ResponseApi> makeNewPost(@RequestBody Post post) {
+        String session = ((WebAuthenticationDetails) SecurityContextHolder
+                .getContext().getAuthentication().getDetails()).getSessionId();
+
+        if(session == null || session.equals("")){
+            return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
+        }
+        int sessionId = Integer.parseInt(session);
+        int userId = userService.getSessionIds().get(sessionId);
+        boolean userAuthorized = userService.getSessionIds().containsValue(userId);
+        if(userAuthorized){
+            return new ResponseEntity<>(postService.makeNewPost(post), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
 }

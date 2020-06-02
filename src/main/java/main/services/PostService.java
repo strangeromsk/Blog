@@ -2,6 +2,8 @@ package main.services;
 
 import main.DTO.CalendarDto.CalendarDto;
 import main.DTO.PostDtoById.PostDtoById;
+import main.DTO.moderation.PostDtoViewModeration;
+import main.DTO.moderation.ResponseApi;
 import main.mapper.PostMapper;
 import main.DTO.ModePostDto;
 import main.DTO.PostDto;
@@ -17,7 +19,9 @@ import org.springframework.stereotype.Service;
 import static java.lang.Math.toIntExact;
 
 import javax.transaction.*;
+import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -152,7 +156,7 @@ public class PostService {
         postRepository.getPostsByYears(year).stream()
                 .forEach(map -> {
                     postsMap.putAll(map.entrySet().stream()
-                            .collect(Collectors.toMap(Map.Entry::getKey, entry -> (Integer) entry.getValue()))
+                            .collect(Collectors.toMap(entry ->  entry.getKey(), entry -> (Integer) entry.getValue()))
                     );
                 });
         calendarDto.setPosts(postsMap);
@@ -175,5 +179,41 @@ public class PostService {
             list = postRepository.findAcceptedPosts(pageable, userId);
         }
         return populateDtoViewWithStream(postDtoView, list);
+    }
+
+    public PostDtoView populateVarsModeration(int userId, int offset, int limit, Post.Status status) {
+        List<Post> list;
+        PostDtoView postDtoView = new PostDtoView();
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        postDtoView.setCount(postRepository.countPost());
+        if (status.equals(Post.Status.NEW)) {
+            list = postRepository.findPendingPosts(pageable, userId);
+        } else if (status.equals(Post.Status.ACCEPTED)) {
+            list = postRepository.findAcceptedPosts(pageable, userId);
+        } else {
+            list = postRepository.findDeclinedPosts(pageable, userId);
+        }
+        return populateDtoViewWithStream(postDtoView, list);
+    }
+
+    public ResponseApi makeNewPost(Post post){
+        Date postDate = post.getTime();
+        Date currentDate = new Date();
+        if(postDate.before(currentDate)){
+            post.setTime(currentDate);
+        }
+        HashMap<String, String> errors = new HashMap<>(4);
+        if(post.getTitle().length() <= 0){
+            errors.put("title", "Title is not set");
+        }
+        if(post.getText().length() <= 10){
+            errors.put("text", "Text is too short");
+        }
+        if(errors.size() == 0){
+            post.setStatus(Post.Status.NEW);
+            postRepository.save(post);
+            return ResponseApi.builder().result("true").build();
+        }
+        return ResponseApi.builder().result("false").errors(errors).build();
     }
 }

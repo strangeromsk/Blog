@@ -30,6 +30,10 @@ public class UserService {
     private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;
 
+    public boolean isModerator(int id){
+        return userRepository.getOne(id).getIsModerator() == 1;
+    }
+
     @Getter
     @Setter
     protected Map<String, Integer> sessionIds = new ConcurrentHashMap<>();
