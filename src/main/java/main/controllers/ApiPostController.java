@@ -1,10 +1,11 @@
 package main.controllers;
 
+import main.API.RequestApi;
 import main.DTO.ModePostDto;
 import main.DTO.PostDtoById.PostDtoById;
 import main.DTO.PostDtoView;
 import main.DTO.TagDto;
-import main.DTO.moderation.ResponseApi;
+import main.API.ResponseApi;
 import main.model.Post;
 import main.services.PostService;
 import main.services.TagService;
@@ -12,11 +13,10 @@ import main.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
 
-import java.util.List;
+import java.util.Optional;
 
 @RequestMapping("/api")
 @RestController
@@ -33,13 +33,17 @@ public class ApiPostController {
     public ResponseEntity<PostDtoView> getAllPosts(@RequestParam int offset,
                                                    @RequestParam int limit,
                                                    @RequestParam ModePostDto mode) {
+//        int offset = requestApi.getOffset();
+//        int limit = requestApi.getLimit();
+//        ModePostDto mode = requestApi.getMode();
         return new ResponseEntity<>(postService.populateVars(offset, limit, mode), HttpStatus.OK);
     }
 
     @GetMapping(value = "/post/search")
-    public ResponseEntity<PostDtoView> getSearchPosts(@RequestParam int offset,
-                                                      @RequestParam int limit,
-                                                      @RequestParam String query) {
+    public ResponseEntity<PostDtoView> getSearchPosts(@RequestBody RequestApi requestApi) {
+        int offset = requestApi.getOffset();
+        int limit = requestApi.getLimit();
+        String query = requestApi.getQuery();
         if(offset < 0 || limit <= 0){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -55,9 +59,10 @@ public class ApiPostController {
     }
 
     @GetMapping(value = "/post/byDate")
-    public ResponseEntity<PostDtoView> getPostsWithExactDate(@RequestParam int offset,
-                                                             @RequestParam int limit,
-                                                             @RequestParam String date) {
+    public ResponseEntity<PostDtoView> getPostsWithExactDate(@RequestBody RequestApi requestApi) {
+        int offset = requestApi.getOffset();
+        int limit = requestApi.getLimit();
+        String date = requestApi.getDate();
         if(offset < 0 || limit <= 0 || date == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -65,43 +70,28 @@ public class ApiPostController {
     }
 
     @GetMapping(value = "/post/byTag")
-    public ResponseEntity<PostDtoView> getPostsWithTag(@RequestParam int offset,
-                                                      @RequestParam int limit,
-                                                      @RequestParam String tag) {
+    public ResponseEntity<PostDtoView> getPostsWithTag(@RequestBody RequestApi requestApi) {
+        int offset = requestApi.getOffset();
+        int limit = requestApi.getLimit();
+        String tag = requestApi.getTag();
         if(offset < 0 || limit <= 0){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(postService.populateTagVars(offset, limit, tag), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/post/tag")
-    public ResponseEntity<List<TagDto>> getTagsByQuery(@RequestParam String query) {
-        return new ResponseEntity<>(tagService.getTags(query), HttpStatus.OK);
-    }
-
     @GetMapping(value = "/post/my")
     public ResponseEntity<PostDtoView> getMyPosts(@RequestParam int offset,
-                                                    @RequestParam int limit,
-                                                    @RequestParam ModePostDto mode) {
-//        if(SecurityContextHolder.getContext().getAuthentication() == null &&
-//                !SecurityContextHolder.getContext().getAuthentication().isAuthenticated() &&
-//                //when Anonymous Authentication is enabled
-//                (SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)){
-//            return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
-//        }
-        String session = ((WebAuthenticationDetails) SecurityContextHolder
-                .getContext().getAuthentication().getDetails()).getSessionId();
-
-        if(session == null || session.equals("")){
-            return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
+                                                  @RequestParam int limit,
+                                                  @RequestParam ModePostDto mode) {
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
+            if(userAuthorized){
+                return new ResponseEntity<>(postService.populateMyVars(userId.get(), offset, limit, mode), HttpStatus.OK);
+            }
         }
-        int sessionId = Integer.parseInt(session);
-        int userId = userService.getSessionIds().get(sessionId);
-        boolean userAuthorized = userService.getSessionIds().containsValue(userId);
-        if(userAuthorized){
-            return new ResponseEntity<>(postService.populateMyVars(userId, offset, limit, mode), HttpStatus.OK);
-        }
-
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
@@ -109,18 +99,14 @@ public class ApiPostController {
     public ResponseEntity<PostDtoView> getAllPostsWithModeration(@RequestParam int offset,
                                                                  @RequestParam int limit,
                                                                  @RequestParam Post.Status status) {
-        String session = ((WebAuthenticationDetails) SecurityContextHolder
-                .getContext().getAuthentication().getDetails()).getSessionId();
-
-        if(session == null || session.equals("")){
-            return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
-        }
-        int sessionId = Integer.parseInt(session);
-        int userId = userService.getSessionIds().get(sessionId);
-        boolean userAuthorized = userService.getSessionIds().containsValue(userId);
-        boolean isModerator = userService.isModerator(userId);
-        if(userAuthorized && isModerator){
-            return new ResponseEntity<>(postService.populateVarsModeration(userId, offset, limit, status), HttpStatus.OK);
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
+            boolean isModerator = userService.isModerator(userId.get());
+            if(userAuthorized && isModerator){
+                return new ResponseEntity<>(postService.populateVarsModeration(userId.get(), offset, limit, status), HttpStatus.OK);
+            }
         }
         if(offset < 0 || limit <= 0 || !status.equals(Post.Status.NEW)){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -130,17 +116,13 @@ public class ApiPostController {
 
     @PostMapping(value = "/post")
     public ResponseEntity<ResponseApi> makeNewPost(@RequestBody Post post) {
-        String session = ((WebAuthenticationDetails) SecurityContextHolder
-                .getContext().getAuthentication().getDetails()).getSessionId();
-
-        if(session == null || session.equals("")){
-            return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
-        }
-        int sessionId = Integer.parseInt(session);
-        int userId = userService.getSessionIds().get(sessionId);
-        boolean userAuthorized = userService.getSessionIds().containsValue(userId);
-        if(userAuthorized){
-            return new ResponseEntity<>(postService.makeNewPost(post), HttpStatus.OK);
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
+            if(userAuthorized){
+                return new ResponseEntity<>(postService.makeNewPost(post), HttpStatus.OK);
+            }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }

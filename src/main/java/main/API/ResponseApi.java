@@ -1,4 +1,4 @@
-package main.DTO.moderation;
+package main.API;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

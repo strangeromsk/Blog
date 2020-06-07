@@ -1,7 +1,7 @@
 package main.services;
 
 import lombok.Getter;
-import main.DTO.moderation.ResponseApi;
+import main.API.ResponseApi;
 import main.repositories.CaptchaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,12 +26,6 @@ public class CaptchaService {
         this.captchaRepository = captchaRepository;
         this.passwordEncoder = passwordEncoder;
     }
-    @Getter
-    private String captchaStr = null;
-    @Getter
-    private String captchaSecret = null;
-    @Getter
-    private String bosToB64 = null;
 
     public static String generateCaptchaTextMethod(int captchaLength)   {
         String saltChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -46,9 +40,11 @@ public class CaptchaService {
     @Transactional
     public ResponseApi captchaGen(HttpServletRequest request){
         String FILE_TYPE = "jpeg";
+        String captchaSecret = null;
+        String bosToB64 = null;
 
         try {
-            captchaStr = generateCaptchaTextMethod(6);
+            String captchaStr = generateCaptchaTextMethod(6);
             captchaSecret = passwordEncoder.encode(captchaStr);
 
             int width = 100;

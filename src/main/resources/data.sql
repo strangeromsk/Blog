@@ -72,7 +72,9 @@ INSERT INTO post_votes (user_id, post_id, time, value) VALUES (3, 1, '2020-10-01
 INSERT INTO post_votes (user_id, post_id, time, value) VALUES (2, 2, '2020-10-01 00:00:10', 1);
 
 --INSERT global_settings
-INSERT INTO global_settings (code, name, value) VALUES ('12', 'change identity', 1);
+INSERT INTO global_settings (code, name, value) VALUES ('1', 'MULTIUSER_MODE', 0);
+INSERT INTO global_settings (code, name, value) VALUES ('2', 'POST_PREMODERATION', 1);
+INSERT INTO global_settings (code, name, value) VALUES ('3', 'STATISTICS_IS_PUBLIC', 1);
 
 --INSERT captcha_codes
 INSERT INTO captcha_codes (time, code, secret_code) VALUES ('2020-10-01 00:00:10', '1234', 1);

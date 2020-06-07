@@ -56,7 +56,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PagingAndSort
     @Query(value = "UPDATE posts SET view_count = view_count + 1 WHERE id = :id", nativeQuery = true)
     void updateViewCount(@Param("id") int id);
     @Query(value = "SELECT CONCAT(YEAR(time), '-', MONTH(time), '-', DAY(time)) AS date, COUNT(*) FROM posts WHERE YEAR(time) = :year GROUP BY time ORDER BY COUNT(*) DESC",nativeQuery = true)
-    List<Map<String, Integer>> getPostsByYears (@Param("year") int year);
+    List<List> getPostsByYears (@Param("year") int year);
     @Query(value = "SELECT YEAR(time) FROM posts GROUP BY YEAR(time) ORDER BY YEAR(time) DESC",nativeQuery = true)
     List<Integer> getPostsAllYears ();
     @Query(value = "SELECT COUNT(*) FROM posts WHERE moderation_status = 'NEW'",nativeQuery = true)

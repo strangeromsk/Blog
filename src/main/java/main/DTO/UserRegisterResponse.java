@@ -1,10 +1,12 @@
 package main.DTO;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
 public class UserRegisterResponse {
-    private String e_mail;
+    @JsonProperty("e_mail")
+    private String email;
     private String password;
     private String name;
     private String captcha;

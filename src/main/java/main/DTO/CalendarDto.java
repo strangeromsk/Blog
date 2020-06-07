@@ -1,4 +1,4 @@
-package main.DTO.CalendarDto;
+package main.DTO;
 
 import lombok.Data;
 

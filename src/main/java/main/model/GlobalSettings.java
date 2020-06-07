@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "global_settings")
-public class GlobalSetting {
+public class GlobalSettings {
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)

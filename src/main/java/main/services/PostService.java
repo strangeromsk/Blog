@@ -1,9 +1,8 @@
 package main.services;
 
-import main.DTO.CalendarDto.CalendarDto;
+import main.DTO.CalendarDto;
 import main.DTO.PostDtoById.PostDtoById;
-import main.DTO.moderation.PostDtoViewModeration;
-import main.DTO.moderation.ResponseApi;
+import main.API.ResponseApi;
 import main.mapper.PostMapper;
 import main.DTO.ModePostDto;
 import main.DTO.PostDto;
@@ -21,7 +20,6 @@ import static java.lang.Math.toIntExact;
 import javax.transaction.*;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -152,13 +150,17 @@ public class PostService {
 
     public CalendarDto populateCalendarVars(int year) {
         CalendarDto calendarDto = new CalendarDto();
-        HashMap<String, Integer> postsMap = new HashMap<>();
-        postRepository.getPostsByYears(year).stream()
-                .forEach(map -> {
-                    postsMap.putAll(map.entrySet().stream()
-                            .collect(Collectors.toMap(entry ->  entry.getKey(), entry -> (Integer) entry.getValue()))
-                    );
-                });
+        Map<String, Integer> postsMap = new HashMap<>();
+        postRepository.getPostsByYears(year)
+                .stream()
+                .forEach(e-> postsMap.put((String) e.get(0), ((BigInteger) e.get(1)).intValue()));
+//        HashMap<String, Integer> postsMap = new HashMap<>();
+//        postRepository.getPostsByYears(year).stream()
+//                .forEach(map -> {
+//                    postsMap.putAll(map.entrySet().stream()
+//                            .collect(Collectors.toMap(entry ->  entry.getKey(), entry -> (Integer) entry.getValue()))
+//                    );
+//                });
         calendarDto.setPosts(postsMap);
         calendarDto.setYears(postRepository.getPostsAllYears());
         return calendarDto;

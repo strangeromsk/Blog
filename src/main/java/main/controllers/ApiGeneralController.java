@@ -1,31 +1,40 @@
 package main.controllers;
 
-import main.DTO.CalendarDto.CalendarDto;
-import main.DTO.moderation.ResponseApi;
+import main.API.RequestApi;
+import main.DTO.CalendarDto;
+import main.API.ResponseApi;
+import main.DTO.TagDto;
+import main.model.GlobalSettings;
 import main.model.User;
-import main.services.PostCommentService;
-import main.services.PostService;
+import main.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
 
 @RestController
+@RequestMapping("/api")
 public class ApiGeneralController {
     private final PostService postService;
+    private final TagService tagService;
+    private final UserService userService;
+    private final SettingsService settingsService;
     private final PostCommentService postCommentService;
+
     @Autowired
-    public ApiGeneralController(PostService postService, PostCommentService postCommentService) {
+    public ApiGeneralController(PostService postService, TagService tagService, UserService userService, SettingsService settingsService, PostCommentService postCommentService) {
         this.postService = postService;
+        this.tagService = tagService;
+        this.userService = userService;
+        this.settingsService = settingsService;
         this.postCommentService = postCommentService;
     }
 
-    @GetMapping(value = "/api/calendar")
+    @GetMapping(value = "/calendar")
     public ResponseEntity<CalendarDto> getCalendar(@RequestParam int year) {
         if(String.valueOf(year).length() != 4){
             Date date = new Date();
@@ -37,10 +46,44 @@ public class ApiGeneralController {
         return new ResponseEntity<>(postService.populateCalendarVars(year), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/api/comment")
-    public ResponseEntity<ResponseApi> makeNewComment(@AuthenticationPrincipal User user,
-                                                      int parentId, int postId, String text){
-        return new ResponseEntity<>(postCommentService.makeNewComment(user, parentId, postId, text), HttpStatus.OK);
+    @PostMapping(value = "/comment")
+    public ResponseEntity<ResponseApi> makeNewComment(int parentId, int postId, String text){
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
+            if(userAuthorized){
+                return new ResponseEntity<>(postCommentService.makeNewComment(userId.get(), parentId, postId, text), HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @GetMapping(value = "/tag")
+    public ResponseEntity<List<TagDto>> getTagsByQuery(@RequestBody RequestApi requestApi) {
+        String query = requestApi.getQuery();
+        return new ResponseEntity<>(tagService.getTags(query), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/settings")
+    public ResponseEntity<List<GlobalSettings>> getSettings() {
+        return settingsService.getSettings();
+    }
+
+    @PutMapping(value = "/settings")
+    public ResponseEntity changeSettings(@RequestParam Boolean multiuserMode,
+                                         @RequestParam Boolean postPremoderation,
+                                         @RequestParam Boolean statisticsIsPublic) {
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
+            boolean isModerator = userService.isModerator(userId.get());
+            if(userAuthorized && isModerator){
+                return settingsService.changeSettings(multiuserMode, postPremoderation, statisticsIsPublic);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 }
 

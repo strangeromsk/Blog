@@ -2,7 +2,7 @@ package main.services;
 
 import lombok.Getter;
 import lombok.Setter;
-import main.DTO.moderation.ResponseApi;
+import main.API.ResponseApi;
 import main.DTO.moderation.UserModerationDto;
 import main.mapper.UserMapper;
 import main.model.User;
@@ -10,6 +10,8 @@ import main.repositories.CaptchaRepository;
 import main.repositories.PostRepository;
 import main.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,7 +37,6 @@ public class UserService {
     }
 
     @Getter
-    @Setter
     protected Map<String, Integer> sessionIds = new ConcurrentHashMap<>();
 
     public UserModerationDto mapUserModeration(User user){
@@ -132,38 +133,27 @@ public class UserService {
         return new ResponseApi().builder().result("true").build();
     }
 
-    public ResponseApi register(String email, String name, String password, String captcha, String secretCode, HttpServletRequest request){
+    public ResponseEntity<ResponseApi> register(String email, String name, String password, String captcha, String secretCode, HttpServletRequest request){
         ResponseApi responseApi;
-        HashMap<String, String> errors = new HashMap<>(4);
-        //captchaService.captchaGen(request);
-        //captcha = Arrays.toString(Base64.getDecoder().decode(captchaService.getBosToB64()));
-        //boolean captchaSecretMatch = passwordEncoder.matches(captcha,secretCode);
-//        String captchaEncodedBcrypt = passwordEncoder.encode(captcha);
-//        String captchaServer = captchaRepository.getCaptcha(captchaEncodedBcrypt);
-        boolean captchaEq = captcha.equals(captchaService.getCaptchaStr());
+        int maxNameLength = 12;
+        int minNameLength = 3;
+        int minPasswordLength = 6;
+        Map<String, String> errors = new HashMap<>(4);
+        String captchaEncodedBcrypt = passwordEncoder.encode(captcha);
+        Optional<String> captchaServer = captchaRepository.getCaptchaBySecretCode(captchaEncodedBcrypt);
+        boolean captchaEq = captchaServer.isPresent();
 
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isPresent()){
-            User user = userOptional.get();
-            if(user.getEmail().equals(email)){
-                errors.put("email", "Email is already registered and/or incorrect");
-            }
-            if(user.getName().equals(name) || name.length() > 12 || name.length() < 3){
-                errors.put("name", "Name is incorrect");
-            }
-            if(password.length() < 6){
-                errors.put("password", "Password is less than 6 symbols");
-            }
-            if(!captchaEq){
-                errors.put("captcha", "Captcha code is incorrect");
-            }
+            errors.put("email", "Email is already registered and/or incorrect");
             responseApi = ResponseApi.builder()
                         .result("false").errors(errors).build();
+            return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
         }else {
-            if(name.length() > 12 || name.length() < 3){
+            if(name.length() > maxNameLength || name.length() < minNameLength){
                 errors.put("name", "Name is incorrect");
             }
-            if(password.length() < 6){
+            if(password.length() < minPasswordLength){
                 errors.put("password", "Password is less than 6 symbols");
             }
             if(!captchaEq){
@@ -182,8 +172,9 @@ public class UserService {
                 userRepository.save(user);
                 responseApi = ResponseApi.builder()
                         .result("true").build();
+                return new ResponseEntity<>(responseApi, HttpStatus.OK);
             }
         }
-        return responseApi;
+        return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
     }
 }
