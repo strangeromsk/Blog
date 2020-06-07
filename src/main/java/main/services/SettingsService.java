@@ -23,23 +23,23 @@ public class SettingsService {
         return new ResponseEntity<>(settingsRepository.findAll(), HttpStatus.OK);
     }
     @Transactional
-    public ResponseEntity changeSettings(Boolean multiuserMode, Boolean postPremoderation, Boolean statisticsIsPublic){
+    public ResponseEntity changeSettings(Integer multiuserMode, Integer postPremoderation, Integer statisticsIsPublic){
         if(multiuserMode != null){
-            if(multiuserMode.equals(true)){
+            if(multiuserMode == 1){
                 settingsRepository.updateMultiuserMode(1);
             }else{
                 settingsRepository.updateMultiuserMode(0);
             }
         }
         if(postPremoderation != null){
-            if(postPremoderation.equals(true)){
+            if(postPremoderation == 1){
                 settingsRepository.updatePostPremoderation(1);
             }else{
                 settingsRepository.updatePostPremoderation(0);
             }
         }
         if(statisticsIsPublic != null){
-            if(statisticsIsPublic.equals(true)){
+            if(statisticsIsPublic == 1){
                 settingsRepository.updateStatistics(1);
             }else{
                 settingsRepository.updateStatistics(0);

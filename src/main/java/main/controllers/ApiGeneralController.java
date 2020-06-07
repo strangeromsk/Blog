@@ -71,9 +71,9 @@ public class ApiGeneralController {
     }
 
     @PutMapping(value = "/settings")
-    public ResponseEntity changeSettings(@RequestParam Boolean multiuserMode,
-                                         @RequestParam Boolean postPremoderation,
-                                         @RequestParam Boolean statisticsIsPublic) {
+    public ResponseEntity changeSettings(@RequestParam Integer multiuserMode,
+                                         @RequestParam Integer postPremoderation,
+                                         @RequestParam Integer statisticsIsPublic) {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
