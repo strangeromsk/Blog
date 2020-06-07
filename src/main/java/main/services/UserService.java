@@ -141,8 +141,17 @@ public class UserService {
         Map<String, String> errors = new HashMap<>(4);
         String captchaEncodedBcrypt = passwordEncoder.encode(captcha);
         Optional<String> captchaServer = captchaRepository.getCaptchaBySecretCode(captchaEncodedBcrypt);
-        boolean captchaEq = captchaServer.isPresent();
-
+        boolean captchaExists = captchaServer.isPresent();
+        boolean captchaEq = false;
+        if(captchaExists){
+            captchaEq = captchaEncodedBcrypt.equals(captchaServer.get());
+        }
+        if(!captchaEq){
+            errors.put("captcha", "Captcha code is incorrect!");
+            responseApi = ResponseApi.builder()
+                    .result("false").errors(errors).build();
+            return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
+        }
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isPresent()){
             errors.put("email", "Email is already registered and/or incorrect");
