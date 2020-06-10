@@ -21,8 +21,4 @@ public class RequestApi {
     private String query;
     private String date;
     private String tag;
-
-    private Boolean multiuserMode;
-    private Boolean postPremoderation;
-    private Boolean statisticsIsPublic;
 }

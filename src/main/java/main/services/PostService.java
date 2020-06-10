@@ -13,6 +13,8 @@ import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import static java.lang.Math.toIntExact;
@@ -198,24 +200,26 @@ public class PostService {
         return populateDtoViewWithStream(postDtoView, list);
     }
 
-    public ResponseApi makeNewPost(Post post){
+    public ResponseEntity<ResponseApi> makeNewPost(Post post){
+        int mintTitleLength = 3;
+        int minTextLength = 50;
         Date postDate = post.getTime();
         Date currentDate = new Date();
         if(postDate.before(currentDate)){
             post.setTime(currentDate);
         }
         HashMap<String, String> errors = new HashMap<>(4);
-        if(post.getTitle().length() <= 0){
+        if(post.getTitle().length() <= mintTitleLength){
             errors.put("title", "Title is not set");
         }
-        if(post.getText().length() <= 10){
+        if(post.getText().length() <= minTextLength){
             errors.put("text", "Text is too short");
         }
         if(errors.size() == 0){
             post.setStatus(Post.Status.NEW);
             postRepository.save(post);
-            return ResponseApi.builder().result("true").build();
+            return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
         }
-        return ResponseApi.builder().result("false").errors(errors).build();
+        return new ResponseEntity<>(ResponseApi.builder().result("false").errors(errors).build(), HttpStatus.BAD_REQUEST);
     }
 }

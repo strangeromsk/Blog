@@ -73,4 +73,8 @@ public interface PostRepository extends JpaRepository<Post, Long>, PagingAndSort
     @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
             " AND time < current_time AND user_id = :id ORDER BY time", nativeQuery = true)
     List<Post> findAcceptedPosts (Pageable pageable, @Param("id") int id);
+    @Query(value = "SELECT * FROM posts WHERE user_id = :id", nativeQuery = true)
+    List<Post> findAllPostsByUserId (@Param("id") int id);
+    @Query(value = "SELECT * FROM posts", nativeQuery = true)
+    List<Post> findAllPosts ();
 }

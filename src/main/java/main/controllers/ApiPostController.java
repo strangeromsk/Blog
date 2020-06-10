@@ -121,7 +121,7 @@ public class ApiPostController {
         if(userId.isPresent()){
             boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
             if(userAuthorized){
-                return new ResponseEntity<>(postService.makeNewPost(post), HttpStatus.OK);
+                return postService.makeNewPost(post);
             }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

@@ -3,8 +3,10 @@ package main.services;
 import lombok.Getter;
 import lombok.Setter;
 import main.API.ResponseApi;
+import main.DTO.StatResponse;
 import main.DTO.moderation.UserModerationDto;
 import main.mapper.UserMapper;
+import main.model.Post;
 import main.model.User;
 import main.repositories.CaptchaRepository;
 import main.repositories.PostRepository;
@@ -185,5 +187,27 @@ public class UserService {
             }
         }
         return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
+    }
+
+    public StatResponse myStatistics(int userId){
+        List<Post> postsList = postRepository.findAllPostsByUserId(userId);
+        StatResponse statResponse = new StatResponse();
+        statResponse.setPostsCount(postsList.size());
+        statResponse.setLikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == 1)).count());
+        statResponse.setDislikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == -1)).count());
+        statResponse.setViewsCount(postsList.stream().map(Post::getViewCount).count());
+        statResponse.setFirstPublicationDate(postsList.stream().map(Post::getTime).max(Date::compareTo).get().toString());
+        return statResponse;
+    }
+
+    public StatResponse AllStatistics(){
+        List<Post> postsList = postRepository.findAllPosts();
+        StatResponse statResponse = new StatResponse();
+        statResponse.setPostsCount(postsList.size());
+        statResponse.setLikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == 1)).count());
+        statResponse.setDislikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == -1)).count());
+        statResponse.setViewsCount(postsList.stream().map(Post::getViewCount).count());
+        statResponse.setFirstPublicationDate(postsList.stream().map(Post::getTime).max(Date::compareTo).get().toString());
+        return statResponse;
     }
 }

@@ -1,5 +1,6 @@
 package main.services;
 
+import lombok.Getter;
 import main.model.GlobalSettings;
 import main.repositories.SettingsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,13 @@ import java.util.List;
 public class SettingsService {
     private final SettingsRepository settingsRepository;
 
+    @Getter
+    private int statIsPublic;
+
     @Autowired
     public SettingsService(SettingsRepository settingsRepository) {
         this.settingsRepository = settingsRepository;
+        statIsPublic = settingsRepository.getStatIsPublic();
     }
 
     public ResponseEntity<List<GlobalSettings>> getSettings(){

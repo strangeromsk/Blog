@@ -3,6 +3,7 @@ package main.controllers;
 import main.API.RequestApi;
 import main.DTO.CalendarDto;
 import main.API.ResponseApi;
+import main.DTO.StatResponse;
 import main.DTO.TagDto;
 import main.model.GlobalSettings;
 import main.model.User;
@@ -11,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -26,7 +29,8 @@ public class ApiGeneralController {
     private final PostCommentService postCommentService;
 
     @Autowired
-    public ApiGeneralController(PostService postService, TagService tagService, UserService userService, SettingsService settingsService, PostCommentService postCommentService) {
+    public ApiGeneralController(PostService postService, TagService tagService, UserService userService,
+                                SettingsService settingsService, PostCommentService postCommentService) {
         this.postService = postService;
         this.tagService = tagService;
         this.userService = userService;
@@ -81,6 +85,40 @@ public class ApiGeneralController {
             boolean isModerator = userService.isModerator(userId.get());
             if(userAuthorized && isModerator){
                 return settingsService.changeSettings(multiuserMode, postPremoderation, statisticsIsPublic);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PostMapping(value = "/image")
+    public String uploadImage(@RequestParam("file") MultipartFile file, ModelMap modelMap) {
+        modelMap.addAttribute("file", file);
+        //modelMap.getAttribute("")
+        return "fileUploadView";
+    }
+
+    @GetMapping(value = "/statistics/my")
+    public ResponseEntity<StatResponse> myStatistics(){
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
+            if(userAuthorized){
+                return new ResponseEntity<>(userService.myStatistics(userId.get()), HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @GetMapping(value = "/statistics/all")
+    public ResponseEntity<StatResponse> allStatistics(){
+        int statIsPublic = settingsService.getStatIsPublic();
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
+            if(userAuthorized && statIsPublic == 1){
+                return new ResponseEntity<>(userService.myStatistics(userId.get()), HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
