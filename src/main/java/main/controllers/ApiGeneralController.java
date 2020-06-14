@@ -3,6 +3,7 @@ package main.controllers;
 import main.API.RequestApi;
 import main.DTO.CalendarDto;
 import main.API.ResponseApi;
+import main.DTO.SettingsResponse;
 import main.DTO.StatResponse;
 import main.DTO.TagDto;
 import main.model.GlobalSettings;
@@ -64,27 +65,24 @@ public class ApiGeneralController {
     }
 
     @GetMapping(value = "/tag")
-    public ResponseEntity<List<TagDto>> getTagsByQuery(@RequestBody RequestApi requestApi) {
-        String query = requestApi.getQuery();
+    public ResponseEntity<List<TagDto>> getTagsByQuery(@RequestParam(required = false) String query) {
         return new ResponseEntity<>(tagService.getTags(query), HttpStatus.OK);
     }
 
     @GetMapping(value = "/settings")
-    public ResponseEntity<List<GlobalSettings>> getSettings() {
+    public ResponseEntity<SettingsResponse> getSettings() {
         return settingsService.getSettings();
     }
 
     @PutMapping(value = "/settings")
-    public ResponseEntity changeSettings(@RequestParam Integer multiuserMode,
-                                         @RequestParam Integer postPremoderation,
-                                         @RequestParam Integer statisticsIsPublic) {
+    public ResponseEntity changeSettings(@RequestBody SettingsResponse settingsResponse) {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
             boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
             boolean isModerator = userService.isModerator(userId.get());
             if(userAuthorized && isModerator){
-                return settingsService.changeSettings(multiuserMode, postPremoderation, statisticsIsPublic);
+                return settingsService.changeSettings(settingsResponse);
             }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -110,19 +108,19 @@ public class ApiGeneralController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @GetMapping(value = "/statistics/all")
-    public ResponseEntity<StatResponse> allStatistics(){
-        int statIsPublic = settingsService.getStatIsPublic();
-        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
-        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
-        if(userId.isPresent()){
-            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
-            if(userAuthorized && statIsPublic == 1){
-                return new ResponseEntity<>(userService.myStatistics(userId.get()), HttpStatus.OK);
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-    }
+//    @GetMapping(value = "/statistics/all")
+//    public ResponseEntity<StatResponse> allStatistics(){
+//        int statIsPublic = settingsService.getStatIsPublic();
+//        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+//        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+//        if(userId.isPresent()){
+//            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
+//            if(userAuthorized && statIsPublic == 1){
+//                return new ResponseEntity<>(userService.myStatistics(userId.get()), HttpStatus.OK);
+//            }
+//        }
+//        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+//    }
 }
 
 

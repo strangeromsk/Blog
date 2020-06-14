@@ -11,14 +11,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SettingsRepository extends JpaRepository<GlobalSettings, Integer> {
     @Modifying
-    @Query(value = "UPDATE global_settings SET value = :value WHERE name = MULTIUSER_MODE", nativeQuery = true)
-    void updateMultiuserMode(@Param("value") int value);
+    @Query(value = "UPDATE global_settings SET value = :value WHERE name = 'MULTIUSER_MODE'", nativeQuery = true)
+    void updateMultiuserMode(@Param("value") boolean value);
     @Modifying
-    @Query(value = "UPDATE global_settings SET value = :value WHERE name = POST_PREMODERATION", nativeQuery = true)
-    void updatePostPremoderation(@Param("value") int value);
+    @Query(value = "UPDATE global_settings SET value = :value WHERE name = 'POST_PREMODERATION'", nativeQuery = true)
+    void updatePostPremoderation(@Param("value") boolean value);
     @Modifying
-    @Query(value = "UPDATE global_settings SET value = :value WHERE name = STATISTICS_IS_PUBLIC", nativeQuery = true)
-    void updateStatistics(@Param("value") int value);
-    @Query(value = "SELECT value FROM global_settings WHERE name = STATISTICS_IS_PUBLIC", nativeQuery = true)
-    int getStatIsPublic();
+    @Query(value = "UPDATE global_settings SET value = :value WHERE name = 'STATISTICS_IS_PUBLIC'", nativeQuery = true)
+    void updateStatistics(@Param("value") boolean value);
 }

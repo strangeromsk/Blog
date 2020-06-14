@@ -22,5 +22,5 @@ public class GlobalSettings {
     private String name;
 
     @NotNull
-    private byte value;
+    private Boolean value;
 }

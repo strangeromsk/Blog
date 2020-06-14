@@ -73,9 +73,9 @@ public class PostService {
         PostDtoView postDtoView = new PostDtoView();
         postDtoView.setCount(postRepository.countPost());
         List<Post> list;
-        if (mode.equals(ModePostDto.recent)) {
+        if (mode.equals(ModePostDto.early)) {
             list = postRepository.findPostByDateAsc(pageable);
-        } else if (mode.equals(ModePostDto.early)) {
+        } else if (mode.equals(ModePostDto.recent)) {
             list = postRepository.findPostByDateDesc(pageable);
         } else if (mode.equals(ModePostDto.popular)) {
             list = postRepository.findPostByCommentCount(pageable);
@@ -156,13 +156,7 @@ public class PostService {
         postRepository.getPostsByYears(year)
                 .stream()
                 .forEach(e-> postsMap.put((String) e.get(0), ((BigInteger) e.get(1)).intValue()));
-//        HashMap<String, Integer> postsMap = new HashMap<>();
-//        postRepository.getPostsByYears(year).stream()
-//                .forEach(map -> {
-//                    postsMap.putAll(map.entrySet().stream()
-//                            .collect(Collectors.toMap(entry ->  entry.getKey(), entry -> (Integer) entry.getValue()))
-//                    );
-//                });
+        
         calendarDto.setPosts(postsMap);
         calendarDto.setYears(postRepository.getPostsAllYears());
         return calendarDto;

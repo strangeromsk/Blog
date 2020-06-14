@@ -15,9 +15,9 @@ public class ResponseApi<T> {
     private String result;
     private T user;
     private T errors;
-    private int id;
     private String secret;
     private String image;
+    private Integer id;
 
     public ResponseApi(String result) {
         this.result = result;

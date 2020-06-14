@@ -1,6 +1,7 @@
 package main.services;
 
 import lombok.Getter;
+import main.DTO.SettingsResponse;
 import main.model.GlobalSettings;
 import main.repositories.SettingsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,39 +16,51 @@ import java.util.List;
 public class SettingsService {
     private final SettingsRepository settingsRepository;
 
-    @Getter
-    private int statIsPublic;
-
     @Autowired
     public SettingsService(SettingsRepository settingsRepository) {
         this.settingsRepository = settingsRepository;
-        statIsPublic = settingsRepository.getStatIsPublic();
     }
 
-    public ResponseEntity<List<GlobalSettings>> getSettings(){
-        return new ResponseEntity<>(settingsRepository.findAll(), HttpStatus.OK);
+    public ResponseEntity<SettingsResponse> getSettings(){
+        List<GlobalSettings> globalSettings = settingsRepository.findAll();
+        SettingsResponse settingsResponse = new SettingsResponse();
+        globalSettings.forEach(e->{
+            if(e.getCode().equals("MULTIUSER_MODE")){
+                settingsResponse.setMultiUserMode(e.getValue());
+            }
+            if(e.getCode().equals("POST_PREMODERATION")){
+                settingsResponse.setPostPremoderation(e.getValue());
+            }
+            if(e.getCode().equals("STATISTICS_IS_PUBLIC")){
+                settingsResponse.setStatisticsIsPublic(e.getValue());
+            }
+        });
+        return new ResponseEntity<>(settingsResponse, HttpStatus.OK);
     }
     @Transactional
-    public ResponseEntity changeSettings(Integer multiuserMode, Integer postPremoderation, Integer statisticsIsPublic){
+    public ResponseEntity changeSettings(SettingsResponse settingsResponse){
+        Boolean multiuserMode = settingsResponse.getMultiUserMode();
+        Boolean postPremoderation = settingsResponse.getPostPremoderation();
+        Boolean statisticsIsPublic = settingsResponse.getStatisticsIsPublic();
         if(multiuserMode != null){
-            if(multiuserMode == 1){
-                settingsRepository.updateMultiuserMode(1);
+            if(multiuserMode.equals(true)){
+                settingsRepository.updateMultiuserMode(true);
             }else{
-                settingsRepository.updateMultiuserMode(0);
+                settingsRepository.updateMultiuserMode(false);
             }
         }
         if(postPremoderation != null){
-            if(postPremoderation == 1){
-                settingsRepository.updatePostPremoderation(1);
+            if(postPremoderation.equals(true)){
+                settingsRepository.updatePostPremoderation(true);
             }else{
-                settingsRepository.updatePostPremoderation(0);
+                settingsRepository.updatePostPremoderation(false);
             }
         }
         if(statisticsIsPublic != null){
-            if(statisticsIsPublic == 1){
-                settingsRepository.updateStatistics(1);
+            if(statisticsIsPublic.equals(true)){
+                settingsRepository.updateStatistics(true);
             }else{
-                settingsRepository.updateStatistics(0);
+                settingsRepository.updateStatistics(false);
             }
         }
         return new ResponseEntity(HttpStatus.OK);

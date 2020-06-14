@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import main.API.ResponseApi;
 import main.DTO.StatResponse;
+import main.DTO.UserRegisterResponse;
 import main.DTO.moderation.UserModerationDto;
 import main.mapper.UserMapper;
 import main.model.Post;
@@ -56,12 +57,8 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-//    public UserDtoById getUserById(Long id){
-//        return userMapper.toDtoById(userRepository.getOne(id));
-//    }
-
-    public ResponseApi<UserModerationDto> populateUserOnLogin(String e_mail, String password){
-        Optional<User> userOptional = userRepository.findByEmail(e_mail);
+    public ResponseApi<UserModerationDto> populateUserOnLogin(String email, String password){
+        Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isEmpty()){
             ResponseApi responseApi = ResponseApi.builder()
                     .result("false").build();
@@ -128,25 +125,27 @@ public class UserService {
     }
 
     public ResponseApi logout (int id){
-        String stringId = String.valueOf(id);
-        if(sessionIds.containsValue(id)){
-            sessionIds.entrySet().removeIf(entry -> (stringId.equals(entry.getValue())));
-        }
-        return new ResponseApi().builder().result("true").build();
+        sessionIds.entrySet().removeIf(entry -> (id == entry.getValue()));
+        return ResponseApi.builder().result("true").build();
     }
 
-    public ResponseEntity<ResponseApi> register(String email, String name, String password, String captcha, String secretCode, HttpServletRequest request){
+    public ResponseEntity<ResponseApi> register(UserRegisterResponse userRegisterResponse){
+        String email = userRegisterResponse.getEmail();
+        String name = userRegisterResponse.getName();
+        String password = userRegisterResponse.getPassword();
+        String captcha = userRegisterResponse.getCaptcha();
+        String secretCode = userRegisterResponse.getCaptchaSecret();
         ResponseApi responseApi;
         int maxNameLength = 12;
         int minNameLength = 3;
         int minPasswordLength = 6;
         Map<String, String> errors = new HashMap<>(4);
-        String captchaEncodedBcrypt = passwordEncoder.encode(captcha);
-        Optional<String> captchaServer = captchaRepository.getCaptchaBySecretCode(captchaEncodedBcrypt);
+
+        Optional<String> captchaServer = captchaRepository.getCaptchaBySecretCode(secretCode);
         boolean captchaExists = captchaServer.isPresent();
         boolean captchaEq = false;
         if(captchaExists){
-            captchaEq = captchaEncodedBcrypt.equals(captchaServer.get());
+            captchaEq = captcha.equals(captchaServer.get());
         }
         if(!captchaEq){
             errors.put("captcha", "Captcha code is incorrect!");
@@ -166,9 +165,6 @@ public class UserService {
             }
             if(password.length() < minPasswordLength){
                 errors.put("password", "Password is less than 6 symbols");
-            }
-            if(!captchaEq){
-                errors.put("captcha", "Captcha code is incorrect!");
             }
             responseApi = ResponseApi.builder()
                     .result("false").errors(errors).build();

@@ -17,6 +17,6 @@ public interface CaptchaRepository extends JpaRepository<CaptchaCode, Integer> {
     @Modifying
     @Query(value = "DELETE FROM captcha_codes WHERE time > (NOW() - INTERVAL 60 MINUTE)", nativeQuery = true)
     void deleteOlderThan60Minutes();
-    @Query(value = "SELECT * FROM captcha_codes WHERE secret_code = :secretCode", nativeQuery = true)
+    @Query(value = "SELECT code FROM captcha_codes WHERE secret_code = :secretCode", nativeQuery = true)
     Optional<String> getCaptchaBySecretCode(@Param("secretCode") String secretCode);
 }

@@ -54,20 +54,19 @@ public class ApiAuthController {
     @GetMapping(value = "/logout")
     public ResponseEntity<ResponseApi> logout() {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
-        int userId = userService.getSessionIds().get(session);
-        return new ResponseEntity<>(userService.logout(userId), HttpStatus.OK);
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
+            if(userAuthorized){
+                return new ResponseEntity<>(userService.checkUserAuth(userId.get()), HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
     }
 
     @PostMapping(value = "/register")
-    public ResponseEntity<ResponseApi> register(@RequestBody UserRegisterResponse userRegisterResponse,
-                                                       HttpServletRequest request) {
-        return userService.register(
-                userRegisterResponse.getEmail(),
-                userRegisterResponse.getPassword(),
-                userRegisterResponse.getPassword(),
-                userRegisterResponse.getCaptcha(),
-                userRegisterResponse.getCaptchaSecret(),
-                request);
+    public ResponseEntity<ResponseApi> register(@RequestBody UserRegisterResponse userRegisterResponse) {
+        return userService.register(userRegisterResponse);
     }
 
     @GetMapping(value = "/captcha")

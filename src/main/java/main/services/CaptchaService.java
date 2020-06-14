@@ -19,15 +19,13 @@ import java.util.Base64;
 @Service
 public class CaptchaService {
     private final CaptchaRepository captchaRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public CaptchaService(CaptchaRepository captchaRepository, PasswordEncoder passwordEncoder) {
+    public CaptchaService(CaptchaRepository captchaRepository) {
         this.captchaRepository = captchaRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
-    public static String generateCaptchaTextMethod(int captchaLength)   {
+    private String generateCaptchaTextMethod(int captchaLength)   {
         String saltChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         StringBuffer captchaStrBuffer = new StringBuffer();
         java.util.Random rnd = new java.util.Random();
@@ -42,10 +40,11 @@ public class CaptchaService {
         String FILE_TYPE = "jpeg";
         String captchaSecret = null;
         String bosToB64 = null;
+        String captchaStr = null;
 
         try {
-            String captchaStr = generateCaptchaTextMethod(6);
-            captchaSecret = passwordEncoder.encode(captchaStr);
+            captchaStr = generateCaptchaTextMethod(6);
+            captchaSecret = generateCaptchaTextMethod(16);
 
             int width = 100;
             int height = 35;
@@ -73,7 +72,7 @@ public class CaptchaService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        captchaRepository.updateCodes(bosToB64, captchaSecret);
+        captchaRepository.updateCodes(captchaStr, captchaSecret);
         captchaRepository.deleteOlderThan60Minutes();
         return ResponseApi.builder()
                 .secret(captchaSecret).image("data:image/jpeg;base64, " + bosToB64).build();
