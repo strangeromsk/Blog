@@ -7,6 +7,6 @@ import java.util.Map;
 
 @Data
 public class CalendarDto {
-    List<Integer> years;
+    List<String> years;
     Map<String, Integer> posts;
 }

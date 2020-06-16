@@ -150,15 +150,21 @@ public class PostService {
         return populateDtoViewWithStream(postDtoView, list);
     }
 
-    public CalendarDto populateCalendarVars(int year) {
+    public CalendarDto populateCalendarVars(Integer year) {
         CalendarDto calendarDto = new CalendarDto();
         Map<String, Integer> postsMap = new HashMap<>();
+        if(year == null || year == 0){
+            year = Calendar.getInstance().get(Calendar.YEAR);
+        }
         postRepository.getPostsByYears(year)
-                .stream()
                 .forEach(e-> postsMap.put((String) e.get(0), ((BigInteger) e.get(1)).intValue()));
-        
+        List<String> postsYearsList = postsMap.keySet()
+                .stream()
+                .map(e->e.substring(0,4))
+                .distinct()
+                .collect(Collectors.toList());
         calendarDto.setPosts(postsMap);
-        calendarDto.setYears(postRepository.getPostsAllYears());
+        calendarDto.setYears(postsYearsList);
         return calendarDto;
     }
 

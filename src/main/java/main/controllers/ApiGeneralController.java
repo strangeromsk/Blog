@@ -40,7 +40,7 @@ public class ApiGeneralController {
     }
 
     @GetMapping(value = "/calendar")
-    public ResponseEntity<CalendarDto> getCalendar(@RequestParam int year) {
+    public ResponseEntity<CalendarDto> getCalendar(@RequestParam(required = false) Integer year) {
         if(String.valueOf(year).length() != 4){
             Date date = new Date();
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"));
