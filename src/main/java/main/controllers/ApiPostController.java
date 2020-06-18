@@ -7,6 +7,7 @@ import main.DTO.PostDtoView;
 import main.DTO.TagDto;
 import main.API.ResponseApi;
 import main.model.Post;
+import main.model.User;
 import main.services.PostService;
 import main.services.TagService;
 import main.services.UserService;
@@ -119,9 +120,38 @@ public class ApiPostController {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
+            User user = userService.getUser(userId.get());
             boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
             if(userAuthorized){
-                return postService.makeNewPost(post);
+                return postService.makeNewPost(post, user);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PostMapping(value = "/post/like")
+    public ResponseEntity<ResponseApi> makeNewLike(@RequestBody RequestApi requestApi) {
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            User user = userService.getUser(userId.get());
+            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
+            if(userAuthorized){
+                return postService.makeNewLike(requestApi.getPostId(), user);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PostMapping(value = "/post/dislike")
+    public ResponseEntity<ResponseApi> makeNewDisLike(@RequestBody RequestApi requestApi) {
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            User user = userService.getUser(userId.get());
+            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
+            if(userAuthorized){
+                return postService.makeNewLike(requestApi.getPostId(), user);
             }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

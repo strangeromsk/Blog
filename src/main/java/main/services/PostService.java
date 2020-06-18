@@ -9,6 +9,7 @@ import main.DTO.PostDto;
 import main.DTO.PostDtoView;
 import main.model.*;
 import main.repositories.PostRepository;
+import main.repositories.PostVotesRepository;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -31,14 +32,16 @@ public class PostService {
     private final PostMapper postMapper;
     private final PostCommentService postCommentService;
     private final UserService userService;
+    private final PostVotesRepository postVotesRepository;
 
     @Autowired
     public PostService(PostRepository postRepository, PostMapper postMapper,
-                       PostCommentService postCommentService, UserService userService) {
+                       PostCommentService postCommentService, UserService userService, PostVotesRepository postVotesRepository) {
         this.postRepository = postRepository;
         this.postMapper = postMapper;
         this.postCommentService = postCommentService;
         this.userService = userService;
+        this.postVotesRepository = postVotesRepository;
     }
 
     public PostDto mapPost(Post post) {
@@ -199,8 +202,8 @@ public class PostService {
         }
         return populateDtoViewWithStream(postDtoView, list);
     }
-
-    public ResponseEntity<ResponseApi> makeNewPost(Post post){
+    @Transactional
+    public ResponseEntity<ResponseApi> makeNewPost(Post post, User user){
         int mintTitleLength = 3;
         int minTextLength = 50;
         Date postDate = post.getTime();
@@ -217,9 +220,56 @@ public class PostService {
         }
         if(errors.size() == 0){
             post.setStatus(Post.Status.NEW);
+            post.setUser(user);
+            post.setViewCount(0);
             postRepository.save(post);
             return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
         }
         return new ResponseEntity<>(ResponseApi.builder().result("false").errors(errors).build(), HttpStatus.BAD_REQUEST);
+    }
+    @Transactional
+    public ResponseEntity<ResponseApi> makeNewLike(int postId, User user){
+        Post post = postRepository.getPostById(postId);
+        int userId = user.getId();
+        Optional<PostVote> postVote = postVotesRepository.getLikeByUserAndPost(postId, userId);
+        if(postVote.isPresent()){
+            if(postVote.get().getValue() == 1){
+                return new ResponseEntity<>(ResponseApi.builder().result("false").build(), HttpStatus.OK);
+            }else {
+                postVotesRepository.save(postVote.get());
+                return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+            }
+        }else {
+            PostVote postVoteNew = new PostVote();
+            postVoteNew.setPost(post);
+            postVoteNew.setTime(new Date());
+            postVoteNew.setUser(user);
+            postVoteNew.setValue(1);
+            postVotesRepository.save(postVoteNew);
+            return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<ResponseApi> makeNewDisLike(int postId, User user){
+        Post post = postRepository.getPostById(postId);
+        int userId = user.getId();
+        Optional<PostVote> postVote = postVotesRepository.getLikeByUserAndPost(postId, userId);
+        if(postVote.isPresent()){
+            if(postVote.get().getValue() == -1){
+                return new ResponseEntity<>(ResponseApi.builder().result("false").build(), HttpStatus.OK);
+            }else {
+                postVotesRepository.save(postVote.get());
+                return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+            }
+        }else {
+            PostVote postVoteNew = new PostVote();
+            postVoteNew.setPost(post);
+            postVoteNew.setTime(new Date());
+            postVoteNew.setUser(user);
+            postVoteNew.setValue(-1);
+            postVotesRepository.save(postVoteNew);
+            return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+        }
     }
 }

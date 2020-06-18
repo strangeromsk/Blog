@@ -1,4 +1,5 @@
 package main.model;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.ToString;
 import javax.persistence.*;
@@ -25,28 +26,18 @@ public class Post {
     private List<PostVote> postVotes;
 
     @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-//    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-//    @JoinColumn(name = "id", referencedColumnName = "post_id", nullable = false, insertable = false, updatable = false)
-//    private TagToPost tagToPost;
-
-//    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    @JoinTable(
-//            name = "tag2post",
-//            joinColumns = {@JoinColumn(name = "post_id")},
-//            inverseJoinColumns = {@JoinColumn(name = "id")}
-//    )
-//    private List<TagToPost> tagToPost;
-
+    @ToString.Exclude
+    @Column(name = "tags")
     @OneToMany(mappedBy = "post")
     List<TagToPost> tagToPosts;
 
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private int id;
 
     @NotNull
     @Column(name = "is_active")
@@ -62,6 +53,7 @@ public class Post {
 
     @Basic
     @NotNull
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm")
     private Date time;
 
     @NotNull

@@ -57,6 +57,10 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public User getUser(int userId){
+        return userRepository.getOne(userId);
+    }
+
     public ResponseApi<UserModerationDto> populateUserOnLogin(String email, String password){
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isEmpty()){
