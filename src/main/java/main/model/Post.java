@@ -14,7 +14,7 @@ import java.util.List;
 public class Post {
 
     public enum Status{
-        NEW, ACCEPTED, DECLINED
+        NEW, ACCEPTED, DECLINED, declined, inactive, pending, published
     }
 
     @ToString.Exclude

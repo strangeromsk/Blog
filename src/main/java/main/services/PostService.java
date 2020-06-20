@@ -171,16 +171,16 @@ public class PostService {
         return calendarDto;
     }
 
-    public PostDtoView populateMyVars(int userId, int offset, int limit, ModePostDto mode) {
+    public PostDtoView populateMyVars(int userId, int offset, int limit, Post.Status status) {
         List<Post> list;
         PostDtoView postDtoView = new PostDtoView();
         Pageable pageable = PageRequest.of(offset / limit, limit);
         postDtoView.setCount(postRepository.countPost());
-        if (mode.equals(ModePostDto.inactive)) {
+        if (status.equals(Post.Status.inactive)) {
             list = postRepository.findInactivePosts(pageable, userId);
-        } else if (mode.equals(ModePostDto.pending)) {
+        } else if (status.equals(Post.Status.pending)) {
             list = postRepository.findPendingPosts(pageable, userId);
-        } else if (mode.equals(ModePostDto.declined)) {
+        } else if (status.equals(Post.Status.declined)) {
             list = postRepository.findDeclinedPosts(pageable, userId);
         } else {
             list = postRepository.findAcceptedPosts(pageable, userId);
@@ -188,17 +188,17 @@ public class PostService {
         return populateDtoViewWithStream(postDtoView, list);
     }
 
-    public PostDtoView populateVarsModeration(int userId, int offset, int limit, Post.Status status) {
+    public PostDtoView populateVarsModeration(int offset, int limit, String status) {
         List<Post> list;
         PostDtoView postDtoView = new PostDtoView();
         Pageable pageable = PageRequest.of(offset / limit, limit);
         postDtoView.setCount(postRepository.countPost());
-        if (status.equals(Post.Status.NEW)) {
-            list = postRepository.findPendingPosts(pageable, userId);
-        } else if (status.equals(Post.Status.ACCEPTED)) {
-            list = postRepository.findAcceptedPosts(pageable, userId);
+        if (status.equals("new")) {
+            list = postRepository.findPendingPostsModeration(pageable);
+        } else if (status.equals("accepted")) {
+            list = postRepository.findAcceptedPostsModeration(pageable);
         } else {
-            list = postRepository.findDeclinedPosts(pageable, userId);
+            list = postRepository.findDeclinedPostsModeration(pageable);
         }
         return populateDtoViewWithStream(postDtoView, list);
     }

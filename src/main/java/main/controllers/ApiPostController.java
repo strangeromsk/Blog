@@ -4,7 +4,6 @@ import main.API.RequestApi;
 import main.DTO.ModePostDto;
 import main.DTO.PostDtoById.PostDtoById;
 import main.DTO.PostDtoView;
-import main.DTO.TagDto;
 import main.API.ResponseApi;
 import main.model.Post;
 import main.model.User;
@@ -34,9 +33,6 @@ public class ApiPostController {
     public ResponseEntity<PostDtoView> getAllPosts(@RequestParam int offset,
                                                    @RequestParam int limit,
                                                    @RequestParam ModePostDto mode) {
-//        int offset = requestApi.getOffset();
-//        int limit = requestApi.getLimit();
-//        ModePostDto mode = requestApi.getMode();
         return new ResponseEntity<>(postService.populateVars(offset, limit, mode), HttpStatus.OK);
     }
 
@@ -84,13 +80,13 @@ public class ApiPostController {
     @GetMapping(value = "/post/my")
     public ResponseEntity<PostDtoView> getMyPosts(@RequestParam int offset,
                                                   @RequestParam int limit,
-                                                  @RequestParam ModePostDto mode) {
+                                                  @RequestParam Post.Status status) {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
             boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
             if(userAuthorized){
-                return new ResponseEntity<>(postService.populateMyVars(userId.get(), offset, limit, mode), HttpStatus.OK);
+                return new ResponseEntity<>(postService.populateMyVars(userId.get(), offset, limit, status), HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -99,17 +95,17 @@ public class ApiPostController {
     @GetMapping(value = "/post/moderation")
     public ResponseEntity<PostDtoView> getAllPostsWithModeration(@RequestParam int offset,
                                                                  @RequestParam int limit,
-                                                                 @RequestParam Post.Status status) {
+                                                                 @RequestParam String status) {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
             boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
             boolean isModerator = userService.isModerator(userId.get());
             if(userAuthorized && isModerator){
-                return new ResponseEntity<>(postService.populateVarsModeration(userId.get(), offset, limit, status), HttpStatus.OK);
+                return new ResponseEntity<>(postService.populateVarsModeration(offset, limit, status), HttpStatus.OK);
             }
         }
-        if(offset < 0 || limit <= 0 || !status.equals(Post.Status.NEW)){
+        if(offset < 0 || limit <= 0 || !status.equals("new")){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

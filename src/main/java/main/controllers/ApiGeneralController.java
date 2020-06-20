@@ -1,22 +1,19 @@
 package main.controllers;
 
-import main.API.RequestApi;
 import main.DTO.CalendarDto;
 import main.API.ResponseApi;
 import main.DTO.SettingsResponse;
 import main.DTO.StatResponse;
 import main.DTO.TagDto;
-import main.model.GlobalSettings;
-import main.model.User;
+import main.configuration.FileStorageProperties;
 import main.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.*;
 
@@ -28,15 +25,18 @@ public class ApiGeneralController {
     private final UserService userService;
     private final SettingsService settingsService;
     private final PostCommentService postCommentService;
+    private final FileStorageService fileStorageService;
 
     @Autowired
     public ApiGeneralController(PostService postService, TagService tagService, UserService userService,
-                                SettingsService settingsService, PostCommentService postCommentService) {
+                                SettingsService settingsService, PostCommentService postCommentService,
+                                FileStorageService fileStorageService) {
         this.postService = postService;
         this.tagService = tagService;
         this.userService = userService;
         this.settingsService = settingsService;
         this.postCommentService = postCommentService;
+        this.fileStorageService = fileStorageService;
     }
 
     @GetMapping(value = "/calendar")
@@ -88,11 +88,19 @@ public class ApiGeneralController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PostMapping(value = "/image")
-    public String uploadImage(@RequestParam("file") MultipartFile file, ModelMap modelMap) {
-        modelMap.addAttribute("file", file);
-        //modelMap.getAttribute("")
-        return "fileUploadView";
+    @PostMapping("/image")
+    public ResponseEntity<String> uploadFile(@RequestParam("image") MultipartFile file) {
+        String fileName = fileStorageService.storeFile(file);
+        String URIAndFilename = "/upload/" + fileName;
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
+            if(userAuthorized){
+                return new ResponseEntity<>(URIAndFilename, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping(value = "/statistics/my")

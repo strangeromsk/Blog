@@ -6,7 +6,9 @@ spring:
     password: dfgIU987fmS
 spring.jpa.hibernate.ddl-auto: create
 spring.datasource.initialization-mode: always
-spring.servlet.multipart.max-file-size: 1280KB
-spring.servlet.multipart.max-request-size: 1280KB
+spring.servlet.multipart.max-file-size: 20MB
+spring.servlet.multipart.max-request-size: 21MB
+spring.servlet.multipart.file-size-threshold: 2KB
 spring.servlet.multipart.enabled: true
-spring.servlet.multipart.location: ${java.io.tmpdir}
+file.upload-dir: resources/upload
+#spring.servlet.multipart.location: ${java.io.tmpdir}
