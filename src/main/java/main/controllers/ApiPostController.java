@@ -125,6 +125,20 @@ public class ApiPostController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
+    @PutMapping(value = "/post/{id}")
+    public ResponseEntity<ResponseApi> changePostById(@PathVariable Integer id, @RequestBody RequestApi post) {
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            User user = userService.getUser(userId.get());
+            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
+            if(userAuthorized){
+                return postService.changePost(id, post, user);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
     @PostMapping(value = "/post/like")
     public ResponseEntity<ResponseApi> makeNewLike(@RequestBody RequestApi requestApi) {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();

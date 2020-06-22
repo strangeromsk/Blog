@@ -1,5 +1,6 @@
 package main.API;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import main.DTO.ModePostDto;
 import main.model.Post;
+import main.model.TagToPost;
+
+import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -25,4 +30,11 @@ public class RequestApi {
     private String query;
     private String date;
     private String tag;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm")
+    private Date time;
+    private byte active;
+    private String title;
+    private List<String> tags;
+    private String text;
 }

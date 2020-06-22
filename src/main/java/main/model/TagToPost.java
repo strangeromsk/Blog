@@ -14,22 +14,8 @@ import java.util.List;
 @Entity
 @Table(name = "tag2post")
 public class TagToPost implements Serializable {
-
-//    @Id
-//    @NotNull
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Integer id;
-
     @EmbeddedId
     TagToPostKey id;
-
-//    @NotNull
-//    @Column(name = "post_id")
-//    private Integer postId;
-//
-//    @NotNull
-//    @Column(name = "tag_id")
-//    private Integer tagId;
 
     @ManyToOne
     @MapsId("post_id")
@@ -40,28 +26,4 @@ public class TagToPost implements Serializable {
     @MapsId("tag_id")
     @JoinColumn(name = "tag_id")
     Tag tag;
-
-//    @ManyToMany(mappedBy = "tagToPost")
-//    @JoinTable(
-//            name = "posts",
-//            joinColumns = {@JoinColumn(name = "id")},
-//            inverseJoinColumns = {@JoinColumn(name = "post_id")}
-//    )
-//    private List<Post> posts;
-
-//    @ManyToMany(mappedBy = "tagToPost")
-//    @JoinTable(
-//            name = "tags",
-//            joinColumns = {@JoinColumn(name = "id")},
-//            inverseJoinColumns = {@JoinColumn(name = "tag_id")}
-//    )
-//    private List<Tag> tags;
-
-//    @ToString.Exclude
-//    @OneToMany(mappedBy = "tagToPost", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<Tag> tags;
-//
-//    @ToString.Exclude
-//    @OneToMany(mappedBy = "tagToPost", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<Post> posts;
 }

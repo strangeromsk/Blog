@@ -11,9 +11,7 @@ import main.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class PostCommentService {
@@ -35,31 +33,29 @@ public class PostCommentService {
         return commentMapper.toDto(postCommentsRepository.getOne(id));
     }
 
-    public ResponseApi makeNewComment(int userId, int parentId, int postId, String text){
+    public ResponseApi makeNewComment(int userId, Integer parentId, Integer postId, String text){
         int minTextLength = 10;
         Map<String, String> errors = new HashMap<>(4);
-        PostComment postComment = new PostComment();
-        Post post = postRepository.getPostById(postId);
-        Integer commentId = postCommentsRepository.getOne(parentId).getId();
-        Integer postIdByComment = post.getId();
-
+        Optional<Post> post = Optional.ofNullable(postRepository.getPostById(postId));
+        //Optional<List<PostComment>> comments = Optional.ofNullable(post.getPostComments());
+        if(parentId == null){
+            errors.put("parent_id", "parent_id is incorrect");
+        }
+        if(post.isEmpty()){
+            errors.put("Post_id", "Post id is incorrect");
+        }
         if(text.length() < minTextLength){
             errors.put("text", "Text of comment is too short or does not exist");
         }
-        if(commentId == null){
-            errors.put("comment_id", "Comment id is incorrect");
-        }
-        if(postIdByComment == null){
-            errors.put("parent_id", "Parent id is incorrect");
-        }
-        if(errors.size() == 0){
+        if(errors.size() == 0 && post.isPresent()){
+            PostComment postComment = new PostComment();
             postComment.setUser(userRepository.getOne(userId));
             postComment.setTime(new Date());
             postComment.setText(text);
-            postComment.setPost(post);
+            postComment.setPost(post.get());
             postCommentsRepository.save(postComment);
-            return new ResponseApi().builder().id(postComment.getId()).build();
+            return ResponseApi.builder().id(postComment.getId()).build();
         }
-        return new ResponseApi().builder().result("false").errors(errors).build();
+        return ResponseApi.builder().result("false").errors(errors).build();
     }
 }

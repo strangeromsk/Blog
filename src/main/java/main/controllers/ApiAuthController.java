@@ -30,7 +30,7 @@ public class ApiAuthController {
 
     @PostMapping(value = "/login")
     public ResponseEntity<ResponseApi> authLogin(@RequestBody UserDto userDto) {
-        return new ResponseEntity<>(userService.populateUserOnLogin(userDto.getEmail(), userDto.getPassword()), HttpStatus.OK);
+        return userService.populateUserOnLogin(userDto.getEmail(), userDto.getPassword());
     }
 
     @GetMapping(value = "/check")
@@ -43,7 +43,7 @@ public class ApiAuthController {
                 return new ResponseEntity<>(userService.checkUserAuth(userId.get()), HttpStatus.OK);
             }
         }
-        return new ResponseEntity<>(ResponseApi.builder().result("false").build(), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(ResponseApi.builder().result("false").build(), HttpStatus.OK);
     }
 
     @PostMapping(value = "/restore")

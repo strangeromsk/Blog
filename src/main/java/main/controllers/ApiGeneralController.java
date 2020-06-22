@@ -6,6 +6,7 @@ import main.DTO.SettingsResponse;
 import main.DTO.StatResponse;
 import main.DTO.TagDto;
 import main.configuration.FileStorageProperties;
+import main.model.PostComment;
 import main.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,13 +53,16 @@ public class ApiGeneralController {
     }
 
     @PostMapping(value = "/comment")
-    public ResponseEntity<ResponseApi> makeNewComment(int parentId, int postId, String text){
+    public ResponseEntity<ResponseApi> makeNewComment(@RequestBody PostComment postComment){
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
             boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
             if(userAuthorized){
-                return new ResponseEntity<>(postCommentService.makeNewComment(userId.get(), parentId, postId, text), HttpStatus.OK);
+                return new ResponseEntity<>(postCommentService.makeNewComment(userId.get(),
+                        postComment.getParentId(),
+                        postComment.getPost().getId(),
+                        postComment.getText()), HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

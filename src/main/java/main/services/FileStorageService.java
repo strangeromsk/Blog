@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,9 +21,8 @@ public class FileStorageService {
 
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties) {
-        this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
+        this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir() + createDirs())
                 .toAbsolutePath().normalize();
-
         try {
             Files.createDirectories(this.fileStorageLocation);
         } catch (Exception ex) {
@@ -30,15 +30,27 @@ public class FileStorageService {
         }
     }
 
-    private String generateTextMethod(int length)   {
+    private String generateTextMethod()   {
         String saltChars = "abcdefghijklmnopqrstuvwxyz";
-        StringBuffer strBuffer = new StringBuffer();
+        StringBuilder stringBuilder = new StringBuilder();
         java.util.Random rnd = new java.util.Random();
-        while (strBuffer.length() < length) {
+        while (stringBuilder.length() < 2) {
             int index = (int) (rnd.nextFloat() * saltChars.length());
-            strBuffer.append(saltChars, index, index + 1);
+            stringBuilder.append(saltChars, index, index + 1);
         }
-        return strBuffer.toString();
+        return stringBuilder.toString();
+    }
+
+    private String createDirs(){
+        String firstDir = generateTextMethod();
+        String secondDir = generateTextMethod();
+        String thirdDir = generateTextMethod();
+        File f = new File("/resources/upload/" + firstDir + "/" + secondDir + "/" + thirdDir + "/");
+        String path = "/" + firstDir + "/" + secondDir + "/" + thirdDir + "/";
+        if(f.mkdir()){
+            System.out.println("Success!");
+        }
+        return path;
     }
 
     public String storeFile(MultipartFile file) {
@@ -47,14 +59,9 @@ public class FileStorageService {
             if(fileName.contains("..")) {
                 throw new IllegalArgumentException();
             }
-            String firstDir = generateTextMethod(2);
-            String secondDir = generateTextMethod(2);
-            String thirdDir = generateTextMethod(2);
-            String completePath = firstDir + "/" + secondDir + "/" + thirdDir + "/" + fileName;
-
+            String completePath = createDirs() + fileName;
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-
             return completePath;
         } catch (IOException ex) {
             ex.printStackTrace();

@@ -1,5 +1,6 @@
 package main.services;
 
+import main.API.RequestApi;
 import main.DTO.CalendarDto;
 import main.DTO.PostDtoById.PostDtoById;
 import main.API.ResponseApi;
@@ -10,6 +11,7 @@ import main.DTO.PostDtoView;
 import main.model.*;
 import main.repositories.PostRepository;
 import main.repositories.PostVotesRepository;
+import main.repositories.TagsRepository;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -33,15 +35,17 @@ public class PostService {
     private final PostCommentService postCommentService;
     private final UserService userService;
     private final PostVotesRepository postVotesRepository;
+    private final TagsRepository tagsRepository;
 
     @Autowired
     public PostService(PostRepository postRepository, PostMapper postMapper,
-                       PostCommentService postCommentService, UserService userService, PostVotesRepository postVotesRepository) {
+                       PostCommentService postCommentService, UserService userService, PostVotesRepository postVotesRepository, TagsRepository tagsRepository) {
         this.postRepository = postRepository;
         this.postMapper = postMapper;
         this.postCommentService = postCommentService;
         this.userService = userService;
         this.postVotesRepository = postVotesRepository;
+        this.tagsRepository = tagsRepository;
     }
 
     public PostDto mapPost(Post post) {
@@ -175,7 +179,7 @@ public class PostService {
         List<Post> list;
         PostDtoView postDtoView = new PostDtoView();
         Pageable pageable = PageRequest.of(offset / limit, limit);
-        postDtoView.setCount(postRepository.countPost());
+        postDtoView.setCount(postRepository.countMyPosts(userId));
         if (status.equals(Post.Status.inactive)) {
             list = postRepository.findInactivePosts(pageable, userId);
         } else if (status.equals(Post.Status.pending)) {
@@ -227,6 +231,52 @@ public class PostService {
         }
         return new ResponseEntity<>(ResponseApi.builder().result("false").errors(errors).build(), HttpStatus.BAD_REQUEST);
     }
+
+    @Transactional
+    public ResponseEntity<ResponseApi> changePost(int id, RequestApi post, User user){
+        Post oldPost = postRepository.getOne(id);
+        int mintTitleLength = 3;
+        int minTextLength = 50;
+        Date postDate = post.getTime();
+        Date currentDate = new Date();
+        if(postDate.before(currentDate)){
+            post.setTime(currentDate);
+        }
+        HashMap<String, String> errors = new HashMap<>(4);
+        if(post.getTitle().length() <= mintTitleLength){
+            errors.put("title", "Title is not set");
+        }
+        if(post.getText().length() <= minTextLength){
+            errors.put("text", "Text is too short");
+        }
+        if(errors.size() == 0){
+            if(user.getIsModerator() == 0){
+                post.setStatus(Post.Status.NEW);
+            }
+            oldPost.setIsActive(post.getActive());
+            oldPost.setTitle(post.getTitle());
+
+            //List<Tag> tagList = post.getTags().stream().map(Tag::new).collect(Collectors.toList());
+            //List<Tag> tagList = new ArrayList<>();
+
+            List<TagToPost> tagToPostList = oldPost.getTagToPosts()
+                    .stream()
+                    .peek(e-> post.getTags().forEach(k->{
+                        Tag tag = new Tag(k);
+                        tagsRepository.save(tag);
+                        e.setTag(tag);
+                    }))
+                    .collect(Collectors.toList());
+
+            oldPost.setTagToPosts(tagToPostList);
+            oldPost.setText(post.getText());
+            //tagsRepository.saveAll(tagList);
+            postRepository.save(oldPost);
+            return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(ResponseApi.builder().result("false").errors(errors).build(), HttpStatus.BAD_REQUEST);
+    }
+
     @Transactional
     public ResponseEntity<ResponseApi> makeNewLike(int postId, User user){
         Post post = postRepository.getPostById(postId);

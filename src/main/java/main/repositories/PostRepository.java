@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Long>, PagingAndSortingRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Integer>, PagingAndSortingRepository<Post, Integer> {
     @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
             " AND time < current_time ORDER BY time", nativeQuery = true)
     List<Post> findPostByDateAsc (Pageable pageable);
@@ -33,6 +33,8 @@ public interface PostRepository extends JpaRepository<Post, Long>, PagingAndSort
     @Query(value = "SELECT COUNT(*) FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
             " AND time < current_time", nativeQuery = true)
     Long countPost();
+    @Query(value = "SELECT COUNT(*) FROM posts WHERE user_id = :id", nativeQuery = true)
+    Long countMyPosts(@Param("id") int id);
     @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
             " AND time LIKE %:date%", nativeQuery = true)
     List<Post> findPostWithExactDate (Pageable pageable, @Param("date") String date);
@@ -73,8 +75,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, PagingAndSort
     List<Post> findAcceptedPosts (Pageable pageable, @Param("id") int id);
     @Query(value = "SELECT * FROM posts WHERE user_id = :id", nativeQuery = true)
     List<Post> findAllPostsByUserId (@Param("id") int id);
-    @Query(value = "SELECT * FROM posts", nativeQuery = true)
-    List<Post> findAllPosts ();
     @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'NEW'" +
             " AND time < current_time ORDER BY time", nativeQuery = true)
     List<Post> findPendingPostsModeration (Pageable pageable);

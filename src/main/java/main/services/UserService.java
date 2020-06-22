@@ -61,30 +61,33 @@ public class UserService {
         return userRepository.getOne(userId);
     }
 
-    public ResponseApi<UserModerationDto> populateUserOnLogin(String email, String password){
+    public ResponseEntity<ResponseApi> populateUserOnLogin(String email, String password){
+        ResponseApi responseApi;
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isEmpty()){
-            ResponseApi responseApi = ResponseApi.builder()
+            responseApi = ResponseApi.builder()
                     .result("false").build();
-            return responseApi;
-        }else if(!passwordEncoder.matches(password, userOptional.get().getPassword())){
-            ResponseApi responseApi = ResponseApi.builder()
+            return new ResponseEntity<>(responseApi, HttpStatus.UNAUTHORIZED);
+        }else if(!passwordEncoder.matches(password, userOptional.get().getPassword())) {
+            responseApi = ResponseApi.builder()
                     .result("false").build();
-            return responseApi;
+            return new ResponseEntity<>(responseApi, HttpStatus.UNAUTHORIZED);
+        }else {
+            String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
+            sessionIds.put(sessionId, userOptional.get().getId());
+            UserModerationDto userModerationDto = mapUserModeration(userOptional.get());
+            if(userOptional.get().getIsModerator() == 1){
+                userModerationDto.setModeration(true);
+                userModerationDto.setSettings(true);
+            }
+            userModerationDto.setModerationCount(toIntExact(postRepository.countNewPostsToModerator()));
+            responseApi = ResponseApi.builder()
+                    .result("true")
+                    .user(userModerationDto)
+                    .build();
+            return new ResponseEntity<>(responseApi, HttpStatus.OK);
         }
-        String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
-        sessionIds.put(sessionId, userOptional.get().getId());
-        UserModerationDto userModerationDto = mapUserModeration(userOptional.get());
-        if(userOptional.get().getIsModerator() == 1){
-            userModerationDto.setModeration(true);
-            userModerationDto.setSettings(true);
-        }
-        userModerationDto.setModerationCount(toIntExact(postRepository.countNewPostsToModerator()));
-        ResponseApi responseApi = ResponseApi.builder()
-                .result("true")
-                .user(userModerationDto)
-                .build();
-        return responseApi;
+        //return new ResponseEntity<>(responseApi, HttpStatus.UNAUTHORIZED);
     }
 
     public ResponseApi<UserModerationDto> checkUserAuth(int id){
@@ -201,7 +204,7 @@ public class UserService {
     }
 
     public StatResponse AllStatistics(){
-        List<Post> postsList = postRepository.findAllPosts();
+        List<Post> postsList = postRepository.findAll();
         StatResponse statResponse = new StatResponse();
         statResponse.setPostsCount(postsList.size());
         statResponse.setLikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == 1)).count());

@@ -1,29 +1,21 @@
 package main.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 
 @Entity
 @Table(name = "tags")
 public class Tag {
-
-//    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-//    @JoinColumn(name = "id", referencedColumnName = "tag_id", nullable = false, insertable = false, updatable = false)
-//    private TagToPost tagToPost;
-
-//    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    @JoinTable(
-//            name = "tag2post",
-//            joinColumns = {@JoinColumn(name = "tag_id")},
-//            inverseJoinColumns = {@JoinColumn(name = "id")}
-//    )
-//    private List<TagToPost> tagToPost;
-//
+    public Tag (String name){
+        this.name = name;
+    }
     @OneToMany(mappedBy = "tag")
     List<TagToPost> tagToPosts;
 
