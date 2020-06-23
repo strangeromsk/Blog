@@ -2,11 +2,10 @@ package main.controllers;
 
 import main.DTO.CalendarDto;
 import main.API.ResponseApi;
+import main.DTO.PostDtoById.CommentDtoById;
 import main.DTO.SettingsResponse;
 import main.DTO.StatResponse;
 import main.DTO.TagDto;
-import main.configuration.FileStorageProperties;
-import main.model.PostComment;
 import main.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.*;
 
@@ -53,23 +51,23 @@ public class ApiGeneralController {
     }
 
     @PostMapping(value = "/comment")
-    public ResponseEntity<ResponseApi> makeNewComment(@RequestBody PostComment postComment){
+    public ResponseEntity<ResponseApi> makeNewComment(@RequestBody CommentDtoById commentDtoById){
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
             boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
             if(userAuthorized){
-                return new ResponseEntity<>(postCommentService.makeNewComment(userId.get(),
-                        postComment.getParentId(),
-                        postComment.getPost().getId(),
-                        postComment.getText()), HttpStatus.OK);
+                return postCommentService.makeNewComment(userId.get(),
+                        commentDtoById.getParentId(),
+                        commentDtoById.getPostId(),
+                        commentDtoById.getText());
             }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping(value = "/tag")
-    public ResponseEntity<List<TagDto>> getTagsByQuery(@RequestParam(required = false) String query) {
+    public ResponseEntity getTagsByQuery(@RequestParam(required = false) String query) {
         return new ResponseEntity<>(tagService.getTags(query), HttpStatus.OK);
     }
 

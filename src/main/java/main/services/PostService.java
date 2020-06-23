@@ -139,8 +139,11 @@ public class PostService {
     public PostDtoView populateVarsWithExactDate(int offset, int limit, String date) {
         Pageable pageable = PageRequest.of(offset / limit, limit);
         PostDtoView postDtoView = new PostDtoView();
-        postDtoView.setCount(postRepository.countPostWithExactDate(date));
-        List<Post> list = postRepository.findPostWithExactDate(pageable, date);
+        String year = date.substring(0,4);
+        String month = date.substring(5,7);
+        String day = date.substring(8,10);
+        postDtoView.setCount(postRepository.countPostWithExactDate(year, month, day));
+        List<Post> list = postRepository.findPostWithExactDate(pageable, year, month, day);
         return populateDtoViewWithStream(postDtoView, list);
     }
 

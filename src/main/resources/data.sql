@@ -39,7 +39,7 @@ INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, ti
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
 (3, 0, 'NEW', 1, '2020-10-01 00:00:10', 'tralalala', '11111blabla', 9000);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
-(4, 1, 'DECLINED', 1, '2020-11-21 00:00:10', 'main234324 page', 'bla234324bla', 2005);
+(4, 1, 'ACCEPTED', 1, '2020-11-21 00:00:10', 'main234324 page', 'bla234324bla', 2005);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES
 (2, 1, 'ACCEPTED', 1, '2018-05-05 00:00:10', 'alalalala', 'blabla20000', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, time, title, text, view_count) VALUES

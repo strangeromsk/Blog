@@ -37,10 +37,9 @@ public class ApiPostController {
     }
 
     @GetMapping(value = "/post/search")
-    public ResponseEntity<PostDtoView> getSearchPosts(@RequestBody RequestApi requestApi) {
-        int offset = requestApi.getOffset();
-        int limit = requestApi.getLimit();
-        String query = requestApi.getQuery();
+    public ResponseEntity<PostDtoView> getSearchPosts(@RequestParam int offset,
+                                                      @RequestParam int limit,
+                                                      @RequestParam String query) {
         if(offset < 0 || limit <= 0){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -56,10 +55,9 @@ public class ApiPostController {
     }
 
     @GetMapping(value = "/post/byDate")
-    public ResponseEntity<PostDtoView> getPostsWithExactDate(@RequestBody RequestApi requestApi) {
-        int offset = requestApi.getOffset();
-        int limit = requestApi.getLimit();
-        String date = requestApi.getDate();
+    public ResponseEntity<PostDtoView> getPostsWithExactDate(@RequestParam int offset,
+                                                             @RequestParam int limit,
+                                                             @RequestParam String date) {
         if(offset < 0 || limit <= 0 || date == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -67,10 +65,9 @@ public class ApiPostController {
     }
 
     @GetMapping(value = "/post/byTag")
-    public ResponseEntity<PostDtoView> getPostsWithTag(@RequestBody RequestApi requestApi) {
-        int offset = requestApi.getOffset();
-        int limit = requestApi.getLimit();
-        String tag = requestApi.getTag();
+    public ResponseEntity<PostDtoView> getPostsWithTag(@RequestParam int offset,
+                                                       @RequestParam int limit,
+                                                       @RequestParam String tag) {
         if(offset < 0 || limit <= 0){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

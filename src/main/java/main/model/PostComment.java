@@ -1,5 +1,6 @@
 package main.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -13,11 +14,11 @@ import java.util.Date;
 public class PostComment {
 
     @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
     @Id
@@ -30,6 +31,7 @@ public class PostComment {
 
     @Basic
     @NotNull
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="dd-MM-yyyy hh:mm:ss")
     private Date time;
 
     @NotNull

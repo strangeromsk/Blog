@@ -23,6 +23,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.toIntExact;
 
@@ -87,7 +88,6 @@ public class UserService {
                     .build();
             return new ResponseEntity<>(responseApi, HttpStatus.OK);
         }
-        //return new ResponseEntity<>(responseApi, HttpStatus.UNAUTHORIZED);
     }
 
     public ResponseApi<UserModerationDto> checkUserAuth(int id){
@@ -132,7 +132,12 @@ public class UserService {
     }
 
     public ResponseApi logout (int id){
-        sessionIds.entrySet().removeIf(entry -> (id == entry.getValue()));
+        //sessionIds.values().removeIf(value-> value == id);
+        sessionIds.forEach((key, value) -> {
+            if (value == id) {
+                sessionIds.remove(key, value);
+            }
+        });
         return ResponseApi.builder().result("true").build();
     }
 
@@ -150,11 +155,7 @@ public class UserService {
 
         Optional<String> captchaServer = captchaRepository.getCaptchaBySecretCode(secretCode);
         boolean captchaExists = captchaServer.isPresent();
-        boolean captchaEq = false;
-        if(captchaExists){
-            captchaEq = captcha.equals(captchaServer.get());
-        }
-        if(!captchaEq){
+        if(captchaExists && !captcha.equals(captchaServer.get())){
             errors.put("captcha", "Captcha code is incorrect!");
             responseApi = ResponseApi.builder()
                     .result("false").errors(errors).build();

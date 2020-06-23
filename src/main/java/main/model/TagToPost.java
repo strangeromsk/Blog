@@ -22,7 +22,7 @@ public class TagToPost implements Serializable {
     @JoinColumn(name = "post_id")
     Post post;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("tag_id")
     @JoinColumn(name = "tag_id")
     Tag tag;

@@ -36,10 +36,13 @@ public interface PostRepository extends JpaRepository<Post, Integer>, PagingAndS
     @Query(value = "SELECT COUNT(*) FROM posts WHERE user_id = :id", nativeQuery = true)
     Long countMyPosts(@Param("id") int id);
     @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
-            " AND time LIKE %:date%", nativeQuery = true)
-    List<Post> findPostWithExactDate (Pageable pageable, @Param("date") String date);
+            " AND YEAR(time) = :year AND MONTH(time) = :month AND DAY(time) = :day", nativeQuery = true)
+    List<Post> findPostWithExactDate (Pageable pageable, @Param("year") String year, @Param("month") String month, @Param("day") String day);
+    @Query(value = "SELECT COUNT(*) FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
+            " AND YEAR(time) = :year AND MONTH(time) = :month AND DAY(time) = :day", nativeQuery = true)
+    Long countPostWithExactDate(@Param("year") String year, @Param("month") String month, @Param("day") String day);
     @Query(value = "SELECT * FROM posts JOIN tag2post ON posts.id=tag2post.post_id JOIN tags ON tags.id=tag2post.tag_id " +
-            "WHERE posts.is_active = 1 AND posts.moderation_status = 'ACCEPTED' AND posts.time < current_time AND tags.name = :tag",nativeQuery = true)
+            "WHERE posts.is_active = 1 AND posts.moderation_status = 'ACCEPTED' AND posts.time < current_time AND tags.name = :tag", nativeQuery = true)
     List<Post> findPostsByTag (Pageable pageable, @Param("tag") String tag);
     @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
             " AND time < current_time AND id = :id", nativeQuery = true)
@@ -48,9 +51,6 @@ public interface PostRepository extends JpaRepository<Post, Integer>, PagingAndS
     @Query(value = "SELECT COUNT(*) FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
             " AND time < current_time AND (text LIKE %:query% OR title LIKE %:query%)", nativeQuery = true)
     Long countPostWithSearchQuery(@Param("query") String query);
-    @Query(value = "SELECT COUNT(*) FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
-            " AND time LIKE %:date%)", nativeQuery = true)
-    Long countPostWithExactDate(@Param("date") String date);
     @Query(value = "SELECT COUNT(*) FROM posts JOIN tag2post ON posts.id=tag2post.post_id JOIN tags ON tags.id=tag2post.tag_id" +
             " WHERE posts.is_active = 1 AND posts.moderation_status = 'ACCEPTED' AND posts.time < current_time AND tags.name = :tag", nativeQuery = true)
     Long countPostWithTag(@Param("tag") String tag);
