@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import main.API.ResponseApi;
 import main.DTO.StatResponse;
+import main.DTO.UserMyProfileDto;
 import main.DTO.UserRegisterResponse;
 import main.DTO.moderation.UserModerationDto;
 import main.mapper.UserMapper;
@@ -19,8 +20,11 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -106,6 +110,7 @@ public class UserService {
         return responseApi;
     }
 
+    @Transactional
     public ResponseApi restorePassword(String email, HttpServletRequest request){
         String appUrl = request.getScheme() + "://" + request.getServerName();
         ResponseApi responseApi;
@@ -140,7 +145,7 @@ public class UserService {
         });
         return ResponseApi.builder().result("true").build();
     }
-
+    @Transactional
     public ResponseEntity<ResponseApi> register(UserRegisterResponse userRegisterResponse){
         String email = userRegisterResponse.getEmail();
         String name = userRegisterResponse.getName();
@@ -151,7 +156,7 @@ public class UserService {
         int maxNameLength = 12;
         int minNameLength = 3;
         int minPasswordLength = 6;
-        Map<String, String> errors = new HashMap<>(4);
+        Map<String, String> errors = new HashMap<>(8);
 
         Optional<String> captchaServer = captchaRepository.getCaptchaBySecretCode(secretCode);
         boolean captchaExists = captchaServer.isPresent();
@@ -193,25 +198,97 @@ public class UserService {
         return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
     }
 
+    @Transactional
+    public ResponseEntity<ResponseApi> changeMyProfile(UserMyProfileDto userMyProfileDto, User user){
+        ResponseApi responseApi;
+        int maxNameLength = 12;
+        int minNameLength = 3;
+        int minPasswordLength = 6;
+        Optional<String> email = Optional.ofNullable(userMyProfileDto.getEmail());
+        Optional<String> name = Optional.ofNullable(userMyProfileDto.getName());
+        Optional<String> password = Optional.ofNullable(userMyProfileDto.getPassword());
+        Optional<String> photo = Optional.ofNullable(userMyProfileDto.getPhoto());
+        byte removePhoto = userMyProfileDto.getRemovePhoto();
+        boolean firstCond = email.isPresent() && name.isPresent();
+        boolean secondCond = email.isPresent() && name.isPresent() && password.isPresent();
+        boolean thirdCond = email.isPresent() && name.isPresent() && password.isPresent() && photo.isPresent() && removePhoto == 0;
+        boolean forthCond = email.isPresent() && name.isPresent() && ((photo.isEmpty() || photo.get().equals("")) && removePhoto == 1);
+        Map<String, String> errors = new HashMap<>(8);
+
+        if(email.isPresent() && userRepository.findByEmail(email.get()).isPresent()){
+            errors.put("email", "Email is already registered and/or incorrect");
+        }
+        if(name.isPresent() && (name.get().length() > maxNameLength || name.get().length() < minNameLength)){
+            errors.put("name", "Name is incorrect");
+        }
+        if(password.isPresent() && password.get().length() < minPasswordLength){
+            errors.put("password", "Password is less than 6 symbols");
+        }
+
+        responseApi = ResponseApi.builder()
+                .result("false").errors(errors).build();
+        if(errors.size() == 0){
+            if(forthCond){
+                user.setEmail(email.get());
+                user.setName(name.get());
+                user.setPhoto("");
+            }else if(thirdCond){
+                user.setEmail(email.get());
+                user.setName(name.get());
+                user.setPassword(passwordEncoder.encode(password.get()));
+
+                user.setPhoto(photo.get());
+            }else if(secondCond){
+                user.setEmail(email.get());
+                user.setName(name.get());
+                user.setPassword(passwordEncoder.encode(password.get()));
+            }else if(firstCond){
+                user.setEmail(email.get());
+                user.setName(name.get());
+            }else {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            userRepository.save(user);
+            responseApi = ResponseApi.builder()
+                    .result("true").build();
+            return new ResponseEntity<>(responseApi, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
+    }
+
     public StatResponse myStatistics(int userId){
         List<Post> postsList = postRepository.findAllPostsByUserId(userId);
         StatResponse statResponse = new StatResponse();
-        statResponse.setPostsCount(postsList.size());
-        statResponse.setLikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == 1)).count());
-        statResponse.setDislikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == -1)).count());
-        statResponse.setViewsCount(postsList.stream().map(Post::getViewCount).count());
-        statResponse.setFirstPublicationDate(postsList.stream().map(Post::getTime).max(Date::compareTo).get().toString());
+        if(postsList.size() != 0){
+            statResponse.setPostsCount(postsList.size());
+            statResponse.setLikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == 1)).count());
+            statResponse.setDislikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == -1)).count());
+            statResponse.setViewsCount(postsList.stream().map(Post::getViewCount).count());
+            statResponse.setFirstPublication(postsList.stream().map(Post::getTime).min(Date::compareTo).get());
+        }else {
+            statResponse.setPostsCount(0);
+            statResponse.setLikesCount(0);
+            statResponse.setDislikesCount(0);
+            statResponse.setViewsCount(0);
+        }
         return statResponse;
     }
 
-    public StatResponse AllStatistics(){
+    public StatResponse allStatistics(){
         List<Post> postsList = postRepository.findAll();
         StatResponse statResponse = new StatResponse();
-        statResponse.setPostsCount(postsList.size());
-        statResponse.setLikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == 1)).count());
-        statResponse.setDislikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == -1)).count());
-        statResponse.setViewsCount(postsList.stream().map(Post::getViewCount).count());
-        statResponse.setFirstPublicationDate(postsList.stream().map(Post::getTime).max(Date::compareTo).get().toString());
+        if(postsList.size() != 0){
+            statResponse.setPostsCount(postsList.size());
+            statResponse.setLikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == 1)).count());
+            statResponse.setDislikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == -1)).count());
+            statResponse.setViewsCount(postsList.stream().map(Post::getViewCount).count());
+            statResponse.setFirstPublication(postsList.stream().map(Post::getTime).min(Date::compareTo).get());
+        }else {
+            statResponse.setPostsCount(0);
+            statResponse.setLikesCount(0);
+            statResponse.setDislikesCount(0);
+            statResponse.setViewsCount(0);
+        }
         return statResponse;
     }
 }

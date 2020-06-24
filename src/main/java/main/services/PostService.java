@@ -325,4 +325,20 @@ public class PostService {
             return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
         }
     }
+
+    @Transactional
+    public ResponseEntity postModeration(RequestApi requestApi, User user){
+        Integer postId = requestApi.getPostId();
+        Post post = postRepository.getPostById(postId);
+        int userId = user.getId();
+
+        post.setModeratorId(userId);
+        if(requestApi.getDecision().equals("accept")){
+            post.setStatus(Post.Status.ACCEPTED);
+        }else {
+            post.setStatus(Post.Status.DECLINED);
+        }
+        postRepository.save(post);
+        return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+    }
 }

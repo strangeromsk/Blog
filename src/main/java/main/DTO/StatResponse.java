@@ -1,6 +1,9 @@
 package main.DTO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+
+import java.util.Date;
 
 @Data
 public class StatResponse {
@@ -8,5 +11,6 @@ public class StatResponse {
     private long likesCount;
     private long dislikesCount;
     private long viewsCount;
-    private String firstPublicationDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm")
+    private Date firstPublication;
 }

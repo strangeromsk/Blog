@@ -1,6 +1,5 @@
 package main.services;
 
-import lombok.Getter;
 import main.DTO.SettingsResponse;
 import main.model.GlobalSettings;
 import main.repositories.SettingsRepository;
@@ -19,6 +18,10 @@ public class SettingsService {
     @Autowired
     public SettingsService(SettingsRepository settingsRepository) {
         this.settingsRepository = settingsRepository;
+    }
+
+    public boolean getStatIsPublic(){
+        return settingsRepository.getStatIsPublic();
     }
 
     public ResponseEntity<SettingsResponse> getSettings(){

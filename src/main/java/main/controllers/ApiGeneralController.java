@@ -1,11 +1,10 @@
 package main.controllers;
 
-import main.DTO.CalendarDto;
+import main.API.RequestApi;
+import main.DTO.*;
 import main.API.ResponseApi;
 import main.DTO.PostDtoById.CommentDtoById;
-import main.DTO.SettingsResponse;
-import main.DTO.StatResponse;
-import main.DTO.TagDto;
+import main.model.User;
 import main.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -105,32 +104,48 @@ public class ApiGeneralController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @GetMapping(value = "/statistics/my")
-    public ResponseEntity<StatResponse> myStatistics(){
+    @PostMapping(value = "/moderation")
+    public ResponseEntity moderation(@RequestBody RequestApi requestApi){
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
-            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
-            if(userAuthorized){
-                return new ResponseEntity<>(userService.myStatistics(userId.get()), HttpStatus.OK);
+            User user = userService.getUser(userId.get());
+            boolean isModerator = userService.isModerator(userId.get());
+            if(isModerator){
+                return postService.postModeration(requestApi, user);
             }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-//    @GetMapping(value = "/statistics/all")
-//    public ResponseEntity<StatResponse> allStatistics(){
-//        int statIsPublic = settingsService.getStatIsPublic();
-//        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
-//        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
-//        if(userId.isPresent()){
-//            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
-//            if(userAuthorized && statIsPublic == 1){
-//                return new ResponseEntity<>(userService.myStatistics(userId.get()), HttpStatus.OK);
-//            }
-//        }
-//        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-//    }
+    @PostMapping(value = "/profile/my")
+    public ResponseEntity changeMyProfile(@RequestBody(required = false) UserMyProfileDto userMyProfileDto,
+                                          @RequestParam(value = "photo", required = false) MultipartFile photo){
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            User user = userService.getUser(userId.get());
+            return userService.changeMyProfile(userMyProfileDto, user);
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @GetMapping(value = "/statistics/my")
+    public ResponseEntity<StatResponse> myStatistics(){
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        return userId.map(integer -> new ResponseEntity<>(userService.myStatistics(integer), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
+    }
+
+    @GetMapping(value = "/statistics/all")
+    public ResponseEntity<StatResponse> allStatistics(){
+        boolean statIsPublic = settingsService.getStatIsPublic();
+        if(statIsPublic){
+            return new ResponseEntity<>(userService.allStatistics(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 }
 
 

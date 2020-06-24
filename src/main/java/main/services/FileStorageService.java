@@ -45,8 +45,8 @@ public class FileStorageService {
         String firstDir = generateTextMethod();
         String secondDir = generateTextMethod();
         String thirdDir = generateTextMethod();
-        File f = new File("/resources/upload/" + firstDir + "/" + secondDir + "/" + thirdDir + "/");
         String path = "/" + firstDir + "/" + secondDir + "/" + thirdDir + "/";
+        File f = new File("/resources/upload" + path);
         if(f.mkdir()){
             System.out.println("Success!");
         }

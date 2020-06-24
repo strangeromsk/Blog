@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import main.DTO.ModePostDto;
 import main.model.Post;
-import main.model.TagToPost;
 
 import java.util.Date;
 import java.util.List;
@@ -22,6 +21,7 @@ import java.util.List;
 public class RequestApi {
     @JsonProperty("post_id")
     private Integer postId;
+    private String decision;
 
     private int offset;
     private int limit;

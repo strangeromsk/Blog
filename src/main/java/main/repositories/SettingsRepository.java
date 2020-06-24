@@ -19,4 +19,6 @@ public interface SettingsRepository extends JpaRepository<GlobalSettings, Intege
     @Modifying
     @Query(value = "UPDATE global_settings SET value = :value WHERE name = 'STATISTICS_IS_PUBLIC'", nativeQuery = true)
     void updateStatistics(@Param("value") boolean value);
+    @Query(value = "SELECT value FROM global_settings WHERE code = 'STATISTICS_IS_PUBLIC'", nativeQuery = true)
+    boolean getStatIsPublic();
 }
