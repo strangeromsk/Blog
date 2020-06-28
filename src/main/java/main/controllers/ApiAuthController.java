@@ -37,13 +37,8 @@ public class ApiAuthController {
     public ResponseEntity<ResponseApi> checkUser() {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
-        if(userId.isPresent()){
-            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
-            if(userAuthorized){
-                return new ResponseEntity<>(userService.checkUserAuth(userId.get()), HttpStatus.OK);
-            }
-        }
-        return new ResponseEntity<>(ResponseApi.builder().result("false").build(), HttpStatus.OK);
+        return userId.<ResponseEntity<ResponseApi>>map(integer -> new ResponseEntity<>(userService.checkUserAuth(integer), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(ResponseApi.builder().result("false").build(), HttpStatus.OK));
     }
 
     @PostMapping(value = "/restore")
@@ -55,13 +50,8 @@ public class ApiAuthController {
     public ResponseEntity<ResponseApi> logout() {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
-        if(userId.isPresent()){
-            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
-            if(userAuthorized){
-                return new ResponseEntity<>(userService.checkUserAuth(userId.get()), HttpStatus.OK);
-            }
-        }
-        return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+        return userId.map(integer -> new ResponseEntity<>(userService.logout(integer), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK));
     }
 
     @PostMapping(value = "/register")

@@ -8,6 +8,7 @@ import main.model.User;
 import main.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -54,13 +55,10 @@ public class ApiGeneralController {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
-            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
-            if(userAuthorized){
-                return postCommentService.makeNewComment(userId.get(),
+            return postCommentService.makeNewComment(userId.get(),
                         commentDtoById.getParentId(),
                         commentDtoById.getPostId(),
                         commentDtoById.getText());
-            }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
@@ -80,9 +78,8 @@ public class ApiGeneralController {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
-            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
             boolean isModerator = userService.isModerator(userId.get());
-            if(userAuthorized && isModerator){
+            if(isModerator){
                 return settingsService.changeSettings(settingsResponse);
             }
         }
@@ -96,10 +93,7 @@ public class ApiGeneralController {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
-            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
-            if(userAuthorized){
-                return new ResponseEntity<>(URIAndFilename, HttpStatus.OK);
-            }
+            return new ResponseEntity<>(URIAndFilename, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
@@ -119,13 +113,27 @@ public class ApiGeneralController {
     }
 
     @PostMapping(value = "/profile/my")
-    public ResponseEntity changeMyProfile(@RequestBody(required = false) UserMyProfileDto userMyProfileDto,
-                                          @RequestParam(value = "photo", required = false) MultipartFile photo){
+    public ResponseEntity changeMyProfile(@RequestBody(required = false) UserMyProfileDto userMyProfileDto){
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
             User user = userService.getUser(userId.get());
             return userService.changeMyProfile(userMyProfileDto, user);
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PostMapping(value = "/profile/my", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity changeMyProfileWithPhoto(@RequestParam("photo") MultipartFile photo,
+                                                   @RequestParam String name,
+                                                   @RequestParam String email,
+                                                   @RequestParam(required = false, defaultValue = "") String password,
+                                                   @RequestParam(required = false, defaultValue = "0") int removePhoto){
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        if(userId.isPresent()){
+            User user = userService.getUser(userId.get());
+            return userService.changeMyProfileWithPhoto(photo, name, email, password, removePhoto, user);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }

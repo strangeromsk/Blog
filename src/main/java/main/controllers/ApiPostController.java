@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequestMapping("/api")
@@ -33,7 +34,12 @@ public class ApiPostController {
     public ResponseEntity<PostDtoView> getAllPosts(@RequestParam int offset,
                                                    @RequestParam int limit,
                                                    @RequestParam ModePostDto mode) {
-        return new ResponseEntity<>(postService.populateVars(offset, limit, mode), HttpStatus.OK);
+        Optional<PostDtoView> postsList = Optional.ofNullable(postService.populateVars(offset, limit, mode));
+        if(postsList.isPresent()){
+            return new ResponseEntity<>(postService.populateVars(offset, limit, mode), HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping(value = "/post/search")
@@ -43,7 +49,12 @@ public class ApiPostController {
         if(offset < 0 || limit <= 0){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(postService.populateSearchVars(offset, limit, query), HttpStatus.OK);
+        Optional<PostDtoView> postsList = Optional.ofNullable(postService.populateSearchVars(offset, limit, query));
+        if(postsList.isPresent()){
+            return new ResponseEntity<>(postService.populateSearchVars(offset, limit, query), HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping(value = "/post/{id}")
@@ -51,7 +62,12 @@ public class ApiPostController {
         if(id == null || id < 0){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(postService.populateVarsByPostId(id), HttpStatus.OK);
+        Optional<PostDtoById> postsList = Optional.ofNullable(postService.populateVarsByPostId(id));
+        if(postsList.isPresent()){
+            return new ResponseEntity<>(postService.populateVarsByPostId(id), HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping(value = "/post/byDate")
@@ -61,7 +77,12 @@ public class ApiPostController {
         if(offset < 0 || limit <= 0 || date == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(postService.populateVarsWithExactDate(offset, limit, date), HttpStatus.OK);
+        Optional<PostDtoView> postsList = Optional.ofNullable(postService.populateVarsWithExactDate(offset, limit, date));
+        if(postsList.isPresent()){
+            return new ResponseEntity<>(postService.populateVarsWithExactDate(offset, limit, date), HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping(value = "/post/byTag")
@@ -71,7 +92,12 @@ public class ApiPostController {
         if(offset < 0 || limit <= 0){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(postService.populateTagVars(offset, limit, tag), HttpStatus.OK);
+        Optional<PostDtoView> postsList = Optional.ofNullable(postService.populateTagVars(offset, limit, tag));
+        if(postsList.isPresent()){
+            return new ResponseEntity<>(postService.populateTagVars(offset, limit, tag), HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping(value = "/post/my")
@@ -80,31 +106,26 @@ public class ApiPostController {
                                                   @RequestParam Post.Status status) {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
-        if(userId.isPresent()){
-            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
-            if(userAuthorized){
-                return new ResponseEntity<>(postService.populateMyVars(userId.get(), offset, limit, status), HttpStatus.OK);
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        return userId.map(integer -> new ResponseEntity<>(postService.populateMyVars(integer, offset, limit, status), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
     }
 
     @GetMapping(value = "/post/moderation")
     public ResponseEntity<PostDtoView> getAllPostsWithModeration(@RequestParam int offset,
                                                                  @RequestParam int limit,
                                                                  @RequestParam String status) {
+        if(offset < 0 || limit <= 0){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
-            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
             boolean isModerator = userService.isModerator(userId.get());
-            if(userAuthorized && isModerator){
+            if(isModerator){
                 return new ResponseEntity<>(postService.populateVarsModeration(offset, limit, status), HttpStatus.OK);
             }
         }
-        if(offset < 0 || limit <= 0 || !status.equals("new")){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
@@ -114,10 +135,7 @@ public class ApiPostController {
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
             User user = userService.getUser(userId.get());
-            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
-            if(userAuthorized){
-                return postService.makeNewPost(post, user);
-            }
+            return postService.makeNewPost(post, user);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
@@ -128,10 +146,7 @@ public class ApiPostController {
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
             User user = userService.getUser(userId.get());
-            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
-            if(userAuthorized){
-                return postService.changePost(id, post, user);
-            }
+            return postService.changePost(id, post, user);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
@@ -142,10 +157,7 @@ public class ApiPostController {
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
             User user = userService.getUser(userId.get());
-            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
-            if(userAuthorized){
-                return postService.makeNewLike(requestApi.getPostId(), user);
-            }
+            return postService.makeNewLike(requestApi.getPostId(), user);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
@@ -156,10 +168,7 @@ public class ApiPostController {
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         if(userId.isPresent()){
             User user = userService.getUser(userId.get());
-            boolean userAuthorized = userService.getSessionIds().containsValue(userId.get());
-            if(userAuthorized){
-                return postService.makeNewLike(requestApi.getPostId(), user);
-            }
+            return postService.makeNewLike(requestApi.getPostId(), user);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }

@@ -16,5 +16,4 @@ public class UserMyProfileDto {
     private String email;
     private String password;
     private byte removePhoto;
-    private String photo;
 }

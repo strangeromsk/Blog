@@ -60,7 +60,7 @@ public class Post {
     private String title;
 
     @NotNull
-    @Column(length = 1000)
+    @Column(length = 5000)
     private String text;
 
     @NotNull

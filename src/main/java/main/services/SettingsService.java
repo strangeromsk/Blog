@@ -46,25 +46,13 @@ public class SettingsService {
         Boolean postPremoderation = settingsResponse.getPostPremoderation();
         Boolean statisticsIsPublic = settingsResponse.getStatisticsIsPublic();
         if(multiuserMode != null){
-            if(multiuserMode.equals(true)){
-                settingsRepository.updateMultiuserMode(true);
-            }else{
-                settingsRepository.updateMultiuserMode(false);
-            }
+            settingsRepository.updateMultiuserMode(multiuserMode.equals(true));
         }
         if(postPremoderation != null){
-            if(postPremoderation.equals(true)){
-                settingsRepository.updatePostPremoderation(true);
-            }else{
-                settingsRepository.updatePostPremoderation(false);
-            }
+            settingsRepository.updatePostPremoderation(postPremoderation.equals(true));
         }
         if(statisticsIsPublic != null){
-            if(statisticsIsPublic.equals(true)){
-                settingsRepository.updateStatistics(true);
-            }else{
-                settingsRepository.updateStatistics(false);
-            }
+            settingsRepository.updateStatistics(statisticsIsPublic.equals(true));
         }
         return new ResponseEntity(HttpStatus.OK);
     }
