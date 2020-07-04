@@ -57,6 +57,6 @@ public class PostCommentService {
             postCommentsRepository.save(postComment);
             return new ResponseEntity<>(ResponseApi.builder().id(postComment.getId()).build(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(ResponseApi.builder().result("false").errors(errors).build(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ResponseApi.builder().result(false).errors(errors).build(), HttpStatus.BAD_REQUEST);
     }
 }

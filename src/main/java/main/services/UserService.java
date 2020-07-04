@@ -70,12 +70,12 @@ public class UserService {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isEmpty()){
             responseApi = ResponseApi.builder()
-                    .result("false").build();
-            return new ResponseEntity<>(responseApi, HttpStatus.UNAUTHORIZED);
+                    .result(false).build();
+            return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
         }else if(!passwordEncoder.matches(password, userOptional.get().getPassword())) {
             responseApi = ResponseApi.builder()
-                    .result("false").build();
-            return new ResponseEntity<>(responseApi, HttpStatus.UNAUTHORIZED);
+                    .result(false).build();
+            return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
         }else {
             String sessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
             sessionIds.put(sessionId, userOptional.get().getId());
@@ -86,7 +86,7 @@ public class UserService {
             }
             userModerationDto.setModerationCount(toIntExact(postRepository.countNewPostsToModerator()));
             responseApi = ResponseApi.builder()
-                    .result("true")
+                    .result(true)
                     .user(userModerationDto)
                     .build();
             return new ResponseEntity<>(responseApi, HttpStatus.OK);
@@ -103,7 +103,7 @@ public class UserService {
         }
         userModerationDto.setModerationCount(toIntExact(postRepository.countNewPostsToModerator()));
         responseApi = ResponseApi.builder()
-                .result("true")
+                .result(true)
                 .user(userModerationDto)
                 .build();
         return responseApi;
@@ -127,10 +127,10 @@ public class UserService {
             passwordResetEmail.setText("To reset your password, click the link\n:" + appUrl + "/login/change-password/" + randomHash);
 
             responseApi = ResponseApi.builder()
-                    .result("true").build();
+                    .result(true).build();
         }else {
             responseApi = ResponseApi.builder()
-                    .result("false").build();
+                    .result(false).build();
         }
         return responseApi;
     }
@@ -142,7 +142,7 @@ public class UserService {
                 sessionIds.remove(key, value);
             }
         });
-        return ResponseApi.builder().result("true").build();
+        return ResponseApi.builder().result(true).build();
     }
     @Transactional
     public ResponseEntity<ResponseApi> register(UserRegisterResponse userRegisterResponse){
@@ -162,14 +162,14 @@ public class UserService {
         if(captchaExists && !captcha.equals(captchaServer.get())){
             errors.put("captcha", "Captcha code is incorrect!");
             responseApi = ResponseApi.builder()
-                    .result("false").errors(errors).build();
+                    .result(false).errors(errors).build();
             return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
         }
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isPresent()){
             errors.put("email", "Email is already registered and/or incorrect");
             responseApi = ResponseApi.builder()
-                        .result("false").errors(errors).build();
+                        .result(false).errors(errors).build();
             return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
         }else {
             if(name.length() > maxNameLength || name.length() < minNameLength){
@@ -179,7 +179,7 @@ public class UserService {
                 errors.put("password", "Password is less than 6 symbols");
             }
             responseApi = ResponseApi.builder()
-                    .result("false").errors(errors).build();
+                    .result(false).errors(errors).build();
             if(errors.size() == 0){
                 User user = new User();
                 user.setEmail(email);
@@ -190,7 +190,7 @@ public class UserService {
                 user.setIsModerator(0);
                 userRepository.save(user);
                 responseApi = ResponseApi.builder()
-                        .result("true").build();
+                        .result(true).build();
                 return new ResponseEntity<>(responseApi, HttpStatus.OK);
             }
         }
@@ -224,7 +224,7 @@ public class UserService {
         }
 
         responseApi = ResponseApi.builder()
-                .result("false").errors(errors).build();
+                .result(false).errors(errors).build();
         if(errors.size() == 0){
             if(forthCond){
                 user.setEmail(email.get());
@@ -246,7 +246,7 @@ public class UserService {
             }
             userRepository.save(user);
             responseApi = ResponseApi.builder()
-                    .result("true").build();
+                    .result(true).build();
             return new ResponseEntity<>(responseApi, HttpStatus.OK);
         }
         return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
@@ -280,7 +280,7 @@ public class UserService {
         }
 
         responseApi = ResponseApi.builder()
-                .result("false").errors(errors).build();
+                .result(false).errors(errors).build();
         if(errors.size() == 0){
             if(forthCond){
                 user.setEmail(emailOptional.get());
@@ -304,7 +304,7 @@ public class UserService {
             }
             userRepository.save(user);
             responseApi = ResponseApi.builder()
-                    .result("true").build();
+                    .result(true).build();
             return new ResponseEntity<>(responseApi, HttpStatus.OK);
         }
         return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);

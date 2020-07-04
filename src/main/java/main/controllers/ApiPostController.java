@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import java.util.List;
 import java.util.Optional;
 
 @RequestMapping("/api")
@@ -62,8 +61,20 @@ public class ApiPostController {
         if(id == null || id < 0){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Optional<PostDtoById> postsList = Optional.ofNullable(postService.populateVarsByPostId(id));
-        if(postsList.isPresent()){
+        String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        Optional<PostDtoById> post;
+        if(userId.isPresent()){
+            User user = userService.getUser(userId.get());
+            post = Optional.ofNullable(postService.populateVarsByPostIdWithUser(id, user));
+            if(post.isPresent()){
+                return new ResponseEntity<>(postService.populateVarsByPostIdWithUser(id, user), HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        }
+        post = Optional.ofNullable(postService.populateVarsByPostId(id));
+        if(post.isPresent()){
             return new ResponseEntity<>(postService.populateVarsByPostId(id), HttpStatus.OK);
         }else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

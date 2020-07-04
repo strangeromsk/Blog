@@ -38,14 +38,13 @@ public interface PostRepository extends JpaRepository<Post, Integer>, PagingAndS
     @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
             " AND YEAR(time) = :year AND MONTH(time) = :month AND DAY(time) = :day", nativeQuery = true)
     List<Post> findPostWithExactDate (Pageable pageable, @Param("year") String year, @Param("month") String month, @Param("day") String day);
-    @Query(value = "SELECT COUNT(*) FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
-            " AND YEAR(time) = :year AND MONTH(time) = :month AND DAY(time) = :day", nativeQuery = true)
-    Long countPostWithExactDate(@Param("year") String year, @Param("month") String month, @Param("day") String day);
     @Query(value = "SELECT * FROM posts JOIN tag2post ON posts.id=tag2post.post_id JOIN tags ON tags.id=tag2post.tag_id " +
             "WHERE posts.is_active = 1 AND posts.moderation_status = 'ACCEPTED' AND posts.time < current_time AND tags.name = :tag", nativeQuery = true)
     List<Post> findPostsByTag (Pageable pageable, @Param("tag") String tag);
+    @Query(value = "SELECT * FROM posts WHERE id =:id", nativeQuery = true)
+    Post getPostByIdModerator(@Param("id") int id);
     @Query(value = "SELECT * FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
-            " AND time < current_time AND id = :id", nativeQuery = true)
+            " AND time < current_time AND id =:id", nativeQuery = true)
     Post getPostById(@Param("id") int id);
 
     @Query(value = "SELECT COUNT(*) FROM posts WHERE is_active = 1 AND moderation_status = 'ACCEPTED'" +
@@ -57,7 +56,8 @@ public interface PostRepository extends JpaRepository<Post, Integer>, PagingAndS
     @Modifying
     @Query(value = "UPDATE posts SET view_count = view_count + 1 WHERE id = :id", nativeQuery = true)
     void updateViewCount(@Param("id") int id);
-    @Query(value = "SELECT DATE_FORMAT(`time`,'%Y-%m-%d') AS date, COUNT(*) FROM posts WHERE YEAR(time) = :year GROUP BY time ORDER BY COUNT(*) DESC", nativeQuery = true)
+    @Query(value = "SELECT DATE_FORMAT(`time`,'%Y-%m-%d') AS date, COUNT(*) FROM posts WHERE YEAR(time) = :year AND is_active = 1" +
+            " AND moderation_status = 'ACCEPTED' GROUP BY time ORDER BY COUNT(*) DESC", nativeQuery = true)
     List<List> getPostsByYears (@Param("year") int year);
     @Query(value = "SELECT COUNT(*) FROM posts WHERE moderation_status = 'NEW'",nativeQuery = true)
     Long countNewPostsToModerator ();

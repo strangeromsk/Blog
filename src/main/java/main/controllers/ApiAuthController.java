@@ -38,7 +38,7 @@ public class ApiAuthController {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         return userId.<ResponseEntity<ResponseApi>>map(integer -> new ResponseEntity<>(userService.checkUserAuth(integer), HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(ResponseApi.builder().result("false").build(), HttpStatus.OK));
+                .orElseGet(() -> new ResponseEntity<>(ResponseApi.builder().result(false).build(), HttpStatus.OK));
     }
 
     @PostMapping(value = "/restore")
@@ -51,7 +51,7 @@ public class ApiAuthController {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         return userId.map(integer -> new ResponseEntity<>(userService.logout(integer), HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK));
+                .orElseGet(() -> new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK));
     }
 
     @PostMapping(value = "/register")

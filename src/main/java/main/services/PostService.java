@@ -1,5 +1,6 @@
 package main.services;
 
+import lombok.extern.slf4j.Slf4j;
 import main.API.RequestApi;
 import main.DTO.CalendarDto;
 import main.DTO.PostDtoById.PostDtoById;
@@ -27,6 +28,7 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class PostService {
 
@@ -49,12 +51,12 @@ public class PostService {
     }
 
     public PostDto mapPost(Post post) {
-        PostDto.disableMapper();
+        //PostDto.disableMapper();
         return postMapper.toDto(post);
     }
 
     public PostDtoById mapPostById(Post post) {
-        PostDto.disableMapper();
+        //PostDto.disableMapper();
         return postMapper.toDtoById(post);
     }
 
@@ -89,6 +91,7 @@ public class PostService {
         } else {
             list = postRepository.findPostByLikeCount(pageable);
         }
+        log.info("Populate all posts: offset:{} limit:{} mode:'{}'", offset, limit, mode);
         return populateDtoViewWithStream(postDtoView, list);
     }
 
@@ -102,14 +105,23 @@ public class PostService {
         } else {
             list = postRepository.findPostBySearchQuery(pageable, query);
         }
+        log.info("Populate posts with search: offset:{} limit:{} query:'{}'", offset, limit, query);
         return populateDtoViewWithStream(postDtoView, list);
     }
 
     @Transactional
-    public PostDtoById populateVarsByPostId(int id) {
-        postRepository.updateViewCount(id);
+    public PostDtoById populateVarsByPostIdWithUser(int id, User user) {
+        Post post;
+        if(user.getIsModerator() == 1){
+            post = postRepository.getPostByIdModerator(id);
+        }else {
+            post = postRepository.getPostById(id);
+        }
+        boolean sameUser = post.getUser().getId() == user.getId();
+        if(!sameUser){
+            postRepository.updateViewCount(id);
+        }
 
-        Post post = postRepository.getPostById(id);
         PostDtoById postDtoById = mapPostById(post);
         List<PostComment> postCommentList = post.getPostComments();
         List<TagToPost> tagToPost = post.getTagToPosts();
@@ -133,6 +145,39 @@ public class PostService {
                 .collect(Collectors.toList()));
         postDtoById.setAnnounce(Jsoup.parse(post.getText()
                 .substring(0, Math.min(post.getText().length(), 200))).text());
+        log.info("Populate post by id: id:{}", id);
+        return postDtoById;
+    }
+
+    @Transactional
+    public PostDtoById populateVarsByPostId(int id) {
+        postRepository.updateViewCount(id);
+        Post post = postRepository.getPostById(id);;
+
+        PostDtoById postDtoById = mapPostById(post);
+        List<PostComment> postCommentList = post.getPostComments();
+        List<TagToPost> tagToPost = post.getTagToPosts();
+        List<Tag> tagResultList = new ArrayList<>();
+        if (tagToPost != null) {
+            tagResultList = post.getTagToPosts()
+                    .stream()
+                    .map(TagToPost::getTag)
+                    .collect(Collectors.toList());
+        }
+        postDtoById.setCommentCount(postCommentList.size());
+        postDtoById.setLikeCount(toIntExact(post.getPostVotes().stream()
+                .filter(e -> e.getValue() == 1).count()));
+        postDtoById.setDislikeCount(toIntExact(post.getPostVotes().stream()
+                .filter(e -> e.getValue() == -1).count()));
+        postDtoById.setComments(postCommentList.stream()
+                .map(k -> postCommentService.mapCommentPostById(k.getId()))
+                .collect(Collectors.toList()));
+        postDtoById.setTags(tagResultList.stream()
+                .map(Tag::getName)
+                .collect(Collectors.toList()));
+        postDtoById.setAnnounce(Jsoup.parse(post.getText()
+                .substring(0, Math.min(post.getText().length(), 200))).text());
+        log.info("Populate post by id: id:{}", id);
         return postDtoById;
     }
 
@@ -142,8 +187,10 @@ public class PostService {
         String year = date.substring(0,4);
         String month = date.substring(5,7);
         String day = date.substring(8,10);
-        postDtoView.setCount(postRepository.countPostWithExactDate(year, month, day));
+
         List<Post> list = postRepository.findPostWithExactDate(pageable, year, month, day);
+        postDtoView.setCount(list.size());
+        log.info("Populate posts by date: offset:{} limit:{} date:'{}'", offset, limit, date);
         return populateDtoViewWithStream(postDtoView, list);
     }
 
@@ -157,6 +204,7 @@ public class PostService {
         } else {
             list = postRepository.findPostsByTag(pageable, tag);
         }
+        log.info("Populate all posts by tag: offset:{} limit:{} tag:'{}'", offset, limit, tag);
         return populateDtoViewWithStream(postDtoView, list);
     }
 
@@ -175,6 +223,7 @@ public class PostService {
                 .collect(Collectors.toList());
         calendarDto.setPosts(postsMap);
         calendarDto.setYears(postsYearsList);
+        log.info("Populate calendar: year:{}", year);
         return calendarDto;
     }
 
@@ -192,6 +241,7 @@ public class PostService {
         } else {
             list = postRepository.findAcceptedPosts(pageable, userId);
         }
+        log.info("Populate my profile: userId:{} offset:{} limit:{} status:'{}'", userId, offset, limit, status);
         return populateDtoViewWithStream(postDtoView, list);
     }
 
@@ -207,6 +257,7 @@ public class PostService {
         } else {
             list = postRepository.findDeclinedPostsModeration(pageable);
         }
+        log.info("Populate vars moderation: offset:{} limit:{} status:'{}'", offset, limit, status);
         return populateDtoViewWithStream(postDtoView, list);
     }
     @Transactional
@@ -230,9 +281,10 @@ public class PostService {
             post.setUser(user);
             post.setViewCount(0);
             postRepository.save(post);
-            return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+            log.info("Successfully created new post id: id:{}", post.getId());
+            return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(ResponseApi.builder().result("false").errors(errors).build(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ResponseApi.builder().result(false).errors(errors).build(), HttpStatus.BAD_REQUEST);
     }
 
     @Transactional
@@ -275,9 +327,9 @@ public class PostService {
             oldPost.setText(post.getText());
             //tagsRepository.saveAll(tagList);
             postRepository.save(oldPost);
-            return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+            return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(ResponseApi.builder().result("false").errors(errors).build(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ResponseApi.builder().result(false).errors(errors).build(), HttpStatus.BAD_REQUEST);
     }
 
     @Transactional
@@ -287,10 +339,10 @@ public class PostService {
         Optional<PostVote> postVote = postVotesRepository.getLikeByUserAndPost(postId, userId);
         if(postVote.isPresent()){
             if(postVote.get().getValue() == 1){
-                return new ResponseEntity<>(ResponseApi.builder().result("false").build(), HttpStatus.OK);
+                return new ResponseEntity<>(ResponseApi.builder().result(false).build(), HttpStatus.OK);
             }else {
                 postVotesRepository.save(postVote.get());
-                return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+                return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
             }
         }else {
             PostVote postVoteNew = new PostVote();
@@ -299,7 +351,7 @@ public class PostService {
             postVoteNew.setUser(user);
             postVoteNew.setValue(1);
             postVotesRepository.save(postVoteNew);
-            return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+            return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
         }
     }
 
@@ -310,10 +362,10 @@ public class PostService {
         Optional<PostVote> postVote = postVotesRepository.getLikeByUserAndPost(postId, userId);
         if(postVote.isPresent()){
             if(postVote.get().getValue() == -1){
-                return new ResponseEntity<>(ResponseApi.builder().result("false").build(), HttpStatus.OK);
+                return new ResponseEntity<>(ResponseApi.builder().result(false).build(), HttpStatus.OK);
             }else {
                 postVotesRepository.save(postVote.get());
-                return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+                return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
             }
         }else {
             PostVote postVoteNew = new PostVote();
@@ -322,14 +374,14 @@ public class PostService {
             postVoteNew.setUser(user);
             postVoteNew.setValue(-1);
             postVotesRepository.save(postVoteNew);
-            return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+            return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
         }
     }
 
     @Transactional
     public ResponseEntity postModeration(RequestApi requestApi, User user){
         Integer postId = requestApi.getPostId();
-        Post post = postRepository.getPostById(postId);
+        Post post = postRepository.getPostByIdModerator(postId);
         int userId = user.getId();
 
         post.setModeratorId(userId);
@@ -339,6 +391,6 @@ public class PostService {
             post.setStatus(Post.Status.DECLINED);
         }
         postRepository.save(post);
-        return new ResponseEntity<>(ResponseApi.builder().result("true").build(), HttpStatus.OK);
+        return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
     }
 }
