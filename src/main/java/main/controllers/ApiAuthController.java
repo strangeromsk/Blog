@@ -1,8 +1,9 @@
 package main.controllers;
 
+import main.API.ResponseApi;
 import main.DTO.UserDto;
 import main.DTO.UserRegisterResponse;
-import main.API.ResponseApi;
+import main.model.User;
 import main.services.CaptchaService;
 import main.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +43,8 @@ public class ApiAuthController {
     }
 
     @PostMapping(value = "/restore")
-    public ResponseEntity<ResponseApi> restorePassword(@RequestBody UserDto userDto, HttpServletRequest request) {
-        return new ResponseEntity<>(userService.restorePassword(userDto.getEmail(), request), HttpStatus.OK);
+    public ResponseEntity<ResponseApi> restorePassword(@RequestBody User user, HttpServletRequest request) {
+        return new ResponseEntity<>(userService.restorePassword(user.getEmail(), request), HttpStatus.OK);
     }
 
     @GetMapping(value = "/logout")

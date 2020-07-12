@@ -1,7 +1,7 @@
 package main.mapper;
 
-import main.DTO.PostDtoById.PostDtoById;
 import main.DTO.PostDto;
+import main.DTO.PostDtoById.PostDtoById;
 import main.model.Post;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

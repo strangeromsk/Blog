@@ -1,13 +1,9 @@
 package main.model;
 
 import lombok.Data;
-import lombok.ToString;
-import org.springframework.context.annotation.EnableMBeanExport;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.List;
 
 @Data
 

@@ -1,10 +1,10 @@
 package main.controllers;
 
 import main.API.RequestApi;
+import main.API.ResponseApi;
 import main.DTO.ModePostDto;
 import main.DTO.PostDtoById.PostDtoById;
 import main.DTO.PostDtoView;
-import main.API.ResponseApi;
 import main.model.Post;
 import main.model.User;
 import main.services.PostService;

@@ -204,9 +204,9 @@ public class UserService {
         boolean forthCond = email.isPresent() && name.isPresent() && removePhoto == 1;
         Map<String, String> errors = new HashMap<>(8);
 
-//        if(email.isPresent() && userRepository.findByEmail(email.get()).isPresent()){
-//            errors.put("email", "Email is already registered and/or incorrect");
-//        }
+        if(email.isPresent() && userRepository.findByEmail(email.get()).isPresent()){
+            errors.put("email", "Email is already registered and/or incorrect");
+        }
         if(name.isPresent() && (name.get().length() > maxNameLength || name.get().length() < minNameLength)){
             errors.put("name", "Name is incorrect");
         }
@@ -256,14 +256,10 @@ public class UserService {
 
         boolean firstCond = emailOptional.isPresent() && nameOptional.isPresent();
         boolean secondCond = emailOptional.isPresent() && nameOptional.isPresent() && passwordOptional.isPresent();
-//        boolean thirdCond = emailOptional.isPresent() && nameOptional.isPresent() && passwordOptional.isPresent() && removePhoto == 0;
         boolean thirdCond = nameOptional.isPresent() && passwordOptional.isPresent() && removePhoto == 0;
         boolean forthCond = emailOptional.isPresent() && nameOptional.isPresent() && photo.isEmpty() && removePhoto == 1;
         Map<String, String> errors = new HashMap<>(8);
 
-//        if(emailOptional.isPresent() && userRepository.findByEmail(emailOptional.get()).isPresent()){
-//            errors.put("email", "Email is already registered and/or incorrect");
-//        }
         if(nameOptional.isPresent() && (nameOptional.get().length() > maxNameLength || nameOptional.get().length() < minNameLength)){
             errors.put("name", "Name is incorrect");
         }
@@ -279,7 +275,6 @@ public class UserService {
                 user.setName(nameOptional.get());
                 user.setPhoto("");
             }else if(thirdCond){
-               // user.setEmail(emailOptional.get());
                 user.setName(nameOptional.get());
                 user.setPassword(passwordEncoder.encode(passwordOptional.get()));
 

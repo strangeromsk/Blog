@@ -3,7 +3,9 @@ package main.DTO.PostDtoById;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Data
 public class PostDtoById {

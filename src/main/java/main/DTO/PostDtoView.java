@@ -3,7 +3,7 @@ package main.DTO;
 import lombok.Data;
 import lombok.ToString;
 
-import java.util.*;
+import java.util.List;
 
 @Data
 public class PostDtoView {
