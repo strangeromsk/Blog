@@ -136,7 +136,6 @@ public class ApiPostController {
                 return new ResponseEntity<>(postService.populateVarsModeration(offset, limit, status), HttpStatus.OK);
             }
         }
-
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 

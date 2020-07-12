@@ -1,7 +1,9 @@
 package main.services;
 
+import lombok.extern.slf4j.Slf4j;
 import main.configuration.FileStorageProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,20 +19,19 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
+@Slf4j
 @Service
+@Scope("prototype")
 public class FileStorageService {
 
+    private final String dirsNames;
     private final Path fileStorageLocation;
 
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties) {
-        this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir() + createDirs())
+        this.dirsNames = getDirsNames();
+        this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir() + dirsNames)
                 .toAbsolutePath().normalize();
-        try {
-            Files.createDirectories(this.fileStorageLocation);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
 
     private String generateTextMethod(int length)   {
@@ -44,16 +45,16 @@ public class FileStorageService {
         return stringBuilder.toString();
     }
 
-    private String createDirs(){
+    private String getDirsNames(){
         String firstDir = generateTextMethod(2);
         String secondDir = generateTextMethod(2);
         String thirdDir = generateTextMethod(2);
-        String path = "/" + firstDir + "/" + secondDir + "/" + thirdDir + "/";
-        File f = new File("/resources/upload" + path);
-        if(f.mkdir()){
-            System.out.println("Success!");
-        }
-        return path;
+        return "/" + firstDir + "/" + secondDir + "/" + thirdDir + "/";
+    }
+
+    private boolean createDirs(String path){
+        File f = new File("resources/upload" + path);
+        return f.mkdirs();
     }
 
     public String storeFile(MultipartFile file) {
@@ -62,8 +63,9 @@ public class FileStorageService {
             if(fileName.contains("..")) {
                 throw new IllegalArgumentException();
             }
-            String completePath = createDirs() + fileName;
+            String completePath = dirsNames + fileName;
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            createDirs(dirsNames);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
             return completePath;
         } catch (IOException ex) {
@@ -78,25 +80,16 @@ public class FileStorageService {
             if(fileName.contains("..")) {
                 throw new IllegalArgumentException();
             }
-            String completePath = createDirs() + fileName;
-
-//            Path filepath = Paths.get("/resources/upload" + completePath, file.getOriginalFilename());
-//            OutputStream os = Files.newOutputStream(filepath);
-//            os.write(file.getBytes());
-//            Path targetLocation = this.fileStorageLocation.resolve(fileName);
-//            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-//            File convFile = new File(System.getProperty("java.io.tmpdir")+"/"+fileName);
-//            file.transferTo(convFile);
-
             File input = new File(fileName);
             file.transferTo(input);
             BufferedImage image = ImageIO.read(input);
             BufferedImage resized = resize(image);
-            String newPicPath = "resources/upload" + createDirs() + generateTextMethod(13) + ".jpg";
+            createDirs(dirsNames);
+            String newPicPath = "resources/upload" + dirsNames + generateTextMethod(13) + ".png";
             File output = new File(newPicPath);
-            ImageIO.write(resized, "jpg", output);
 
-            return newPicPath;
+            ImageIO.write(resized, "png", output);
+            return "http://localhost:8080/" + newPicPath;
         } catch (IOException ex) {
             ex.printStackTrace();
         }

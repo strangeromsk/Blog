@@ -50,8 +50,10 @@ public class ApiAuthController {
     public ResponseEntity<ResponseApi> logout() {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
-        return userId.map(integer -> new ResponseEntity<>(userService.logout(integer), HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK));
+        if(userId.isPresent()){
+            userService.getSessionIds().remove(session);
+        }
+        return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
     }
 
     @PostMapping(value = "/register")
