@@ -3,6 +3,7 @@ package main.services;
 import main.DTO.SettingsResponse;
 import main.model.GlobalSettings;
 import main.repositories.SettingsRepository;
+import main.services.interfaces.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class SettingsService {
+public class SettingsServiceImpl implements SettingsService {
     private final SettingsRepository settingsRepository;
 
     @Autowired
-    public SettingsService(SettingsRepository settingsRepository) {
+    public SettingsServiceImpl(SettingsRepository settingsRepository) {
         this.settingsRepository = settingsRepository;
     }
 

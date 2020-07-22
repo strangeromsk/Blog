@@ -2,6 +2,7 @@ package main.services;
 
 import lombok.extern.slf4j.Slf4j;
 import main.configuration.FileStorageProperties;
+import main.services.interfaces.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -22,13 +23,13 @@ import java.util.Objects;
 @Slf4j
 @Service
 @Scope("prototype")
-public class FileStorageService {
+public class FileStorageServiceImpl implements FileStorageService {
 
     private final String dirsNames;
     private final Path fileStorageLocation;
 
     @Autowired
-    public FileStorageService(FileStorageProperties fileStorageProperties) {
+    public FileStorageServiceImpl(FileStorageProperties fileStorageProperties) {
         this.dirsNames = getDirsNames();
         this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir() + dirsNames)
                 .toAbsolutePath().normalize();
@@ -89,7 +90,7 @@ public class FileStorageService {
             File output = new File(newPicPath);
 
             ImageIO.write(resized, "png", output);
-            return "http://localhost:8080/" + newPicPath;
+            return newPicPath;
         } catch (IOException ex) {
             ex.printStackTrace();
         }

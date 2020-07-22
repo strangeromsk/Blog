@@ -12,6 +12,7 @@ import main.model.User;
 import main.repositories.CaptchaRepository;
 import main.repositories.PostRepository;
 import main.repositories.UserRepository;
+import main.services.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,14 +30,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.lang.Math.toIntExact;
 
 @Service
-public class UserService {
-    private final CaptchaService captchaService;
+public class UserServiceImpl implements UserService {
     private final CaptchaRepository captchaRepository;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;
-    private final FileStorageService fileStorageService;
+    private final FileStorageServiceImpl fileStorageService;
 
     public boolean isModerator(int id){
         return userRepository.getOne(id).getIsModerator() == 1;
@@ -50,9 +50,8 @@ public class UserService {
     }
 
     @Autowired
-    public UserService(CaptchaService captchaService, CaptchaRepository captchaRepository, UserMapper userMapper, UserRepository userRepository,
-                       PostRepository postRepository, PasswordEncoder passwordEncoder, FileStorageService fileStorageService) {
-        this.captchaService = captchaService;
+    public UserServiceImpl(CaptchaRepository captchaRepository, UserMapper userMapper, UserRepository userRepository,
+                           PostRepository postRepository, PasswordEncoder passwordEncoder, FileStorageServiceImpl fileStorageService) {
         this.captchaRepository = captchaRepository;
         this.userMapper = userMapper;
         this.userRepository = userRepository;
@@ -260,7 +259,8 @@ public class UserService {
         boolean forthCond = emailOptional.isPresent() && nameOptional.isPresent() && photo.isEmpty() && removePhoto == 1;
         Map<String, String> errors = new HashMap<>(8);
 
-        if(nameOptional.isPresent() && (nameOptional.get().length() > maxNameLength || nameOptional.get().length() < minNameLength)){
+        if(nameOptional.isPresent() && (nameOptional.get().length() > maxNameLength ||
+                nameOptional.get().length() < minNameLength)){
             errors.put("name", "Name is incorrect");
         }
         if(passwordOptional.isPresent() && passwordOptional.get().length() < minPasswordLength){

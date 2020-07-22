@@ -2,6 +2,7 @@ package main.services;
 
 import main.API.ResponseApi;
 import main.repositories.CaptchaRepository;
+import main.services.interfaces.CaptchaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,11 +16,11 @@ import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 
 @Service
-public class CaptchaService {
+public class CaptchaServiceImpl implements CaptchaService {
     private final CaptchaRepository captchaRepository;
 
     @Autowired
-    public CaptchaService(CaptchaRepository captchaRepository) {
+    public CaptchaServiceImpl(CaptchaRepository captchaRepository) {
         this.captchaRepository = captchaRepository;
     }
 
@@ -34,7 +35,7 @@ public class CaptchaService {
         return captchaStrBuffer.toString();
     }
     @Transactional
-    public ResponseApi captchaGen(HttpServletRequest request){
+    public ResponseApi generateCaptcha(HttpServletRequest request){
         String FILE_TYPE = "jpeg";
         String captchaSecret = null;
         String bosToB64 = null;

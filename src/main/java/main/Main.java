@@ -18,52 +18,8 @@ import java.util.Properties;
 import static org.modelmapper.config.Configuration.AccessLevel.PRIVATE;
 
 @SpringBootApplication
-@EnableConfigurationProperties({
-        FileStorageProperties.class
-})
 public class Main {
     public static void main(String[] args){
         SpringApplication.run(Main.class, args);
-    }
-
-    @Bean
-    public ModelMapper modelMapper() {
-        ModelMapper mapper = new ModelMapper();
-        mapper.getConfiguration()
-                .setMatchingStrategy(MatchingStrategies.STRICT)
-                .setFieldMatchingEnabled(true)
-                .setSkipNullEnabled(true)
-                .setFieldAccessLevel(PRIVATE);
-        return mapper;
-    }
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean(name = "multipartResolver")
-    public CommonsMultipartResolver multipartResolver() {
-        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
-        multipartResolver.setMaxUploadSize(10000000);
-        return multipartResolver;
-    }
-
-    @Bean
-    public JavaMailSender getJavaMailSender() {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.gmail.com");
-        mailSender.setPort(587);
-
-        mailSender.setUsername("springblogemail@gmail.com");
-        //fill password to test email sending
-        mailSender.setPassword("");
-
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "true");
-
-        return mailSender;
     }
 }

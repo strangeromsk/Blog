@@ -13,6 +13,7 @@ import main.model.*;
 import main.repositories.PostRepository;
 import main.repositories.PostVotesRepository;
 import main.repositories.TagsRepository;
+import main.services.interfaces.PostService;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -30,33 +31,31 @@ import static java.lang.Math.toIntExact;
 
 @Slf4j
 @Service
-public class PostService {
+public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final PostMapper postMapper;
-    private final PostCommentService postCommentService;
-    private final UserService userService;
+    private final PostCommentServiceImpl postCommentServiceImpl;
     private final PostVotesRepository postVotesRepository;
     private final TagsRepository tagsRepository;
 
     @Autowired
-    public PostService(PostRepository postRepository, PostMapper postMapper,
-                       PostCommentService postCommentService, UserService userService, PostVotesRepository postVotesRepository, TagsRepository tagsRepository) {
+    public PostServiceImpl(PostRepository postRepository, PostMapper postMapper,
+                           PostCommentServiceImpl postCommentServiceImpl,
+                           PostVotesRepository postVotesRepository,
+                           TagsRepository tagsRepository) {
         this.postRepository = postRepository;
         this.postMapper = postMapper;
-        this.postCommentService = postCommentService;
-        this.userService = userService;
+        this.postCommentServiceImpl = postCommentServiceImpl;
         this.postVotesRepository = postVotesRepository;
         this.tagsRepository = tagsRepository;
     }
 
     public PostDto mapPost(Post post) {
-        //PostDto.disableMapper();
         return postMapper.toDto(post);
     }
 
     public PostDtoById mapPostById(Post post) {
-        //PostDto.disableMapper();
         return postMapper.toDtoById(post);
     }
 
@@ -121,7 +120,6 @@ public class PostService {
         if(!sameUser){
             postRepository.updateViewCount(id);
         }
-
         PostDtoById postDtoById = mapPostById(post);
         List<PostComment> postCommentList = post.getPostComments();
         List<TagToPost> tagToPost = post.getTagToPosts();
@@ -138,7 +136,7 @@ public class PostService {
         postDtoById.setDislikeCount(toIntExact(post.getPostVotes().stream()
                 .filter(e -> e.getValue() == -1).count()));
         postDtoById.setComments(postCommentList.stream()
-                .map(k -> postCommentService.mapCommentPostById(k.getId()))
+                .map(k -> postCommentServiceImpl.mapCommentPostById(k.getId()))
                 .collect(Collectors.toList()));
         postDtoById.setTags(tagResultList.stream()
                 .map(Tag::getName)
@@ -152,7 +150,7 @@ public class PostService {
     @Transactional
     public PostDtoById populateVarsByPostId(int id) {
         postRepository.updateViewCount(id);
-        Post post = postRepository.getPostById(id);;
+        Post post = postRepository.getPostById(id);
 
         PostDtoById postDtoById = mapPostById(post);
         List<PostComment> postCommentList = post.getPostComments();
@@ -170,7 +168,7 @@ public class PostService {
         postDtoById.setDislikeCount(toIntExact(post.getPostVotes().stream()
                 .filter(e -> e.getValue() == -1).count()));
         postDtoById.setComments(postCommentList.stream()
-                .map(k -> postCommentService.mapCommentPostById(k.getId()))
+                .map(k -> postCommentServiceImpl.mapCommentPostById(k.getId()))
                 .collect(Collectors.toList()));
         postDtoById.setTags(tagResultList.stream()
                 .map(Tag::getName)
@@ -310,10 +308,6 @@ public class PostService {
             }
             oldPost.setIsActive(post.getActive());
             oldPost.setTitle(post.getTitle());
-
-            //List<Tag> tagList = post.getTags().stream().map(Tag::new).collect(Collectors.toList());
-            //List<Tag> tagList = new ArrayList<>();
-
             List<TagToPost> tagToPostList = oldPost.getTagToPosts()
                     .stream()
                     .peek(e-> post.getTags().forEach(k->{
@@ -379,7 +373,7 @@ public class PostService {
     }
 
     @Transactional
-    public ResponseEntity postModeration(RequestApi requestApi, User user){
+    public ResponseApi postModeration(RequestApi requestApi, User user){
         Integer postId = requestApi.getPostId();
         Post post = postRepository.getPostByIdModerator(postId);
         int userId = user.getId();
@@ -391,6 +385,6 @@ public class PostService {
             post.setStatus(Post.Status.DECLINED);
         }
         postRepository.save(post);
-        return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
+        return ResponseApi.builder().result(true).build();
     }
 }

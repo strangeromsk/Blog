@@ -6,6 +6,7 @@ import main.DTO.TagDto;
 import main.model.Tag;
 import main.repositories.PostRepository;
 import main.repositories.TagsRepository;
+import main.services.interfaces.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,18 +16,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class TagService {
+public class TagServiceImpl implements TagService {
     private final TagsRepository tagsRepository;
     private final PostRepository postRepository;
 
     @Autowired
-    public TagService(TagsRepository tagsRepository, PostRepository postRepository) {
+    public TagServiceImpl(TagsRepository tagsRepository, PostRepository postRepository) {
         this.tagsRepository = tagsRepository;
         this.postRepository = postRepository;
     }
     @Data
     @NoArgsConstructor
-    private static class LocalTag{
+    public static class LocalTag{
         List<TagDto> tags = new ArrayList<>();
     }
 

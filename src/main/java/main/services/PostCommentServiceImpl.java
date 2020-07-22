@@ -8,6 +8,7 @@ import main.model.PostComment;
 import main.repositories.PostCommentsRepository;
 import main.repositories.PostRepository;
 import main.repositories.UserRepository;
+import main.services.interfaces.PostCommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,15 +20,15 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class PostCommentService {
+public class PostCommentServiceImpl implements PostCommentService {
     private final CommentMapper commentMapper;
     private final PostCommentsRepository postCommentsRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
     @Autowired
-    public PostCommentService(CommentMapper commentMapper, PostCommentsRepository postCommentsRepository,
-                              PostRepository postRepository, UserRepository userRepository) {
+    public PostCommentServiceImpl(CommentMapper commentMapper, PostCommentsRepository postCommentsRepository,
+                                  PostRepository postRepository, UserRepository userRepository) {
         this.commentMapper = commentMapper;
         this.postCommentsRepository = postCommentsRepository;
         this.postRepository = postRepository;
