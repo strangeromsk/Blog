@@ -40,6 +40,7 @@ public class TagServiceImpl implements TagService {
         }else{
             list = tagsRepository.findTagsByQuery(query);
         }
+        double maxWeight = 0.3;
         localTag.tags = list.stream().map(e->{
             double postsCountByTag = e.getTagToPosts()
                     .stream()
@@ -50,21 +51,18 @@ public class TagServiceImpl implements TagService {
             weight = Double.parseDouble(new DecimalFormat("##.##").format(weight).replace(",", "."));
 
             return new TagDto(e.getName(), weight);
-        }).collect(Collectors.toList());
-//        .stream().map(k->{
-//            List<Double> weights = new ArrayList<>();
-//            weights.add(k.getWeight());
-//            double maxWeight = Collections.max(weights);
-//            double multiplyCoeff = 1 / maxWeight;
-//            weights = weights.stream().map(x->{
-//                x= x*multiplyCoeff;
-//                if(x < 0.3){
-//                    x = 0.3;
-//                }
-//                return x;
-//            }).collect(Collectors.toList());
-//            return new TagDto(k.getName(), );
-//                }).collect(Collectors.toList());
+        }).collect(Collectors.toList())
+        .stream().peek(j-> {
+            if(j.getWeight() > maxWeight){
+                j.setWeight(maxWeight);
+            }
+        }).peek(h->{
+            double maxCoeff = 1 / maxWeight;
+            h.setWeight(h.getWeight() * maxCoeff);
+            if (h.getWeight() < 0.3){
+                h.setWeight(0.3);
+            }
+                }).collect(Collectors.toList());
         return localTag;
     }
 }

@@ -11,6 +11,5 @@ public class StatResponse {
     private long likesCount;
     private long dislikesCount;
     private long viewsCount;
-    //@JsonFormat(pattern="yyyy-MM-dd HH:mm")
     private long firstPublication;
 }
