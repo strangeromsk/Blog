@@ -38,7 +38,7 @@ public class User {
     @Basic
     @NotNull
     @Column(name = "reg_time")
-    private Date regTime;
+    private long regTime;
 
     @NotNull
     private String name;

@@ -33,20 +33,22 @@ import static java.lang.Math.toIntExact;
 @Service
 public class PostServiceImpl implements PostService {
 
-    private final PostRepository postRepository;
     private final PostMapper postMapper;
     private final PostCommentServiceImpl postCommentServiceImpl;
+    private final SettingsServiceImpl settingsServiceImpl;
     private final PostVotesRepository postVotesRepository;
     private final TagsRepository tagsRepository;
+    private final PostRepository postRepository;
 
     @Autowired
     public PostServiceImpl(PostRepository postRepository, PostMapper postMapper,
                            PostCommentServiceImpl postCommentServiceImpl,
-                           PostVotesRepository postVotesRepository,
+                           SettingsServiceImpl settingsServiceImpl, PostVotesRepository postVotesRepository,
                            TagsRepository tagsRepository) {
         this.postRepository = postRepository;
         this.postMapper = postMapper;
         this.postCommentServiceImpl = postCommentServiceImpl;
+        this.settingsServiceImpl = settingsServiceImpl;
         this.postVotesRepository = postVotesRepository;
         this.tagsRepository = tagsRepository;
     }
@@ -74,6 +76,37 @@ public class PostServiceImpl implements PostService {
                 })
                 .collect(Collectors.toList()));
         return postDtoView;
+    }
+
+    private PostDtoById getPostDtoById(int id, Post post) {
+        PostDtoById postDtoById = mapPostById(post);
+        List<PostComment> postCommentList = post.getPostComments();
+        if(postCommentList.size() == 0){
+            postCommentList = new ArrayList<>();
+        }
+        List<TagToPost> tagToPost = post.getTagToPosts();
+        List<Tag> tagResultList = new ArrayList<>();
+        if (tagToPost != null) {
+            tagResultList = post.getTagToPosts()
+                    .stream()
+                    .map(TagToPost::getTag)
+                    .collect(Collectors.toList());
+        }
+        postDtoById.setCommentCount(postCommentList.size());
+        postDtoById.setLikeCount(toIntExact(post.getPostVotes().stream()
+                .filter(e -> e.getValue() == 1).count()));
+        postDtoById.setDislikeCount(toIntExact(post.getPostVotes().stream()
+                .filter(e -> e.getValue() == -1).count()));
+        postDtoById.setComments(postCommentList.stream()
+                .map(k -> postCommentServiceImpl.mapCommentPostById(k.getId()))
+                .collect(Collectors.toList()));
+        postDtoById.setTags(tagResultList.stream()
+                .map(Tag::getName)
+                .collect(Collectors.toList()));
+        postDtoById.setAnnounce(Jsoup.parse(post.getText()
+                .substring(0, Math.min(post.getText().length(), 200))).text());
+        log.info("Populate post by id: id:{}", id);
+        return postDtoById;
     }
 
     public PostDtoView populateVars(int offset, int limit, ModePostDto mode) {
@@ -110,73 +143,25 @@ public class PostServiceImpl implements PostService {
 
     @Transactional
     public PostDtoById populateVarsByPostIdWithUser(int id, User user) {
-        Post post;
-        if(user.getIsModerator() == 1){
-            post = postRepository.getPostByIdModerator(id);
-        }else {
-            post = postRepository.getPostById(id);
-        }
+        Post post = postRepository.getPostById(id);
+
         boolean sameUser = post.getUser().getId() == user.getId();
         if(!sameUser){
             postRepository.updateViewCount(id);
         }
-        PostDtoById postDtoById = mapPostById(post);
-        List<PostComment> postCommentList = post.getPostComments();
-        List<TagToPost> tagToPost = post.getTagToPosts();
-        List<Tag> tagResultList = new ArrayList<>();
-        if (tagToPost != null) {
-            tagResultList = post.getTagToPosts()
-                    .stream()
-                    .map(TagToPost::getTag)
-                    .collect(Collectors.toList());
+        if(!sameUser ^ user.getIsModerator() == 0){
+            post = null;
         }
-        postDtoById.setCommentCount(postCommentList.size());
-        postDtoById.setLikeCount(toIntExact(post.getPostVotes().stream()
-                .filter(e -> e.getValue() == 1).count()));
-        postDtoById.setDislikeCount(toIntExact(post.getPostVotes().stream()
-                .filter(e -> e.getValue() == -1).count()));
-        postDtoById.setComments(postCommentList.stream()
-                .map(k -> postCommentServiceImpl.mapCommentPostById(k.getId()))
-                .collect(Collectors.toList()));
-        postDtoById.setTags(tagResultList.stream()
-                .map(Tag::getName)
-                .collect(Collectors.toList()));
-        postDtoById.setAnnounce(Jsoup.parse(post.getText()
-                .substring(0, Math.min(post.getText().length(), 200))).text());
-        log.info("Populate post by id: id:{}", id);
-        return postDtoById;
+        return getPostDtoById(id, post);
     }
 
     @Transactional
     public PostDtoById populateVarsByPostId(int id) {
-        postRepository.updateViewCount(id);
         Post post = postRepository.getPostById(id);
-
-        PostDtoById postDtoById = mapPostById(post);
-        List<PostComment> postCommentList = post.getPostComments();
-        List<TagToPost> tagToPost = post.getTagToPosts();
-        List<Tag> tagResultList = new ArrayList<>();
-        if (tagToPost != null) {
-            tagResultList = post.getTagToPosts()
-                    .stream()
-                    .map(TagToPost::getTag)
-                    .collect(Collectors.toList());
+        if(post != null){
+            postRepository.updateViewCount(id);
         }
-        postDtoById.setCommentCount(postCommentList.size());
-        postDtoById.setLikeCount(toIntExact(post.getPostVotes().stream()
-                .filter(e -> e.getValue() == 1).count()));
-        postDtoById.setDislikeCount(toIntExact(post.getPostVotes().stream()
-                .filter(e -> e.getValue() == -1).count()));
-        postDtoById.setComments(postCommentList.stream()
-                .map(k -> postCommentServiceImpl.mapCommentPostById(k.getId()))
-                .collect(Collectors.toList()));
-        postDtoById.setTags(tagResultList.stream()
-                .map(Tag::getName)
-                .collect(Collectors.toList()));
-        postDtoById.setAnnounce(Jsoup.parse(post.getText()
-                .substring(0, Math.min(post.getText().length(), 200))).text());
-        log.info("Populate post by id: id:{}", id);
-        return postDtoById;
+        return getPostDtoById(id, post);
     }
 
     public PostDtoView populateVarsWithExactDate(int offset, int limit, String date) {
@@ -262,9 +247,10 @@ public class PostServiceImpl implements PostService {
     public ResponseEntity<ResponseApi> makeNewPost(Post post, User user){
         int mintTitleLength = 3;
         int minTextLength = 50;
-        Date postDate = post.getTime();
-        Date currentDate = new Date();
-        if(postDate.before(currentDate)){
+        long postDate = post.getTime();
+        long currentDate = new Date().getTime();
+        boolean preModeration = settingsServiceImpl.getPreModeration();
+        if(postDate < currentDate){
             post.setTime(currentDate);
         }
         HashMap<String, String> errors = new HashMap<>(4);
@@ -276,6 +262,9 @@ public class PostServiceImpl implements PostService {
         }
         if(errors.size() == 0){
             post.setStatus(Post.Status.NEW);
+            if(!preModeration){
+                post.setStatus(Post.Status.ACCEPTED);
+            }
             post.setUser(user);
             post.setViewCount(0);
             postRepository.save(post);
@@ -290,12 +279,12 @@ public class PostServiceImpl implements PostService {
         Post oldPost = postRepository.getOne(id);
         int mintTitleLength = 3;
         int minTextLength = 50;
-        Date postDate = post.getTime();
-        Date currentDate = new Date();
-        if(postDate.before(currentDate)){
+        long postDate = post.getTime();
+        long currentDate = new Date().getTime();
+        if(postDate < currentDate){
             post.setTime(currentDate);
         }
-        HashMap<String, String> errors = new HashMap<>(4);
+        Map<String, String> errors = new HashMap<>(4);
         if(post.getTitle().length() <= mintTitleLength){
             errors.put("title", "Title is not set");
         }
@@ -341,7 +330,7 @@ public class PostServiceImpl implements PostService {
         }else {
             PostVote postVoteNew = new PostVote();
             postVoteNew.setPost(post);
-            postVoteNew.setTime(new Date());
+            postVoteNew.setTime(new Date().getTime());
             postVoteNew.setUser(user);
             postVoteNew.setValue(1);
             postVotesRepository.save(postVoteNew);
@@ -364,7 +353,7 @@ public class PostServiceImpl implements PostService {
         }else {
             PostVote postVoteNew = new PostVote();
             postVoteNew.setPost(post);
-            postVoteNew.setTime(new Date());
+            postVoteNew.setTime(new Date().getTime());
             postVoteNew.setUser(user);
             postVoteNew.setValue(-1);
             postVotesRepository.save(postVoteNew);
@@ -375,7 +364,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public ResponseApi postModeration(RequestApi requestApi, User user){
         Integer postId = requestApi.getPostId();
-        Post post = postRepository.getPostByIdModerator(postId);
+        Post post = postRepository.getPostById(postId);
         int userId = user.getId();
 
         post.setModeratorId(userId);

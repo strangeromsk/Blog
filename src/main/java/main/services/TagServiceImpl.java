@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,10 +47,24 @@ public class TagServiceImpl implements TagService {
                     .count();
             double allPostsCount = postRepository.count();
             double weight = postsCountByTag / allPostsCount;
-            weight = Double.parseDouble(new DecimalFormat("##.##").format(weight));
+            weight = Double.parseDouble(new DecimalFormat("##.##").format(weight).replace(",", "."));
 
             return new TagDto(e.getName(), weight);
         }).collect(Collectors.toList());
+//        .stream().map(k->{
+//            List<Double> weights = new ArrayList<>();
+//            weights.add(k.getWeight());
+//            double maxWeight = Collections.max(weights);
+//            double multiplyCoeff = 1 / maxWeight;
+//            weights = weights.stream().map(x->{
+//                x= x*multiplyCoeff;
+//                if(x < 0.3){
+//                    x = 0.3;
+//                }
+//                return x;
+//            }).collect(Collectors.toList());
+//            return new TagDto(k.getName(), );
+//                }).collect(Collectors.toList());
         return localTag;
     }
 }

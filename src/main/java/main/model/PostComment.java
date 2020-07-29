@@ -31,8 +31,8 @@ public class PostComment {
 
     @Basic
     @NotNull
-    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="dd-MM-yyyy hh:mm:ss")
-    private Date time;
+    //@JsonFormat(shape= JsonFormat.Shape.STRING, pattern="dd-MM-yyyy hh:mm:ss")
+    private long time;
 
     @NotNull
     @Column(length = 1000)

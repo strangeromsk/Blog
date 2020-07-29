@@ -24,6 +24,7 @@ public class SettingsServiceImpl implements SettingsService {
     public boolean getStatIsPublic(){
         return settingsRepository.getStatIsPublic();
     }
+    public boolean getPreModeration(){return settingsRepository.getPremoderation();}
 
     public ResponseEntity<SettingsResponse> getSettings(){
         List<GlobalSettings> globalSettings = settingsRepository.findAll();

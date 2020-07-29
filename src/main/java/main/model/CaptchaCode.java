@@ -18,7 +18,7 @@ public class CaptchaCode {
 
     @Basic
     @NotNull
-    private Date time;
+    private long time;
 
     @NotNull
     @Column(length = 5000)

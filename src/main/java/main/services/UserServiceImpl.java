@@ -24,6 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -67,12 +70,16 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<ResponseApi> populateUserOnLogin(String email, String password){
         ResponseApi responseApi;
         Optional<User> userOptional = userRepository.findByEmail(email);
+        Map<String, String> errors = new HashMap<>(8);
+
         if(userOptional.isEmpty()){
-            responseApi = ResponseApi.builder()
+            errors.put("email", "User does not exist");
+            responseApi = ResponseApi.builder().errors(errors)
                     .result(false).build();
             return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
         }else if(!passwordEncoder.matches(password, userOptional.get().getPassword())) {
-            responseApi = ResponseApi.builder()
+            errors.put("password", "Password is incorrect");
+            responseApi = ResponseApi.builder().errors(errors)
                     .result(false).build();
             return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
         }else {
@@ -176,7 +183,7 @@ public class UserServiceImpl implements UserService {
                 user.setName(name);
                 user.setPassword(passwordEncoder.encode(password));
                 user.setCode(secretCode);
-                user.setRegTime(new Date());
+                user.setRegTime(new Date().getTime());
                 user.setIsModerator(0);
                 userRepository.save(user);
                 responseApi = ResponseApi.builder()
@@ -196,12 +203,13 @@ public class UserServiceImpl implements UserService {
         Optional<String> email = Optional.ofNullable(userMyProfileDto.getEmail());
         Optional<String> name = Optional.ofNullable(userMyProfileDto.getName());
         Optional<String> password = Optional.ofNullable(userMyProfileDto.getPassword());
+        Map<String, String> errors = new HashMap<>(8);
+
         byte removePhoto = userMyProfileDto.getRemovePhoto();
         boolean firstCond = email.isPresent() && name.isPresent();
         boolean secondCond = email.isPresent() && name.isPresent() && password.isPresent();
         boolean thirdCond = email.isPresent() && name.isPresent() && password.isPresent() && removePhoto == 0;
         boolean forthCond = email.isPresent() && name.isPresent() && removePhoto == 1;
-        Map<String, String> errors = new HashMap<>(8);
 
         if(email.isPresent() && userRepository.findByEmail(email.get()).isPresent()){
             errors.put("email", "Email is already registered and/or incorrect");
@@ -211,6 +219,18 @@ public class UserServiceImpl implements UserService {
         }
         if(password.isPresent() && password.get().length() < minPasswordLength){
             errors.put("password", "Password is less than 6 symbols");
+        }
+        if(errors.size() > 0 && removePhoto == 1){
+            Path currentRelativePath = Paths.get("");
+            String s = currentRelativePath.toAbsolutePath().toString();
+            File photo = new File(s + "\\" + user.getPhoto());
+            if(photo.delete()){
+                user.setPhoto("");
+                userRepository.save(user);
+                responseApi = ResponseApi.builder()
+                        .result(true).build();
+                return new ResponseEntity<>(responseApi, HttpStatus.OK);
+            }
         }
 
         responseApi = ResponseApi.builder()
@@ -252,12 +272,12 @@ public class UserServiceImpl implements UserService {
         Optional<String> emailOptional = Optional.ofNullable(email);
         Optional<String> nameOptional = Optional.ofNullable(name);
         Optional<String> passwordOptional = Optional.ofNullable(password);
+        Map<String, String> errors = new HashMap<>(8);
 
         boolean firstCond = emailOptional.isPresent() && nameOptional.isPresent();
         boolean secondCond = emailOptional.isPresent() && nameOptional.isPresent() && passwordOptional.isPresent();
         boolean thirdCond = nameOptional.isPresent() && passwordOptional.isPresent() && removePhoto == 0;
         boolean forthCond = emailOptional.isPresent() && nameOptional.isPresent() && photo.isEmpty() && removePhoto == 1;
-        Map<String, String> errors = new HashMap<>(8);
 
         if(nameOptional.isPresent() && (nameOptional.get().length() > maxNameLength ||
                 nameOptional.get().length() < minNameLength)){
@@ -299,31 +319,22 @@ public class UserServiceImpl implements UserService {
 
     public StatResponse myStatistics(int userId){
         List<Post> postsList = postRepository.findAllPostsByUserId(userId);
-        StatResponse statResponse = new StatResponse();
-        if(postsList.size() != 0){
-            statResponse.setPostsCount(postsList.size());
-            statResponse.setLikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == 1)).count());
-            statResponse.setDislikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == -1)).count());
-            statResponse.setViewsCount(postsList.stream().map(Post::getViewCount).count());
-            statResponse.setFirstPublication(postsList.stream().map(Post::getTime).min(Date::compareTo).get());
-        }else {
-            statResponse.setPostsCount(0);
-            statResponse.setLikesCount(0);
-            statResponse.setDislikesCount(0);
-            statResponse.setViewsCount(0);
-        }
-        return statResponse;
+        return getStatResponse(postsList);
     }
 
     public StatResponse allStatistics(){
         List<Post> postsList = postRepository.findAll();
+        return getStatResponse(postsList);
+    }
+
+    private StatResponse getStatResponse(List<Post> postsList) {
         StatResponse statResponse = new StatResponse();
         if(postsList.size() != 0){
             statResponse.setPostsCount(postsList.size());
             statResponse.setLikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == 1)).count());
             statResponse.setDislikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == -1)).count());
             statResponse.setViewsCount(postsList.stream().map(Post::getViewCount).count());
-            statResponse.setFirstPublication(postsList.stream().map(Post::getTime).min(Date::compareTo).get());
+            statResponse.setFirstPublication(postsList.stream().map(Post::getTime).min(Long::compareTo).get());
         }else {
             statResponse.setPostsCount(0);
             statResponse.setLikesCount(0);
