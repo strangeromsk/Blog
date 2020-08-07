@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
@@ -93,8 +94,8 @@ public class ApiGeneralController {
     }
 
     @PostMapping("/image")
-    public ResponseEntity<String> uploadFile(@RequestParam("image") MultipartFile file) {
-        String fileName = fileStorageService.storeFile(file);
+    public ResponseEntity<String> uploadFile(@RequestParam("image") MultipartFile file, HttpServletRequest request) {
+        String fileName = fileStorageService.storeFile(file, request);
         String URIAndFilename = "/upload/" + fileName;
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userServiceImpl.getSessionIds().get(session));
@@ -134,12 +135,13 @@ public class ApiGeneralController {
                                                    @RequestParam String name,
                                                    @RequestParam String email,
                                                    @RequestParam(required = false, defaultValue = "") String password,
-                                                   @RequestParam(required = false, defaultValue = "0") int removePhoto){
+                                                   @RequestParam(required = false, defaultValue = "0") int removePhoto,
+                                                    HttpServletRequest request){
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userServiceImpl.getSessionIds().get(session));
         if(userId.isPresent()){
             User user = userServiceImpl.getUser(userId.get());
-            return userServiceImpl.changeMyProfileWithPhoto(photo, name, email, password, removePhoto, user);
+            return userServiceImpl.changeMyProfileWithPhoto(photo, name, email, password, removePhoto, user, request);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }

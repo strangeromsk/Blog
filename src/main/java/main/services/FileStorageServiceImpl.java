@@ -4,12 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import main.configuration.FileStorageProperties;
 import main.services.interfaces.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -25,6 +27,8 @@ import java.util.Objects;
 @Scope("prototype")
 public class FileStorageServiceImpl implements FileStorageService {
 
+    @Value("${uploadDir.value}")
+    private String uploadDir;
     private final String dirsNames;
     private final Path fileStorageLocation;
 
@@ -54,11 +58,14 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     private boolean createDirs(String path){
-        File f = new File("resources/upload" + path);
+        File f = new File(uploadDir + path);
         return f.mkdirs();
     }
 
-    public String storeFile(MultipartFile file) {
+    public String storeFile(MultipartFile file, HttpServletRequest request) {
+        String currentProjectFolder = String.format("%s://%s:%d/", request.getScheme(),
+                request.getServerName(),
+                request.getServerPort());
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         try {
             if(fileName.contains("..")) {
@@ -68,14 +75,17 @@ public class FileStorageServiceImpl implements FileStorageService {
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
             createDirs(dirsNames);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            return completePath;
+            return currentProjectFolder +completePath;
         } catch (IOException ex) {
             ex.printStackTrace();
         }
         return null;
     }
 
-    public String storeFileResized(MultipartFile file) {
+    public String storeFileResized(MultipartFile file, HttpServletRequest request) {
+        String currentProjectFolder = String.format("%s://%s:%d/", request.getScheme(),
+                                                                    request.getServerName(),
+                                                                    request.getServerPort());
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         try {
             if(fileName.contains("..")) {
@@ -86,11 +96,10 @@ public class FileStorageServiceImpl implements FileStorageService {
             BufferedImage image = ImageIO.read(input);
             BufferedImage resized = resize(image);
             createDirs(dirsNames);
-            String newPicPath = "resources/upload" + dirsNames + generateTextMethod(13) + ".png";
+            String newPicPath = uploadDir + dirsNames + generateTextMethod(13) + ".png";
             File output = new File(newPicPath);
-
             ImageIO.write(resized, "png", output);
-            return newPicPath;
+            return currentProjectFolder + newPicPath;
         } catch (IOException ex) {
             ex.printStackTrace();
         }

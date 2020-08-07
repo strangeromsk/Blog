@@ -18,7 +18,8 @@ public interface UserService {
     ResponseEntity<ResponseApi> register(UserRegisterResponse userRegisterResponse);
     ResponseEntity<ResponseApi> changeMyProfile(UserMyProfileDto userMyProfileDto, User user);
     ResponseEntity<ResponseApi> changeMyProfileWithPhoto(MultipartFile photo, String name, String email,
-                                                         String password, int removePhoto, User user);
+                                                         String password, int removePhoto, User user,
+                                                         HttpServletRequest request);
     StatResponse myStatistics(int userId);
     StatResponse allStatistics();
 }

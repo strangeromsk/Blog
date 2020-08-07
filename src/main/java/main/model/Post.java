@@ -1,12 +1,10 @@
 package main.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -27,14 +25,14 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PostVote> postVotes;
 
-    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ToString.Exclude
     @Column(name = "tags")
     @OneToMany(mappedBy = "post")
-    List<TagToPost> tagToPosts;
+    private List<TagToPost> tagToPosts;
 
     @Id
     @NotNull

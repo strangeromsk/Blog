@@ -149,7 +149,7 @@ public class PostServiceImpl implements PostService {
         if(!sameUser){
             postRepository.updateViewCount(id);
         }
-        if(!sameUser ^ user.getIsModerator() == 0){
+        if((!sameUser && user.getIsModerator() == 0) || (!sameUser || user.getIsModerator() == 0)){
             post = null;
         }
         return getPostDtoById(id, post);
@@ -253,7 +253,7 @@ public class PostServiceImpl implements PostService {
         if(postDate < currentDate){
             post.setTime(currentDate);
         }
-        HashMap<String, String> errors = new HashMap<>(4);
+        Map<String, String> errors = new HashMap<>(8);
         if(post.getTitle().length() <= mintTitleLength){
             errors.put("title", "Title is not set");
         }
@@ -284,7 +284,7 @@ public class PostServiceImpl implements PostService {
         if(postDate < currentDate){
             post.setTime(currentDate);
         }
-        Map<String, String> errors = new HashMap<>(4);
+        Map<String, String> errors = new HashMap<>(8);
         if(post.getTitle().length() <= mintTitleLength){
             errors.put("title", "Title is not set");
         }

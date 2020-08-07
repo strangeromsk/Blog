@@ -264,7 +264,8 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     public ResponseEntity<ResponseApi> changeMyProfileWithPhoto(MultipartFile photo, String name, String email,
-                                                                String password, int removePhoto, User user){
+                                                                String password, int removePhoto, User user,
+                                                                HttpServletRequest request){
         ResponseApi responseApi;
         int maxNameLength = 12;
         int minNameLength = 3;
@@ -298,7 +299,7 @@ public class UserServiceImpl implements UserService {
                 user.setName(nameOptional.get());
                 user.setPassword(passwordEncoder.encode(passwordOptional.get()));
 
-                user.setPhoto(fileStorageService.storeFileResized(photo));
+                user.setPhoto(fileStorageService.storeFileResized(photo, request));
             }else if(secondCond){
                 user.setEmail(emailOptional.get());
                 user.setName(nameOptional.get());

@@ -13,4 +13,4 @@ spring.servlet.multipart.file-size-threshold: 2KB
 spring.servlet.multipart.enabled: true
 #file.upload-dir: resources/upload
 uploadDir:
-  value: "resources/upload/"
+  value: "resources/upload"

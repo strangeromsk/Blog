@@ -25,8 +25,6 @@ public class ApiPostController {
     @Autowired
     private PostServiceImpl postServiceImpl;
     @Autowired
-    private TagServiceImpl tagServiceImpl;
-    @Autowired
     private UserServiceImpl userServiceImpl;
 
     @GetMapping(value = "/post")
@@ -178,7 +176,7 @@ public class ApiPostController {
         Optional<Integer> userId = Optional.ofNullable(userServiceImpl.getSessionIds().get(session));
         if(userId.isPresent()){
             User user = userServiceImpl.getUser(userId.get());
-            return postServiceImpl.makeNewLike(requestApi.getPostId(), user);
+            return postServiceImpl.makeNewDisLike(requestApi.getPostId(), user);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }

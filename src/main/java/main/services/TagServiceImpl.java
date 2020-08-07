@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +40,7 @@ public class TagServiceImpl implements TagService {
         }else{
             list = tagsRepository.findTagsByQuery(query);
         }
-        double maxWeight = 0.3;
+        AtomicReference<Double> maxWeight = new AtomicReference<>(0.3);
         localTag.tags = list.stream().map(e->{
             double postsCountByTag = e.getTagToPosts()
                     .stream()
@@ -49,20 +49,19 @@ public class TagServiceImpl implements TagService {
             double allPostsCount = postRepository.count();
             double weight = postsCountByTag / allPostsCount;
             weight = Double.parseDouble(new DecimalFormat("##.##").format(weight).replace(",", "."));
-
             return new TagDto(e.getName(), weight);
         }).collect(Collectors.toList())
         .stream().peek(j-> {
-            if(j.getWeight() > maxWeight){
-                j.setWeight(maxWeight);
+            if(j.getWeight() > maxWeight.get()){
+                maxWeight.set(j.getWeight());
             }
         }).peek(h->{
-            double maxCoeff = 1 / maxWeight;
+            double maxCoeff = 1 / maxWeight.get();
             h.setWeight(h.getWeight() * maxCoeff);
             if (h.getWeight() < 0.3){
                 h.setWeight(0.3);
             }
-                }).collect(Collectors.toList());
+        }).collect(Collectors.toList());
         return localTag;
     }
 }
