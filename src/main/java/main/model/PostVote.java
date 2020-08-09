@@ -27,7 +27,7 @@ public class PostVote {
 
     @Basic
     @NotNull
-    private long time;
+    private long timestamp;
 
     @NotNull
     private int value;

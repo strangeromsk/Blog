@@ -12,10 +12,10 @@ import java.util.Optional;
 @Repository
 public interface CaptchaRepository extends JpaRepository<CaptchaCode, Integer> {
     @Modifying
-    @Query(value = "UPDATE captcha_codes SET time = current_date, code = :code, secret_code = :secretCode", nativeQuery = true)
+    @Query(value = "UPDATE captcha_codes SET timestamp = current_timestamp, code = :code, secret_code = :secretCode", nativeQuery = true)
     void updateCodes(@Param("code") String code, @Param("secretCode") String secretCode);
     @Modifying
-    @Query(value = "DELETE FROM captcha_codes WHERE time > (NOW() - INTERVAL 60 MINUTE)", nativeQuery = true)
+    @Query(value = "DELETE FROM captcha_codes WHERE timestamp > (NOW() - INTERVAL 60 MINUTE)", nativeQuery = true)
     void deleteOlderThan60Minutes();
     @Query(value = "SELECT code FROM captcha_codes WHERE secret_code = :secretCode", nativeQuery = true)
     Optional<String> getCaptchaBySecretCode(@Param("secretCode") String secretCode);

@@ -11,12 +11,12 @@ import java.util.Date;
 public class PostDto {
 
     private Integer id;
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-M-yyyy hh:mm:ss")
-    private Date time;
+    //@JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-M-yyyy hh:mm:ss")
+    private long timestamp;
     private static ObjectMapper objectMapper = new ObjectMapper();
-    public static void disableMapper(){
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    }
+    //public static void disableMapper(){
+//        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+//    }
 
     private UserDto user = new UserDto();
 

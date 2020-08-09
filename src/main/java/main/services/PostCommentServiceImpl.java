@@ -52,7 +52,7 @@ public class PostCommentServiceImpl implements PostCommentService {
         if(errors.size() == 0){
             PostComment postComment = new PostComment();
             postComment.setUser(userRepository.getOne(userId));
-            postComment.setTime(new Date().getTime());
+            postComment.setTimestamp(new Date().getTime());
             postComment.setText(text);
             if(parentId != null){
                 postComment.setParentId(parentId);

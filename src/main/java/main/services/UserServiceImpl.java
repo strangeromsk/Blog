@@ -160,14 +160,14 @@ public class UserServiceImpl implements UserService {
             errors.put("captcha", "Captcha code is incorrect!");
             responseApi = ResponseApi.builder()
                     .result(false).errors(errors).build();
-            return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(responseApi, HttpStatus.OK);
         }
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isPresent()){
             errors.put("email", "Email is already registered and/or incorrect");
             responseApi = ResponseApi.builder()
                         .result(false).errors(errors).build();
-            return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(responseApi, HttpStatus.OK);
         }else {
             if(name.length() > maxNameLength || name.length() < minNameLength){
                 errors.put("name", "Name is incorrect");
@@ -191,7 +191,7 @@ public class UserServiceImpl implements UserService {
                 return new ResponseEntity<>(responseApi, HttpStatus.OK);
             }
         }
-        return new ResponseEntity<>(responseApi, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(responseApi, HttpStatus.OK);
     }
 
     @Transactional
@@ -335,7 +335,7 @@ public class UserServiceImpl implements UserService {
             statResponse.setLikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == 1)).count());
             statResponse.setDislikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == -1)).count());
             statResponse.setViewsCount(postsList.stream().map(Post::getViewCount).count());
-            statResponse.setFirstPublication(postsList.stream().map(Post::getTime).min(Long::compareTo).get());
+            statResponse.setFirstPublication(postsList.stream().map(Post::getTimestamp).min(Long::compareTo).get());
         }else {
             statResponse.setPostsCount(0);
             statResponse.setLikesCount(0);

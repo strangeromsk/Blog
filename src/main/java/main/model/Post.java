@@ -53,7 +53,7 @@ public class Post {
 
     @Basic
     @NotNull
-    private long time;
+    private long timestamp;
 
     @NotNull
     private String title;

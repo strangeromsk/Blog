@@ -143,25 +143,29 @@ public class PostServiceImpl implements PostService {
 
     @Transactional
     public PostDtoById populateVarsByPostIdWithUser(int id, User user) {
-        Post post = postRepository.getPostById(id);
-
-        boolean sameUser = post.getUser().getId() == user.getId();
-        if(!sameUser){
-            postRepository.updateViewCount(id);
+        Optional<Post> post = Optional.ofNullable(postRepository.getPostById(id));
+        boolean sameUser;
+        if(post.isPresent()){
+            sameUser = post.get().getUser().getId() == user.getId();
+            if(!sameUser && user.getIsModerator() == 0){
+                post = Optional.empty();
+            }
+            if(!sameUser && post.isPresent()){
+                postRepository.updateViewCount(id);
+                return getPostDtoById(id, post.get());
+            }
         }
-        if((!sameUser && user.getIsModerator() == 0) || (!sameUser || user.getIsModerator() == 0)){
-            post = null;
-        }
-        return getPostDtoById(id, post);
+        return new PostDtoById();
     }
 
     @Transactional
     public PostDtoById populateVarsByPostId(int id) {
-        Post post = postRepository.getPostById(id);
-        if(post != null){
+        Optional<Post> post = Optional.ofNullable(postRepository.getPostByIdApproved(id));
+        if(post.isPresent()){
             postRepository.updateViewCount(id);
+            return getPostDtoById(id, post.get());
         }
-        return getPostDtoById(id, post);
+        return new PostDtoById();
     }
 
     public PostDtoView populateVarsWithExactDate(int offset, int limit, String date) {
@@ -247,11 +251,11 @@ public class PostServiceImpl implements PostService {
     public ResponseEntity<ResponseApi> makeNewPost(Post post, User user){
         int mintTitleLength = 3;
         int minTextLength = 50;
-        long postDate = post.getTime();
+        long postDate = post.getTimestamp();
         long currentDate = new Date().getTime();
         boolean preModeration = settingsServiceImpl.getPreModeration();
         if(postDate < currentDate){
-            post.setTime(currentDate);
+            post.setTimestamp(currentDate);
         }
         Map<String, String> errors = new HashMap<>(8);
         if(post.getTitle().length() <= mintTitleLength){
@@ -330,7 +334,7 @@ public class PostServiceImpl implements PostService {
         }else {
             PostVote postVoteNew = new PostVote();
             postVoteNew.setPost(post);
-            postVoteNew.setTime(new Date().getTime());
+            postVoteNew.setTimestamp(new Date().getTime());
             postVoteNew.setUser(user);
             postVoteNew.setValue(1);
             postVotesRepository.save(postVoteNew);
@@ -353,7 +357,7 @@ public class PostServiceImpl implements PostService {
         }else {
             PostVote postVoteNew = new PostVote();
             postVoteNew.setPost(post);
-            postVoteNew.setTime(new Date().getTime());
+            postVoteNew.setTimestamp(new Date().getTime());
             postVoteNew.setUser(user);
             postVoteNew.setValue(-1);
             postVotesRepository.save(postVoteNew);
