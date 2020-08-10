@@ -12,6 +12,7 @@ import main.mapper.PostMapper;
 import main.model.*;
 import main.repositories.PostRepository;
 import main.repositories.PostVotesRepository;
+import main.repositories.TagToPostRepository;
 import main.repositories.TagsRepository;
 import main.services.interfaces.PostService;
 import org.jsoup.Jsoup;
@@ -26,6 +27,7 @@ import javax.transaction.Transactional;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.Math.toIntExact;
 
@@ -37,6 +39,7 @@ public class PostServiceImpl implements PostService {
     private final PostCommentServiceImpl postCommentServiceImpl;
     private final SettingsServiceImpl settingsServiceImpl;
     private final PostVotesRepository postVotesRepository;
+    private final TagToPostRepository tagToPostRepository;
     private final TagsRepository tagsRepository;
     private final PostRepository postRepository;
 
@@ -44,12 +47,13 @@ public class PostServiceImpl implements PostService {
     public PostServiceImpl(PostRepository postRepository, PostMapper postMapper,
                            PostCommentServiceImpl postCommentServiceImpl,
                            SettingsServiceImpl settingsServiceImpl, PostVotesRepository postVotesRepository,
-                           TagsRepository tagsRepository) {
+                           TagToPostRepository tagToPostRepository, TagsRepository tagsRepository) {
         this.postRepository = postRepository;
         this.postMapper = postMapper;
         this.postCommentServiceImpl = postCommentServiceImpl;
         this.settingsServiceImpl = settingsServiceImpl;
         this.postVotesRepository = postVotesRepository;
+        this.tagToPostRepository = tagToPostRepository;
         this.tagsRepository = tagsRepository;
     }
 
@@ -301,18 +305,37 @@ public class PostServiceImpl implements PostService {
             }
             oldPost.setIsActive(post.getActive());
             oldPost.setTitle(post.getTitle());
-            List<TagToPost> tagToPostList = oldPost.getTagToPosts()
-                    .stream()
-                    .peek(e-> post.getTags().forEach(k->{
-                        Tag tag = new Tag(k);
-                        tagsRepository.save(tag);
-                        e.setTag(tag);
-                    }))
-                    .collect(Collectors.toList());
+
+            List<Tag> tagList = post.getTags().stream().map(Tag::new).collect(Collectors.toList());
+            List<Tag> existsTags = tagsRepository.findTagsByNameIn(post.getTags());
+            List<Tag> forSave = tagList.stream().filter(e -> !existsTags.contains(e)).collect(Collectors.toList());
+            if (!forSave.isEmpty()) {
+                tagsRepository.saveAll(forSave);
+            }
+            tagList = Stream.concat(existsTags.stream(), forSave.stream()).collect(Collectors.toList());
+            List<TagToPost> tagToPostList = tagList.stream().map(e ->
+                    new TagToPost(new TagToPostKey(oldPost.getId(), e.getId()))).collect(Collectors.toList());
+            List<TagToPost> listForRemove = new ArrayList<>();
+            for (TagToPost tagToPost : oldPost.getTagToPosts()) {
+                if (!tagToPostList.contains(tagToPost)) {
+                    listForRemove.add(tagToPost);
+                }
+            }
+            List<TagToPost> listForSave = new ArrayList<>();
+            for (TagToPost tagToPost : tagToPostList) {
+                if (!oldPost.getTagToPosts().contains(tagToPost)) {
+                    listForSave.add(tagToPost);
+                }
+            }
+            if (!listForRemove.isEmpty()) {
+                tagToPostRepository.deleteAll(listForRemove);
+            }
+            if (!listForSave.isEmpty()) {
+                tagToPostList = tagToPostRepository.saveAll(listForSave);
+            }
 
             oldPost.setTagToPosts(tagToPostList);
             oldPost.setText(post.getText());
-            //tagsRepository.saveAll(tagList);
             postRepository.save(oldPost);
             return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
         }

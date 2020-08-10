@@ -10,8 +10,8 @@ import java.util.List;
 
 @Repository
 public interface TagsRepository extends JpaRepository<Tag, Integer> {
-    @Query(value = "SELECT * FROM tags",nativeQuery = true)
-    List<Tag> findAllTags ();
-    @Query(value = "SELECT * FROM tags WHERE name LIKE :query%",nativeQuery = true)
+    @Query(value = "SELECT * FROM tags WHERE name LIKE :query%", nativeQuery = true)
     List<Tag> findTagsByQuery (@Param("query") String query);
+
+    List<Tag> findTagsByNameIn(List<String> name);
 }
