@@ -43,7 +43,6 @@ public class PostServiceImpl implements PostService {
     private final TagsRepository tagsRepository;
     private final PostRepository postRepository;
 
-    @Autowired
     public PostServiceImpl(PostRepository postRepository, PostMapper postMapper,
                            PostCommentServiceImpl postCommentServiceImpl,
                            SettingsServiceImpl settingsServiceImpl, PostVotesRepository postVotesRepository,
@@ -252,7 +251,7 @@ public class PostServiceImpl implements PostService {
         return populateDtoViewWithStream(postDtoView, list);
     }
     @Transactional
-    public ResponseEntity<ResponseApi> makeNewPost(Post post, User user){
+    public ResponseEntity<ResponseApi> makeNewPost(RequestApi post, User user){
         int mintTitleLength = 3;
         int minTextLength = 50;
         long postDate = post.getTimestamp();
@@ -269,17 +268,28 @@ public class PostServiceImpl implements PostService {
             errors.put("text", "Text is too short");
         }
         if(errors.size() == 0){
-            post.setStatus(Post.Status.NEW);
+            Post newPost = new Post();
+            newPost.setStatus(Post.Status.NEW);
             if(!preModeration){
-                post.setStatus(Post.Status.ACCEPTED);
+                newPost.setStatus(Post.Status.ACCEPTED);
             }
-            post.setUser(user);
-            post.setViewCount(0);
-            postRepository.save(post);
-            log.info("Successfully created new post id: id:{}", post.getId());
+            newPost.setText(post.getText());
+            newPost.setTitle(post.getTitle());
+            newPost.setUser(user);
+            newPost.setViewCount(0);
+            List<Tag> tagList = post.getTags().stream().map(Tag::new).collect(Collectors.toList());
+            List<TagToPost> tagToPostList = tagList.stream().map(e ->
+                    new TagToPost(new TagToPostKey(newPost.getId(), e.getId()))).collect(Collectors.toList());
+            if (!tagToPostList.isEmpty() && !tagList.isEmpty()) {
+                tagsRepository.saveAll(tagList);
+                tagToPostList = tagToPostRepository.saveAll(tagToPostList);
+            }
+            newPost.setTagToPosts(tagToPostList);
+            postRepository.save(newPost);
+            log.info("Successfully created new post id: id:{}", newPost.getId());
             return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(ResponseApi.builder().result(false).errors(errors).build(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ResponseApi.builder().result(false).errors(errors).build(), HttpStatus.OK);
     }
 
     @Transactional
@@ -287,10 +297,10 @@ public class PostServiceImpl implements PostService {
         Post oldPost = postRepository.getOne(id);
         int mintTitleLength = 3;
         int minTextLength = 50;
-        long postDate = post.getTime();
+        long postDate = post.getTimestamp();
         long currentDate = new Date().getTime();
         if(postDate < currentDate){
-            post.setTime(currentDate);
+            post.setTimestamp(currentDate);
         }
         Map<String, String> errors = new HashMap<>(8);
         if(post.getTitle().length() <= mintTitleLength){
@@ -339,7 +349,7 @@ public class PostServiceImpl implements PostService {
             postRepository.save(oldPost);
             return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(ResponseApi.builder().result(false).errors(errors).build(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ResponseApi.builder().result(false).errors(errors).build(), HttpStatus.OK);
     }
 
     @Transactional

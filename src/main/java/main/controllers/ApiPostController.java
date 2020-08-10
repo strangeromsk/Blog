@@ -8,7 +8,6 @@ import main.DTO.PostDtoView;
 import main.model.Post;
 import main.model.User;
 import main.services.PostServiceImpl;
-import main.services.TagServiceImpl;
 import main.services.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,11 +20,13 @@ import java.util.Optional;
 @RequestMapping("/api/post")
 @RestController
 public class ApiPostController {
+    private final PostServiceImpl postServiceImpl;
+    private final UserServiceImpl userServiceImpl;
 
-    @Autowired
-    private PostServiceImpl postServiceImpl;
-    @Autowired
-    private UserServiceImpl userServiceImpl;
+    public ApiPostController(PostServiceImpl postServiceImpl, UserServiceImpl userServiceImpl) {
+        this.postServiceImpl = postServiceImpl;
+        this.userServiceImpl = userServiceImpl;
+    }
 
     @GetMapping
     public ResponseEntity<PostDtoView> getAllPosts(@RequestParam int offset,
@@ -138,7 +139,7 @@ public class ApiPostController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseApi> makeNewPost(@RequestBody Post post) {
+    public ResponseEntity<ResponseApi> makeNewPost(@RequestBody RequestApi post) {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userServiceImpl.getSessionIds().get(session));
         if(userId.isPresent()){

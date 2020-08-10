@@ -52,7 +52,6 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDtoModeration(user);
     }
 
-    @Autowired
     public UserServiceImpl(CaptchaRepository captchaRepository, UserMapper userMapper, UserRepository userRepository,
                            PostRepository postRepository, PasswordEncoder passwordEncoder, FileStorageServiceImpl fileStorageService) {
         this.captchaRepository = captchaRepository;

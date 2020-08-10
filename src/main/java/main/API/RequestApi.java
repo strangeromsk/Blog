@@ -31,8 +31,7 @@ public class RequestApi {
     private String date;
     private String tag;
 
-    //@JsonFormat(pattern="yyyy-MM-dd HH:mm")
-    private long time;
+    private long timestamp;
     private byte active;
     private String title;
     private List<String> tags;

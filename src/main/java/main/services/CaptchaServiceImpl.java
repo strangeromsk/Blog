@@ -19,7 +19,6 @@ import java.util.Base64;
 public class CaptchaServiceImpl implements CaptchaService {
     private final CaptchaRepository captchaRepository;
 
-    @Autowired
     public CaptchaServiceImpl(CaptchaRepository captchaRepository) {
         this.captchaRepository = captchaRepository;
     }

@@ -26,7 +26,6 @@ public class PostCommentServiceImpl implements PostCommentService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    @Autowired
     public PostCommentServiceImpl(CommentMapper commentMapper, PostCommentsRepository postCommentsRepository,
                                   PostRepository postRepository, UserRepository userRepository) {
         this.commentMapper = commentMapper;

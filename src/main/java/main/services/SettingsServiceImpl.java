@@ -16,7 +16,6 @@ import java.util.List;
 public class SettingsServiceImpl implements SettingsService {
     private final SettingsRepository settingsRepository;
 
-    @Autowired
     public SettingsServiceImpl(SettingsRepository settingsRepository) {
         this.settingsRepository = settingsRepository;
     }

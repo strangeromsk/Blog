@@ -21,7 +21,6 @@ public class TagServiceImpl implements TagService {
     private final TagsRepository tagsRepository;
     private final PostRepository postRepository;
 
-    @Autowired
     public TagServiceImpl(TagsRepository tagsRepository, PostRepository postRepository) {
         this.tagsRepository = tagsRepository;
         this.postRepository = postRepository;

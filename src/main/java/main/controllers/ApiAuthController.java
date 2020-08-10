@@ -23,7 +23,6 @@ public class ApiAuthController {
     private final UserServiceImpl userServiceImpl;
     private final CaptchaServiceImpl captchaServiceImpl;
 
-    @Autowired
     public ApiAuthController(UserServiceImpl userServiceImpl, CaptchaServiceImpl captchaServiceImpl) {
         this.userServiceImpl = userServiceImpl;
         this.captchaServiceImpl = captchaServiceImpl;

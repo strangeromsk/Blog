@@ -32,7 +32,6 @@ public class FileStorageServiceImpl implements FileStorageService {
     private final String dirsNames;
     private final Path fileStorageLocation;
 
-    @Autowired
     public FileStorageServiceImpl(FileStorageProperties fileStorageProperties) {
         this.dirsNames = getDirsNames();
         this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir() + dirsNames)

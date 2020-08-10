@@ -20,7 +20,7 @@ public interface PostService {
     CalendarDto populateCalendarVars(Integer year);
     PostDtoView populateMyVars(int userId, int offset, int limit, Post.Status status);
     PostDtoView populateVarsModeration(int offset, int limit, String status);
-    ResponseEntity<ResponseApi> makeNewPost(Post post, User user);
+    ResponseEntity<ResponseApi> makeNewPost(RequestApi post, User user);
     ResponseEntity<ResponseApi> changePost(int id, RequestApi post, User user);
     ResponseEntity<ResponseApi> makeNewLike(int postId, User user);
     ResponseEntity<ResponseApi> makeNewDisLike(int postId, User user);
