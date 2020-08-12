@@ -150,10 +150,7 @@ public class PostServiceImpl implements PostService {
         boolean sameUser;
         if(post.isPresent()){
             sameUser = post.get().getUser().getId() == user.getId();
-            if(!sameUser && user.getIsModerator() == 0){
-                post = Optional.empty();
-            }
-            if(!sameUser && post.isPresent()){
+            if(sameUser || user.getIsModerator() == 1){
                 postRepository.updateViewCount(id);
                 return getPostDtoById(id, post.get());
             }
