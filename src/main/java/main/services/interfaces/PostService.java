@@ -13,8 +13,7 @@ import org.springframework.http.ResponseEntity;
 public interface PostService {
     PostDtoView populateVars(int offset, int limit, ModePostDto mode);
     PostDtoView populateSearchVars(int offset, int limit, String query);
-    PostDtoById populateVarsByPostIdWithUser(int id, User user);
-    PostDtoById populateVarsByPostId(int id);
+    PostDtoById populateVarsByPostIdWithUser(int id, String session);
     PostDtoView populateVarsWithExactDate(int offset, int limit, String date);
     PostDtoView populateTagVars(int offset, int limit, String tag);
     CalendarDto populateCalendarVars(Integer year);

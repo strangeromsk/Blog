@@ -16,7 +16,6 @@ import main.repositories.TagToPostRepository;
 import main.repositories.TagsRepository;
 import main.services.interfaces.PostService;
 import org.jsoup.Jsoup;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -42,11 +41,12 @@ public class PostServiceImpl implements PostService {
     private final TagToPostRepository tagToPostRepository;
     private final TagsRepository tagsRepository;
     private final PostRepository postRepository;
+    private final UserServiceImpl userService;
 
     public PostServiceImpl(PostRepository postRepository, PostMapper postMapper,
                            PostCommentServiceImpl postCommentServiceImpl,
                            SettingsServiceImpl settingsServiceImpl, PostVotesRepository postVotesRepository,
-                           TagToPostRepository tagToPostRepository, TagsRepository tagsRepository) {
+                           TagToPostRepository tagToPostRepository, TagsRepository tagsRepository, UserServiceImpl userService) {
         this.postRepository = postRepository;
         this.postMapper = postMapper;
         this.postCommentServiceImpl = postCommentServiceImpl;
@@ -54,6 +54,7 @@ public class PostServiceImpl implements PostService {
         this.postVotesRepository = postVotesRepository;
         this.tagToPostRepository = tagToPostRepository;
         this.tagsRepository = tagsRepository;
+        this.userService = userService;
     }
 
     public PostDto mapPost(Post post) {
@@ -145,25 +146,32 @@ public class PostServiceImpl implements PostService {
     }
 
     @Transactional
-    public PostDtoById populateVarsByPostIdWithUser(int id, User user) {
+    public PostDtoById populateVarsByPostIdWithUser(int id, String session) {
         Optional<Post> post = Optional.ofNullable(postRepository.getPostById(id));
-        boolean sameUser;
+        Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
+        boolean userAuthorized = userId.isPresent();
         if(post.isPresent()){
-            sameUser = post.get().getUser().getId() == user.getId();
-            if(sameUser || user.getIsModerator() == 1){
-                postRepository.updateViewCount(id);
-                return getPostDtoById(id, post.get());
+            boolean postIsActive = post.get().getIsActive() == 1 &&
+                    post.get().getStatus().equals(Post.Status.ACCEPTED) &&
+                    post.get().getTimestamp() <= new Date().getTime();
+            if(userAuthorized){
+                boolean sameUser = post.get().getUser().getId() == userId.get();
+                boolean isModerator = userService.isModerator(userId.get());
+                if(sameUser){
+                    return getPostDtoById(id, post.get());
+                }
+                if(isModerator){
+                    return getPostDtoById(id, post.get());
+                }else {
+                    if(postIsActive){
+                        return getPostDtoById(id, post.get());
+                    }
+                }
+            }else{
+                if(postIsActive){
+                    return getPostDtoById(id, post.get());
+                }
             }
-        }
-        return new PostDtoById();
-    }
-
-    @Transactional
-    public PostDtoById populateVarsByPostId(int id) {
-        Optional<Post> post = Optional.ofNullable(postRepository.getPostByIdApproved(id));
-        if(post.isPresent()){
-            postRepository.updateViewCount(id);
-            return getPostDtoById(id, post.get());
         }
         return new PostDtoById();
     }
