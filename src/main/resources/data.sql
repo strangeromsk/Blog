@@ -17,29 +17,29 @@ INSERT INTO tags (name) VALUES ('StreamAPI');
 
 --INSERT posts
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(1, 1, 'ACCEPTED', 1, '1554066000', 'main page', 'Sed ut perspiciatis unde omnis', 20);
+(1, 1, 'ACCEPTED', 1, '1491771600', 'main page', 'Sed ut perspiciatis unde omnis', 20);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(2, 1, 'ACCEPTED', 1, '1554066000', 'alalalala', 'iste natus error sit voluptatem accusantium doloresi architecto beata', 1500);
+(2, 1, 'ACCEPTED', 1, '1491771600', 'alalalala', 'iste natus error sit voluptatem accusantium doloresi architecto beata', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(3, 1, 'NEW', 1, '1585688400', 'tralalala', '11111blabla', 9000);
+(3, 1, 'NEW', 1, '1491771600', 'tralalala', '11111blabla', 9000);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(4, 1, 'ACCEPTED', 1, '1585688400', 'main234324 page', 'bla234324bla', 2005);
+(4, 1, 'ACCEPTED', 1, '1523394000', 'main234324 page', 'bla234324bla', 2005);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(1, 1, 'DECLINED', 1, '1585688400', 'main page', 'blabla', 20);
+(1, 1, 'DECLINED', 1, '1589144400', 'main page', 'blabla', 20);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(2, 1, 'NEW', 1, '1593550800', 'alalalala', 'blabla2', 1500);
+(2, 1, 'NEW', 1, '1589144400', 'alalalala', 'blabla2', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(3, 0, 'NEW', 1, '1593550800', 'tralalala', '11111blabla', 9000);
+(3, 0, 'NEW', 1, '1589144400', 'tralalala', '11111blabla', 9000);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(4, 1, 'ACCEPTED', 1, '1606770000', 'main234324 page', 'bla234324bla', 2005);
+(4, 1, 'ACCEPTED', 1, '1557522000', 'main234324 page', 'bla234324bla', 2005);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(1, 1, 'ACCEPTED', 1, '1607461200', 'main page', 'blabla', 20);
+(1, 1, 'ACCEPTED', 1, '1557522000', 'main page', 'blabla', 20);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(2, 1, 'ACCEPTED', 1, '1604869200', 'alalalala', 'blabla2', 1500);
+(2, 1, 'ACCEPTED', 1, '1560546000', 'alalalala', 'blabla2', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(3, 0, 'NEW', 1, '1604869200', 'tralalala', '11111blabla', 9000);
+(3, 0, 'NEW', 1, '1571086800', 'tralalala', '11111blabla', 9000);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(4, 1, 'ACCEPTED', 1, '1604869200', 'main234324 page', 'bla234324bla', 2005);
+(4, 1, 'ACCEPTED', 1, '1565816400', 'main234324 page', 'bla234324bla', 2005);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
 (2, 1, 'ACCEPTED', 1, '1591650000', 'alalalala', 'blabla20000', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES

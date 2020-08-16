@@ -61,29 +61,6 @@ public class ApiPostController {
             return new ResponseEntity<>(new PostDtoById(), HttpStatus.OK);
         }
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
-//        Optional<Integer> userId = Optional.ofNullable(userServiceImpl.getSessionIds().get(session));
-//        Optional<PostDtoById> post;
-//        boolean userAuthorized = userId.isPresent();
-//        if(userAuthorized){
-//            User user = userServiceImpl.getUser(userId.get());
-//            post = Optional.ofNullable(postServiceImpl.populateVarsByPostIdWithUser(id, user));
-//            boolean sameUser = post.get().getUser().getId() == user.getId();
-//        }
-//        if(userId.isPresent()){
-//            User user = userServiceImpl.getUser(userId.get());
-//            post = Optional.ofNullable(postServiceImpl.populateVarsByPostIdWithUser(id, user));
-//            if(post.isPresent()){
-//                return new ResponseEntity<>(postServiceImpl.populateVarsByPostIdWithUser(id, user), HttpStatus.OK);
-//            }else{
-//                return new ResponseEntity<>(new PostDtoById(), HttpStatus.OK);
-//            }
-//        }
-//        post = Optional.ofNullable(postServiceImpl.populateVarsByPostId(id));
-//        if(post.isPresent()){
-//            return new ResponseEntity<>(postServiceImpl.populateVarsByPostId(id), HttpStatus.OK);
-//        }else {
-//            return new ResponseEntity<>(new PostDtoById(), HttpStatus.OK);
-//        }
         return new ResponseEntity<>(postServiceImpl.populateVarsByPostIdWithUser(id, session), HttpStatus.OK);
     }
 

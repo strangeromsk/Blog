@@ -164,11 +164,13 @@ public class PostServiceImpl implements PostService {
                     return getPostDtoById(id, post.get());
                 }else {
                     if(postIsActive){
+                        postRepository.updateViewCount(id);
                         return getPostDtoById(id, post.get());
                     }
                 }
             }else{
                 if(postIsActive){
+                    postRepository.updateViewCount(id);
                     return getPostDtoById(id, post.get());
                 }
             }
