@@ -284,16 +284,20 @@ public class PostServiceImpl implements PostService {
             newPost.setTitle(post.getTitle());
             newPost.setUser(user);
             newPost.setViewCount(0);
+            newPost.setTimestamp(new Date().getTime()/1000);
             List<Tag> tagList = post.getTags().stream().map(Tag::new).collect(Collectors.toList());
+            if (!tagList.isEmpty()) {
+                tagList = tagsRepository.saveAll(tagList);
+            }
+            postRepository.save(newPost);
             List<TagToPost> tagToPostList = tagList.stream().map(e ->
                     new TagToPost(new TagToPostKey(newPost.getId(), e.getId()))).collect(Collectors.toList());
-            if (!tagToPostList.isEmpty() && !tagList.isEmpty()) {
-                tagsRepository.saveAll(tagList);
+            if (!tagToPostList.isEmpty()) {
                 tagToPostList = tagToPostRepository.saveAll(tagToPostList);
             }
             newPost.setTagToPosts(tagToPostList);
             postRepository.save(newPost);
-            log.info("Successfully created new post id: id:{}", newPost.getId());
+            log.info("Successfully created new post id:{}", newPost.getId());
             return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
         }
         return new ResponseEntity<>(ResponseApi.builder().result(false).errors(errors).build(), HttpStatus.OK);
