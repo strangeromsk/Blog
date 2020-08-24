@@ -58,6 +58,9 @@ public interface PostRepository extends JpaRepository<Post, Integer>, PagingAndS
     @Query(value = "SELECT DATE_FORMAT(from_unixtime(`timestamp`),'%Y-%m-%d') AS date, COUNT(*) FROM posts WHERE YEAR(from_unixtime(timestamp)) = :year AND is_active = 1" +
             " AND moderation_status = 'ACCEPTED' GROUP BY timestamp ORDER BY COUNT(*) DESC", nativeQuery = true)
     List<List> getPostsByYears (@Param("year") int year);
+    @Query(value = "SELECT DISTINCT YEAR(from_unixtime(timestamp)) FROM posts WHERE is_active = 1" +
+            " AND moderation_status = 'ACCEPTED'", nativeQuery = true)
+    List<String> getAllYears();
     @Query(value = "SELECT COUNT(*) FROM posts WHERE moderation_status = 'NEW'",nativeQuery = true)
     Long countNewPostsToModerator ();
     @Query(value = "SELECT * FROM posts WHERE is_active = 0" +

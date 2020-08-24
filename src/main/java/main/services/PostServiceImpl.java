@@ -165,12 +165,14 @@ public class PostServiceImpl implements PostService {
                 }else {
                     if(postIsActive){
                         postRepository.updateViewCount(id);
+                        post.get().setViewCount(post.get().getViewCount() + 1);
                         return getPostDtoById(id, post.get());
                     }
                 }
             }else{
                 if(postIsActive){
                     postRepository.updateViewCount(id);
+                    post.get().setViewCount(post.get().getViewCount() + 1);
                     return getPostDtoById(id, post.get());
                 }
             }
@@ -186,9 +188,10 @@ public class PostServiceImpl implements PostService {
         String day = date.substring(8,10);
 
         List<Post> list = postRepository.findPostWithExactDate(pageable, year, month, day);
+        populateDtoViewWithStream(postDtoView, list);
         postDtoView.setCount(list.size());
         log.info("Populate posts by date: offset:{} limit:{} date:'{}'", offset, limit, date);
-        return populateDtoViewWithStream(postDtoView, list);
+        return postDtoView;
     }
 
     public PostDtoView populateTagVars(int offset, int limit, String tag) {
@@ -213,11 +216,7 @@ public class PostServiceImpl implements PostService {
         }
         postRepository.getPostsByYears(year)
                 .forEach(e-> postsMap.put((String) e.get(0), ((BigInteger) e.get(1)).intValue()));
-        List<String> postsYearsList = postsMap.keySet()
-                .stream()
-                .map(e->e.substring(0,4))
-                .distinct()
-                .collect(Collectors.toList());
+        List<String> postsYearsList = postRepository.getAllYears();
         calendarDto.setPosts(postsMap);
         calendarDto.setYears(postsYearsList);
         log.info("Populate calendar: year:{}", year);
@@ -284,9 +283,22 @@ public class PostServiceImpl implements PostService {
             newPost.setTitle(post.getTitle());
             newPost.setUser(user);
             newPost.setViewCount(0);
+            newPost.setIsActive(1);
             newPost.setTimestamp(new Date().getTime()/1000);
             List<Tag> tagList = post.getTags().stream().map(Tag::new).collect(Collectors.toList());
+            List<Tag> existingTags = tagsRepository.findAll();
+            List<Tag> finalTagList = tagList;
+            //tagList.retainAll(existingTags);
+            tagList.removeAll(new HashSet<>(existingTags));
+
             if (!tagList.isEmpty()) {
+//                tagList.stream().forEach(e->{
+//                    existingTags.stream().forEach(j->{
+//                        if(j.getName().equals(e.getName())){
+//                            finalTagList.remove(e);
+//                        }
+//                    });
+//                });
                 tagList = tagsRepository.saveAll(tagList);
             }
             postRepository.save(newPost);
@@ -372,6 +384,7 @@ public class PostServiceImpl implements PostService {
             if(postVote.get().getValue() == 1){
                 return new ResponseEntity<>(ResponseApi.builder().result(false).build(), HttpStatus.OK);
             }else {
+                postVote.get().setValue(1);
                 postVotesRepository.save(postVote.get());
                 return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
             }
@@ -395,6 +408,7 @@ public class PostServiceImpl implements PostService {
             if(postVote.get().getValue() == -1){
                 return new ResponseEntity<>(ResponseApi.builder().result(false).build(), HttpStatus.OK);
             }else {
+                postVote.get().setValue(-1);
                 postVotesRepository.save(postVote.get());
                 return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
             }

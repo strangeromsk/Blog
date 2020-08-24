@@ -32,6 +32,7 @@ public class TagServiceImpl implements TagService {
     }
 
     public LocalTag getTags(String query){
+        double weightInitialValue = 0.3;
         LocalTag localTag = new LocalTag();
         List<Tag> list;
         if(query == null || query.equals("")){
@@ -39,7 +40,7 @@ public class TagServiceImpl implements TagService {
         }else{
             list = tagsRepository.findTagsByQuery(query);
         }
-        AtomicReference<Double> maxWeight = new AtomicReference<>(0.3);
+        AtomicReference<Double> maxWeight = new AtomicReference<>(weightInitialValue);
         localTag.tags = list.stream().map(e->{
             double postsCountByTag = e.getTagToPosts()
                     .stream()
@@ -48,6 +49,7 @@ public class TagServiceImpl implements TagService {
             double allPostsCount = postRepository.count();
             double weight = postsCountByTag / allPostsCount;
             weight = Double.parseDouble(new DecimalFormat("##.##").format(weight).replace(",", "."));
+            //if(e.getTagToPosts().isEmpty()){return new TagDto();}
             return new TagDto(e.getName(), weight);
         }).collect(Collectors.toList())
         .stream().peek(j-> {
@@ -57,8 +59,8 @@ public class TagServiceImpl implements TagService {
         }).peek(h->{
             double maxCoeff = 1 / maxWeight.get();
             h.setWeight(h.getWeight() * maxCoeff);
-            if (h.getWeight() < 0.3){
-                h.setWeight(0.3);
+            if (h.getWeight() < weightInitialValue){
+                h.setWeight(weightInitialValue);
             }
         }).collect(Collectors.toList());
         return localTag;
