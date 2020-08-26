@@ -1,6 +1,7 @@
 package main.services;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import main.API.ResponseApi;
 import main.DTO.StatResponse;
 import main.DTO.UserMyProfileDto;
@@ -8,6 +9,7 @@ import main.DTO.UserRegisterResponse;
 import main.DTO.moderation.UserModerationDto;
 import main.mapper.UserMapper;
 import main.model.Post;
+import main.model.PostVote;
 import main.model.User;
 import main.repositories.CaptchaRepository;
 import main.repositories.PostRepository;
@@ -29,9 +31,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import java.util.stream.LongStream;
 
 import static java.lang.Math.toIntExact;
-
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
     private final CaptchaRepository captchaRepository;
@@ -299,16 +304,24 @@ public class UserServiceImpl implements UserService {
         StatResponse statResponse = new StatResponse();
         if(postsList.size() != 0){
             statResponse.setPostsCount(postsList.size());
-            statResponse.setLikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == 1)).count());
-            statResponse.setDislikesCount(postsList.stream().map(e->e.getPostVotes().stream().filter(k->k.getValue() == -1)).count());
-            statResponse.setViewsCount(postsList.stream().map(Post::getViewCount).count());
-            statResponse.setFirstPublication(postsList.stream().map(Post::getTimestamp).min(Long::compareTo).get());
+            statResponse.setLikesCount(postsList
+                    .stream()
+                    .flatMap(e -> e.getPostVotes().stream().filter(k -> k.getValue() == 1))
+                    .count());
+            statResponse.setDislikesCount(postsList
+                    .stream()
+                    .flatMap(e -> e.getPostVotes().stream().filter(k -> k.getValue() == -1))
+                    .count());
+            statResponse.setViewsCount(postsList.stream().mapToLong(Post::getViewCount).sum());
+            statResponse.setFirstPublication(postsList.stream().map(Post::getTimestamp).min(Long::compareTo).orElse(0L));
         }else {
             statResponse.setPostsCount(0);
             statResponse.setLikesCount(0);
             statResponse.setDislikesCount(0);
             statResponse.setViewsCount(0);
         }
+        log.info("Statresponse postsCount:{}, likesCount:{}, dislikesCount:{}, viewsCount:{}", statResponse.getPostsCount(),
+                statResponse.getLikesCount(), statResponse.getDislikesCount(), statResponse.getViewsCount());
         return statResponse;
     }
 }

@@ -287,9 +287,21 @@ public class PostServiceImpl implements PostService {
             newPost.setTimestamp(new Date().getTime()/1000);
             List<Tag> tagList = post.getTags().stream().map(Tag::new).collect(Collectors.toList());
             List<Tag> existingTags = tagsRepository.findAll();
-            List<Tag> finalTagList = tagList;
-            //tagList.retainAll(existingTags);
-            tagList.removeAll(new HashSet<>(existingTags));
+//            List<Tag> finalTagList = tagList;
+//            tagList.retainAll(existingTags);
+//            tagList.removeAll(new HashSet<>(existingTags));
+
+//            List<Tag> finalList = tagList.stream()
+//                    .map(Tag::getName)
+//                    .distinct()
+//                    .collect(Collectors.toList())
+//                    .stream()
+//                    .map(Tag::new)
+//                    .collect(Collectors.toList());
+
+            List<Tag> finalList = tagList.stream()
+                    .distinct()
+                    .collect(Collectors.toList());
 
             if (!tagList.isEmpty()) {
 //                tagList.stream().forEach(e->{
@@ -299,7 +311,7 @@ public class PostServiceImpl implements PostService {
 //                        }
 //                    });
 //                });
-                tagList = tagsRepository.saveAll(tagList);
+                tagList = tagsRepository.saveAll(new HashSet<>(finalList));
             }
             postRepository.save(newPost);
             List<TagToPost> tagToPostList = tagList.stream().map(e ->

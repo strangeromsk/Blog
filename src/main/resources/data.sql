@@ -29,7 +29,7 @@ INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestam
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
 (2, 1, 'NEW', 1, '1589144400', 'alalalala', 'blabla2', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(3, 0, 'NEW', 1, '1589144400', 'tralalala', '11111blabla', 9000);
+(3, 0, 'NEW', 1, '1589144400', 'tralalala', '11111blabla', 9900);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
 (4, 1, 'ACCEPTED', 1, '1557522000', 'main234324 page', 'bla234324bla', 2005);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
@@ -47,6 +47,30 @@ INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestam
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
 (2, 1, 'ACCEPTED', 1, '1496955600', 'alalala12la', 'blab222la2', 1500);
 
+--16thpost below //15 are above
+INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
+(5, 1, 'ACCEPTED', 5, '1496955600', 'StreamAPI is the best', 'StreamAPI is the best way to change your collections!', 7576);
+INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
+(5, 1, 'ACCEPTED', 5, '1496955700', 'Always use hibernate', 'Best possible way to map your entities is hibernate ORM', 15051);
+INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
+(5, 1, 'ACCEPTED', 5, '1496955600', 'StreamAPI is the best', 'error sit voluptatem accusantium', 9000);
+INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
+(5, 1, 'ACCEPTED', 5, '1496955600', 'StreamAPI is the best', 'error sit voluptatem accusantium', 9000);
+INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
+(5, 1, 'ACCEPTED', 5, '1496955600', 'StreamAPI is the best', 'error sit voluptatem accusantium', 7576);
+INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
+(5, 1, 'ACCEPTED', 5, '1496955600', 'StreamAPI is the best', 'Sed ut perspiciatis unde omnis', 7576);
+INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
+(5, 1, 'ACCEPTED', 5, '1496955600', 'StreamAPI is the best', 'Sed ut perspiciatis unde omnis', 15051);
+INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
+(5, 1, 'ACCEPTED', 5, '1496955600', 'StreamAPI is the best', 'Sed ut perspiciatis unde omnis', 1500);
+INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
+(5, 1, 'ACCEPTED', 5, '1496955600', 'StreamAPI is the best', 'Sed ut perspiciatis unde omnis', 7576);
+INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
+(5, 1, 'ACCEPTED', 5, '1496955600', 'StreamAPI is the best', 'Sed ut perspiciatis unde omnis', 15051);
+INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
+(5, 1, 'ACCEPTED', 1, '1496955600', 'StreamAPI is the best', 'Sed ut perspiciatis unde omnis', 1500);
+
 --INSERT tag2post
 INSERT INTO tag2post (post_id, tag_id) VALUES (1,1);
 INSERT INTO tag2post (post_id, tag_id) VALUES (1,2);
@@ -54,6 +78,11 @@ INSERT INTO tag2post (post_id, tag_id) VALUES (2,2);
 INSERT INTO tag2post (post_id, tag_id) VALUES (2,1);
 INSERT INTO tag2post (post_id, tag_id) VALUES (3,1);
 INSERT INTO tag2post (post_id, tag_id) VALUES (4,1);
+INSERT INTO tag2post (post_id, tag_id) VALUES (16,3);
+INSERT INTO tag2post (post_id, tag_id) VALUES (17,2);
+INSERT INTO tag2post (post_id, tag_id) VALUES (16,1);
+INSERT INTO tag2post (post_id, tag_id) VALUES (20,2);
+INSERT INTO tag2post (post_id, tag_id) VALUES (20,3);
 
 --INSERT post_comments
 INSERT INTO post_comments (user_id, post_id, parent_id, timestamp, text) VALUES (4, 1, 0, '1593550800', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.');
@@ -69,7 +98,14 @@ INSERT INTO post_votes (user_id, post_id, timestamp, value) VALUES (2, 2, '14969
 INSERT INTO post_votes (user_id, post_id, timestamp, value) VALUES (1, 4, '1593550800', -1);
 INSERT INTO post_votes (user_id, post_id, timestamp, value) VALUES (4, 1, '1604869200', 1);
 INSERT INTO post_votes (user_id, post_id, timestamp, value) VALUES (3, 1, '1585688400', 1);
-INSERT INTO post_votes (user_id, post_id, timestamp, value) VALUES (2, 2, '1585688400', 1);
+INSERT INTO post_votes (user_id, post_id, timestamp, value) VALUES (2, 4, '1593550800', -1);
+INSERT INTO post_votes (user_id, post_id, timestamp, value) VALUES (3, 16, '1593550800', -1);
+INSERT INTO post_votes (user_id, post_id, timestamp, value) VALUES (4, 16, '1593550800', -1);
+INSERT INTO post_votes (user_id, post_id, timestamp, value) VALUES (5, 16, '1593550800', -1);
+INSERT INTO post_votes (user_id, post_id, timestamp, value) VALUES (1, 16, '1593550800', -1);
+INSERT INTO post_votes (user_id, post_id, timestamp, value) VALUES (3, 2, '1585688400', 1);
+INSERT INTO post_votes (user_id, post_id, timestamp, value) VALUES (4, 2, '1585688400', 1);
+INSERT INTO post_votes (user_id, post_id, timestamp, value) VALUES (5, 2, '1585688400', 1);
 
 --INSERT global_settings
 INSERT INTO global_settings (code, name, value) VALUES ('MULTIUSER_MODE', 'multiuser mode', true);

@@ -1,10 +1,6 @@
 package main.DTO;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-
-import java.util.Date;
-
 @Data
 public class StatResponse {
     private int postsCount;
