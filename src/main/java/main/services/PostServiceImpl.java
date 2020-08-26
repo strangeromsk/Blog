@@ -160,7 +160,11 @@ public class PostServiceImpl implements PostService {
                 if(sameUser){
                     return getPostDtoById(id, post.get());
                 }
-                if(isModerator){
+                if(isModerator && postIsActive){
+                    postRepository.updateViewCount(id);
+                    post.get().setViewCount(post.get().getViewCount() + 1);
+                    return getPostDtoById(id, post.get());
+                }else if(isModerator){
                     return getPostDtoById(id, post.get());
                 }else {
                     if(postIsActive){
