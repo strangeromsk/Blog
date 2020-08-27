@@ -11,6 +11,9 @@ spring.servlet.multipart.max-file-size: 20MB
 spring.servlet.multipart.max-request-size: 21MB
 spring.servlet.multipart.file-size-threshold: 2KB
 spring.servlet.multipart.enabled: true
-#file.upload-dir: resources/upload
 uploadDir:
   value: "resources/upload"
+#fill password to send emails to restore passwords
+restoreMail:
+  login: "springblogemail@gmail.com"
+  password: ""

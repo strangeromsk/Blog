@@ -9,13 +9,11 @@ import main.DTO.UserRegisterResponse;
 import main.DTO.moderation.UserModerationDto;
 import main.mapper.UserMapper;
 import main.model.Post;
-import main.model.PostVote;
 import main.model.User;
 import main.repositories.CaptchaRepository;
 import main.repositories.PostRepository;
 import main.repositories.UserRepository;
 import main.services.interfaces.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -31,9 +29,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
-import java.util.stream.LongStream;
 
 import static java.lang.Math.toIntExact;
 @Slf4j
@@ -45,6 +40,7 @@ public class UserServiceImpl implements UserService {
     private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;
     private final FileStorageServiceImpl fileStorageService;
+    private final EmailServiceImpl emailService;
 
     public boolean isModerator(int id){
         return userRepository.getOne(id).getIsModerator() == 1;
@@ -58,13 +54,14 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserServiceImpl(CaptchaRepository captchaRepository, UserMapper userMapper, UserRepository userRepository,
-                           PostRepository postRepository, PasswordEncoder passwordEncoder, FileStorageServiceImpl fileStorageService) {
+                           PostRepository postRepository, PasswordEncoder passwordEncoder, FileStorageServiceImpl fileStorageService, EmailServiceImpl emailService) {
         this.captchaRepository = captchaRepository;
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.passwordEncoder = passwordEncoder;
         this.fileStorageService = fileStorageService;
+        this.emailService = emailService;
     }
 
     public User getUser(int userId){
@@ -129,12 +126,13 @@ public class UserServiceImpl implements UserService {
             String randomHash = UUID.randomUUID().toString();
             user.setCode(randomHash);
             userRepository.save(user);
-
             SimpleMailMessage passwordResetEmail = new SimpleMailMessage();
             passwordResetEmail.setFrom("MyBlog@example.com");
+            passwordResetEmail.setTo(email);
             passwordResetEmail.setText(user.getEmail());
             passwordResetEmail.setSubject("Password Reset Request");
-            passwordResetEmail.setText("To reset your password, click the link\n:" + appUrl + "/login/change-password/" + randomHash);
+            passwordResetEmail.setText("To reset your password, click the link:\n" + appUrl + "/login/change-password/" + randomHash);
+            emailService.sendEmail(passwordResetEmail);
 
             responseApi = ResponseApi.builder()
                     .result(true).build();
