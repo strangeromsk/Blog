@@ -12,14 +12,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResponseApi<T> {
-    private boolean result;
+    private T id;
+    private T result;
     private T user;
     private T errors;
-    private String secret;
-    private String image;
-    private Integer id;
+    private T secret;
+    private T image;
 
-    public ResponseApi(boolean result) {
+    public ResponseApi(T result) {
         this.result = result;
     }
 }

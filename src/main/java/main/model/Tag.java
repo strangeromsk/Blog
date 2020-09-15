@@ -37,6 +37,6 @@ public class Tag {
 
     @Override
     public boolean equals(Object obj) {
-        return this.getName().equals(obj.toString());
+        return obj instanceof Tag && this.getName().equalsIgnoreCase(((Tag) obj).getName());
     }
 }

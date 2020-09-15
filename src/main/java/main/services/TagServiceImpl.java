@@ -36,7 +36,7 @@ public class TagServiceImpl implements TagService {
         LocalTag localTag = new LocalTag();
         List<Tag> list;
         if(query == null || query.equals("")){
-            list = tagsRepository.findAll();
+            list = tagsRepository.findTagsOnActivePosts();
         }else{
             list = tagsRepository.findTagsByQuery(query);
         }

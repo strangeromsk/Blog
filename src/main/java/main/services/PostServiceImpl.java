@@ -289,42 +289,32 @@ public class PostServiceImpl implements PostService {
             newPost.setViewCount(0);
             newPost.setIsActive(1);
             newPost.setTimestamp(new Date().getTime()/1000);
-            List<Tag> tagList = post.getTags().stream().map(Tag::new).collect(Collectors.toList());
-            List<Tag> existingTags = tagsRepository.findAll();
-//            List<Tag> finalTagList = tagList;
-//            tagList.retainAll(existingTags);
-//            tagList.removeAll(new HashSet<>(existingTags));
-
-//            List<Tag> finalList = tagList.stream()
-//                    .map(Tag::getName)
-//                    .distinct()
-//                    .collect(Collectors.toList())
-//                    .stream()
-//                    .map(Tag::new)
-//                    .collect(Collectors.toList());
-
-            List<Tag> finalList = tagList.stream()
-                    .distinct()
+            List<Tag> tagList = post.getTags().stream()
+                    .map(e -> new Tag(e.toLowerCase()))
                     .collect(Collectors.toList());
+            List<Tag> existingTags = tagsRepository.findTagsByNameIn(post.getTags());
 
-            if (!tagList.isEmpty()) {
-//                tagList.stream().forEach(e->{
-//                    existingTags.stream().forEach(j->{
-//                        if(j.getName().equals(e.getName())){
-//                            finalTagList.remove(e);
-//                        }
-//                    });
-//                });
-                tagList = tagsRepository.saveAll(new HashSet<>(finalList));
+            List<Tag> toSaveTags = tagList.stream().filter(e -> {
+                boolean check = !existingTags.contains(e);
+                if (check) {
+                    for (Tag tag : existingTags) {
+                        if (e.equals(tag)) {
+                            e.setId(tag.getId());
+                        }
+                    }
+                }
+                return check;
+            }).collect(Collectors.toList());
+
+            if (!toSaveTags.isEmpty()) {
+                tagsRepository.saveAll(toSaveTags);
             }
+
             postRepository.save(newPost);
             List<TagToPost> tagToPostList = tagList.stream().map(e ->
                     new TagToPost(new TagToPostKey(newPost.getId(), e.getId()))).collect(Collectors.toList());
-            if (!tagToPostList.isEmpty()) {
-                tagToPostList = tagToPostRepository.saveAll(tagToPostList);
-            }
-            newPost.setTagToPosts(tagToPostList);
-            postRepository.save(newPost);
+
+            tagToPostRepository.saveAll(tagToPostList);
             log.info("Successfully created new post id:{}", newPost.getId());
             return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
         }
