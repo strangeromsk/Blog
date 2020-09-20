@@ -17,9 +17,9 @@ import static org.modelmapper.config.Configuration.AccessLevel.PRIVATE;
 
 @Configuration
 public class ModelConfig {
-    @Value("${restoreMail.login}")
+    @Value("${restoreMailLogin}")
     private String login;
-    @Value("${restoreMail.password}")
+    @Value("${restoreMailPassword}")
     private String password;
 
     @Bean

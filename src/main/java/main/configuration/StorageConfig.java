@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 @Configuration
 public class StorageConfig implements WebMvcConfigurer, CommandLineRunner {
 
-    @Value("${uploadDir.value}")
+    @Value("${uploadDir}")
     private String location;
 
     @Override

@@ -27,7 +27,7 @@ import java.util.Objects;
 @Scope("prototype")
 public class FileStorageServiceImpl implements FileStorageService {
 
-    @Value("${uploadDir.value}")
+    @Value("${uploadDir}")
     private String uploadDir;
     private final String dirsNames;
     private final Path fileStorageLocation;
@@ -62,11 +62,11 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     public String storeFile(MultipartFile file, HttpServletRequest request) {
-        String currentProjectFolder = String.format("%s://%s:%d/", request.getScheme(),
-                request.getServerName(),
-                request.getServerPort());
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         try {
+            if(file.getSize() > 10000){
+                return null;
+            }
             if(fileName.contains("..")) {
                 throw new IllegalArgumentException();
             }
@@ -74,7 +74,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
             createDirs(dirsNames);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            return currentProjectFolder +completePath;
+            return completePath;
         } catch (IOException ex) {
             ex.printStackTrace();
         }

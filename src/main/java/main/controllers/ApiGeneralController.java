@@ -96,10 +96,13 @@ public class ApiGeneralController {
     @PostMapping("/image")
     public ResponseEntity<String> uploadFile(@RequestParam("image") MultipartFile file, HttpServletRequest request) {
         String fileName = fileStorageService.storeFile(file, request);
-        String URIAndFilename = "/upload/" + fileName;
+        String URIAndFilename = "/upload" + fileName;
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userServiceImpl.getSessionIds().get(session));
         if(userId.isPresent()){
+            if(fileName == null){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<>(URIAndFilename, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

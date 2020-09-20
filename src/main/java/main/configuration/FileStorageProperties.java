@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "file")
 public class FileStorageProperties {
-    @Value("${uploadDir.value}")
+    @Value("${uploadDir}")
     private String uploadDir;
 
     public String getUploadDir() {
