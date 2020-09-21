@@ -49,7 +49,6 @@ public class TagServiceImpl implements TagService {
             double allPostsCount = postRepository.count();
             double weight = postsCountByTag / allPostsCount;
             weight = Double.parseDouble(new DecimalFormat("##.##").format(weight).replace(",", "."));
-            //if(e.getTagToPosts().isEmpty()){return new TagDto();}
             return new TagDto(e.getName(), weight);
         }).collect(Collectors.toList())
         .stream().peek(j-> {

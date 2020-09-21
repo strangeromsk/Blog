@@ -33,7 +33,6 @@ public class ApiGeneralController {
     private final PostCommentServiceImpl postCommentServiceImpl;
     private final FileStorageServiceImpl fileStorageService;
 
-    @Autowired
     public ApiGeneralController(PostServiceImpl postServiceImpl, TagServiceImpl tagServiceImpl, UserServiceImpl userServiceImpl,
                                 SettingsServiceImpl settingsServiceImpl, PostCommentServiceImpl postCommentServiceImpl,
                                 FileStorageServiceImpl fileStorageService) {

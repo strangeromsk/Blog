@@ -24,4 +24,4 @@ hs_err_pid*
 **/libraries/
 **/target/
 /webpage/*
-/resources/application-prod.properties
+**/application-prod.properties

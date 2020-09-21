@@ -21,7 +21,7 @@ public class DefaultController {
 
     @GetMapping(value = "/api/init")
     public TestUser index() {
-        return new TestUser("My blog","My blog", "+79996661009",
-                "mail@mail.com", "Affinity C", "Affinity ltd");
+        return new TestUser("Developer stories","My blog", "+79996661009",
+                "mail@zhusupov.com", "Affinity C", "Affinity ltd");
     }
 }
