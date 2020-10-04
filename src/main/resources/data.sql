@@ -2,13 +2,13 @@
 INSERT INTO users (is_moderator, reg_time, name, email, password, code, photo)
 VALUES (0, '1593550800', 'Ivan', 'ivan@example.com', '$2y$12$99Sc4oEyBLMXqdUxbExcnu3qdBdZRHh5bn.InU7xE5psl3JfH1qhe', '111111', 'dsfsdfsdf.img');
 INSERT INTO users (is_moderator, reg_time, name, email, password, code, photo)
-VALUES (1, '1554066000', 'Semen', 'semen@example.com', '$2y$12$99Sc4oEyBLMXqdUxbExcnu3qdBdZRHh5bn.InU7xE5psl3JfH1qhe', '11111', 'dsfsdfsdfe.img');
+VALUES (1, '1554066000', 'Semen', 'semen@example.com', '$2y$12$x2LTE0vcL1FvQFR2aXHN7erDNwiO/yqKnyQUjiGKkohMEG/yxg.Wm', '11111', 'dsfsdfsdfe.img');
 INSERT INTO users (is_moderator, reg_time, name, email, password, code, photo)
 VALUES (0, '1593550800', 'Petr', 'petr@example.com', '$2y$12$99Sc4oEyBLMXqdUxbExcnu3qdBdZRHh5bn.InU7xE5psl3JfH1qhe', '111331', 'dsfsd33fsdf.img');
 INSERT INTO users (is_moderator, reg_time, name, email, password, code, photo)
 VALUES (0, '1585688400', 'Egor', 'egor@example.com', '$2y$12$99Sc4oEyBLMXqdUxbExcnu3qdBdZRHh5bn.InU7xE5psl3JfH1qhe', '1111311', 'ds3332sdf.img');
 INSERT INTO users (is_moderator, reg_time, name, email, password, code, photo)
-VALUES (1, '1554066000', 'Arkadiy', 'arkasha@example.com', '$2y$12$99Sc4oEyBLMXqdUxbExcnu3qdBdZRHh5bn.InU7xE5psl3JfH1qhe', '1111311', 'ds3332sdf.img');
+VALUES (1, '1554066000', 'Arkadiy', 'arkasha@example.com', '$2y$12$x2LTE0vcL1FvQFR2aXHN7erDNwiO/yqKnyQUjiGKkohMEG/yxg.Wm', '1111311', 'ds3332sdf.img');
 
 --INSERT tags
 INSERT INTO tags (name) VALUES ('Spring');
@@ -17,35 +17,35 @@ INSERT INTO tags (name) VALUES ('StreamAPI');
 
 --INSERT posts
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(1, 1, 'ACCEPTED', 1, '1491771600', 'main page', 'Sed ut perspiciatis unde omnis', 20);
+(1, 1, 'ACCEPTED', 1, '1491771600', 'Lorem ipsum', 'Sed ut perspiciatis unde omnis', 20);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(2, 1, 'ACCEPTED', 1, '1491771600', 'alalalala', 'iste natus error sit voluptatem accusantium doloresi architecto beata', 1500);
+(2, 1, 'ACCEPTED', 1, '1491771600', 'Ipsum', 'iste natus error sit voluptatem accusantium doloresi architecto beata', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(3, 1, 'NEW', 1, '1491771600', 'tralalala', '11111blabla', 9000);
+(3, 1, 'NEW', 1, '1491771600', 'lorem', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, ', 9000);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(4, 1, 'ACCEPTED', 1, '1523394000', 'main234324 page', 'bla234324bla', 2005);
+(4, 1, 'ACCEPTED', 1, '1523394000', 'voluptate velit esse', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, ', 2005);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(1, 1, 'DECLINED', 1, '1589144400', 'main page', 'blabla', 20);
+(1, 1, 'DECLINED', 1, '1589144400', 'Sed ut perspiciatis', 'Excepteur sint occaecat cupidatat non', 20);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(2, 1, 'NEW', 1, '1589144400', 'alalalala', 'blabla2', 1500);
+(2, 1, 'NEW', 1, '1589144400', 'Sed ut perspiciatis', 'exercitationem ullam corporis suscipit laboriosam', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(3, 0, 'NEW', 1, '1589144400', 'tralalala', '11111blabla', 9900);
+(3, 0, 'NEW', 1, '1589144400', 'voluptatibus maiores', 'Excepteur sint occaecat cupidatat non', 9900);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(4, 1, 'ACCEPTED', 1, '1557522000', 'main234324 page', 'bla234324bla', 2005);
+(4, 1, 'ACCEPTED', 1, '1557522000', 'asperiores repellat.', 'voluptatem, quia voluptas sit, aspernat', 2005);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(1, 1, 'ACCEPTED', 1, '1557522000', 'main page', 'blabla', 20);
+(1, 1, 'ACCEPTED', 1, '1557522000', 'non recusandae', 'voluptatem, quia voluptas sit, aspernat', 20);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(2, 1, 'ACCEPTED', 1, '1560546000', 'alalalala', 'blabla2', 1500);
+(2, 1, 'ACCEPTED', 1, '1560546000', 'molestiae consequatu', 'exercitationem ullam corporis', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(3, 0, 'NEW', 1, '1571086800', 'tralalala', '11111blabla', 9000);
+(3, 0, 'NEW', 1, '1571086800', 'tralalala', 'exercitationem ullam corporis', 9000);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(4, 1, 'ACCEPTED', 1, '1565816400', 'main234324 page', 'bla234324bla', 2005);
+(4, 1, 'ACCEPTED', 1, '1565816400', 'Nam libero tempore', 'similique sunt in culpa, qui off', 2005);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(2, 1, 'ACCEPTED', 1, '1591650000', 'alalalala', 'blabla20000', 1500);
+(2, 1, 'ACCEPTED', 1, '1591650000', 'non recusandae', 'similique sunt in culpa, qui off', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(2, 1, 'ACCEPTED', 1, '1528491600', 'alala121lala', 'blabla2', 1500);
+(2, 1, 'ACCEPTED', 1, '1528491600', 'non recusandae', 'similique sunt in culpa, qui off', 1500);
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES
-(2, 1, 'ACCEPTED', 1, '1496955600', 'alalala12la', 'blab222la2', 1500);
+(2, 1, 'ACCEPTED', 1, '1496955600', 'oluptatibus maiores alias consequatur aut perfer', 'similique sunt in culpa, qui off', 1500);
 
 --16thpost below //15 are above
 INSERT INTO posts (user_id, is_active, moderation_status, moderator_id, timestamp, title, text, view_count) VALUES

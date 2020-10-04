@@ -225,6 +225,9 @@ public class UserServiceImpl implements UserService {
         if(errors.size() == 0){
             email.ifPresent(user::setEmail);
             name.ifPresent(user::setName);
+            if(password.isPresent() && !password.get().equals("") && password.get().length() >= minPasswordLength){
+                password.ifPresent(s -> user.setPassword(passwordEncoder.encode(s)));
+            }
             password.ifPresent(s -> user.setPassword(passwordEncoder.encode(s)));
             if(removePhoto == 1){
                 Path currentRelativePath = Paths.get("");
@@ -271,7 +274,9 @@ public class UserServiceImpl implements UserService {
         if(errors.size() == 0){
             emailOptional.ifPresent(user::setEmail);
             nameOptional.ifPresent(user::setName);
-            passwordOptional.ifPresent(s -> user.setPassword(passwordEncoder.encode(s)));
+            if(passwordOptional.isPresent() && !passwordOptional.get().equals("") && passwordOptional.get().length() >= minPasswordLength){
+                passwordOptional.ifPresent(s -> user.setPassword(passwordEncoder.encode(s)));
+            }
             user.setPhoto(fileStorageService.storeFileResized(photo, request));
             if(removePhoto == 1){
                 Path currentRelativePath = Paths.get("");

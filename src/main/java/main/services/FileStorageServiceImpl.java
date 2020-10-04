@@ -64,9 +64,6 @@ public class FileStorageServiceImpl implements FileStorageService {
     public String storeFile(MultipartFile file, HttpServletRequest request) {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         try {
-            if(file.getSize() > 10000){
-                return null;
-            }
             if(fileName.contains("..")) {
                 throw new IllegalArgumentException();
             }
