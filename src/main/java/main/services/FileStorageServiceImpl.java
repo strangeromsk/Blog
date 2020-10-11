@@ -1,11 +1,13 @@
 package main.services;
 
 import lombok.extern.slf4j.Slf4j;
+import main.API.ResponseApi;
 import main.configuration.FileStorageProperties;
 import main.services.interfaces.FileStorageService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,11 +18,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -30,12 +31,9 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Value("${uploadDir}")
     private String uploadDir;
     private final String dirsNames;
-    private final Path fileStorageLocation;
 
     public FileStorageServiceImpl(FileStorageProperties fileStorageProperties) {
         this.dirsNames = getDirsNames();
-        this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir() + dirsNames)
-                .toAbsolutePath().normalize();
     }
 
     private String generateTextMethod(int length)   {
@@ -61,21 +59,39 @@ public class FileStorageServiceImpl implements FileStorageService {
         return f.mkdirs();
     }
 
-    public String storeFile(MultipartFile file, HttpServletRequest request) {
+    public ResponseEntity storeFile(MultipartFile file, HttpServletRequest request) {
+        long maxSize = 10_000_000;
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-        try {
-            if(fileName.contains("..")) {
-                throw new IllegalArgumentException();
-            }
-            String completePath = dirsNames + fileName;
-            Path targetLocation = this.fileStorageLocation.resolve(fileName);
-            createDirs(dirsNames);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            return completePath;
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        Optional<String> extension = getExtensionByStringHandling(file.getOriginalFilename());
+        Map<String, String> errors = new HashMap<>(8);
+
+        if(file.getSize() > maxSize){
+            errors.put("file", "File size is too large");
         }
-        return null;
+        if(extension.isPresent() && !extension.get().equals("png") && !extension.get().equals("jpg")){
+            errors.put("file", "File extension is not correct");
+        }else if(extension.isEmpty()){
+            errors.put("file", "File extension is empty");
+        }
+        if(errors.size() == 0){
+            try {
+                if(fileName.contains("..")) {
+                    throw new IllegalArgumentException();
+                }
+                File input = new File(fileName);
+                file.transferTo(input);
+                BufferedImage image = ImageIO.read(input);
+                createDirs(dirsNames);
+                String newPicPath = uploadDir + dirsNames + generateTextMethod(13) + ".png";
+                String returnPicPath = "/" + newPicPath;
+                File output = new File(newPicPath);
+                ImageIO.write(image, "png", output);
+                return new ResponseEntity<>(returnPicPath, HttpStatus.OK);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return new ResponseEntity<>(ResponseApi.builder().errors(errors).build(), HttpStatus.BAD_REQUEST);
     }
 
     public String storeFileResized(MultipartFile file, HttpServletRequest request) {
@@ -109,5 +125,10 @@ public class FileStorageServiceImpl implements FileStorageService {
         g2d.drawImage(tmp, 0, 0, null);
         g2d.dispose();
         return resized;
+    }
+    public Optional<String> getExtensionByStringHandling(String filename) {
+        return Optional.ofNullable(filename)
+                .filter(f -> f.contains("."))
+                .map(f -> f.substring(filename.lastIndexOf(".") + 1));
     }
 }

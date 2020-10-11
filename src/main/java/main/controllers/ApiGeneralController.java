@@ -9,7 +9,6 @@ import main.DTO.StatResponse;
 import main.DTO.UserMyProfileDto;
 import main.model.User;
 import main.services.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +17,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api")
@@ -93,16 +89,11 @@ public class ApiGeneralController {
     }
 
     @PostMapping("/image")
-    public ResponseEntity<String> uploadFile(@RequestParam("image") MultipartFile file, HttpServletRequest request) {
-        String fileName = fileStorageService.storeFile(file, request);
-        String URIAndFilename = "/upload" + fileName;
+    public ResponseEntity uploadFile(@RequestParam("image") MultipartFile file, HttpServletRequest request) {
         String session = RequestContextHolder.currentRequestAttributes().getSessionId();
         Optional<Integer> userId = Optional.ofNullable(userServiceImpl.getSessionIds().get(session));
         if(userId.isPresent()){
-            if(fileName == null){
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-            return new ResponseEntity<>(URIAndFilename, HttpStatus.OK);
+            return fileStorageService.storeFile(file, request);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
