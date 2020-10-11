@@ -2,7 +2,6 @@ package main.services;
 
 import lombok.extern.slf4j.Slf4j;
 import main.API.ResponseApi;
-import main.configuration.FileStorageProperties;
 import main.services.interfaces.FileStorageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -32,7 +31,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     private String uploadDir;
     private final String dirsNames;
 
-    public FileStorageServiceImpl(FileStorageProperties fileStorageProperties) {
+    public FileStorageServiceImpl() {
         this.dirsNames = getDirsNames();
     }
 
@@ -57,6 +56,20 @@ public class FileStorageServiceImpl implements FileStorageService {
     private boolean createDirs(String path){
         File f = new File(uploadDir + path);
         return f.mkdirs();
+    }
+
+    private static BufferedImage resize(BufferedImage img) {
+        Image tmp = img.getScaledInstance(36, 36, Image.SCALE_SMOOTH);
+        BufferedImage resized = new BufferedImage(36, 36, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = resized.createGraphics();
+        g2d.drawImage(tmp, 0, 0, null);
+        g2d.dispose();
+        return resized;
+    }
+    private Optional<String> getExtensionByStringHandling(String filename) {
+        return Optional.ofNullable(filename)
+                .filter(f -> f.contains("."))
+                .map(f -> f.substring(filename.lastIndexOf(".") + 1));
     }
 
     public ResponseEntity storeFile(MultipartFile file, HttpServletRequest request) {
@@ -116,19 +129,5 @@ public class FileStorageServiceImpl implements FileStorageService {
             ex.printStackTrace();
         }
         return null;
-    }
-
-    private static BufferedImage resize(BufferedImage img) {
-        Image tmp = img.getScaledInstance(36, 36, Image.SCALE_SMOOTH);
-        BufferedImage resized = new BufferedImage(36, 36, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = resized.createGraphics();
-        g2d.drawImage(tmp, 0, 0, null);
-        g2d.dispose();
-        return resized;
-    }
-    public Optional<String> getExtensionByStringHandling(String filename) {
-        return Optional.ofNullable(filename)
-                .filter(f -> f.contains("."))
-                .map(f -> f.substring(filename.lastIndexOf(".") + 1));
     }
 }

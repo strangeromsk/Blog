@@ -116,7 +116,6 @@ public class PostServiceImpl implements PostService {
     public PostDtoView populateVars(int offset, int limit, ModePostDto mode) {
         Pageable pageable = PageRequest.of(offset / limit, limit);
         PostDtoView postDtoView = new PostDtoView();
-        postDtoView.setCount(postRepository.countPost());
         List<Post> list;
         if (mode.equals(ModePostDto.early)) {
             list = postRepository.findPostByDateAsc(pageable);
@@ -127,6 +126,7 @@ public class PostServiceImpl implements PostService {
         } else {
             list = postRepository.findPostByLikeCount(pageable);
         }
+        postDtoView.setCount(list.size());
         log.info("Populate all posts: offset:{} limit:{} mode:'{}'", offset, limit, mode);
         return populateDtoViewWithStream(postDtoView, list);
     }
@@ -249,7 +249,6 @@ public class PostServiceImpl implements PostService {
         List<Post> list;
         PostDtoView postDtoView = new PostDtoView();
         Pageable pageable = PageRequest.of(offset / limit, limit);
-        postDtoView.setCount(postRepository.countPost());
         if (status.equals("new")) {
             list = postRepository.findPendingPostsModeration(pageable);
         } else if (status.equals("accepted")) {
@@ -257,6 +256,7 @@ public class PostServiceImpl implements PostService {
         } else {
             list = postRepository.findDeclinedPostsModeration(pageable);
         }
+        postDtoView.setCount(list.size());
         log.info("Populate vars moderation: offset:{} limit:{} status:'{}'", offset, limit, status);
         return populateDtoViewWithStream(postDtoView, list);
     }
