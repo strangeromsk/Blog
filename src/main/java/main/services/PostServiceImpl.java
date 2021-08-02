@@ -214,10 +214,7 @@ public class PostServiceImpl implements PostService {
     public CalendarDto populateCalendarVars(Integer year) {
         CalendarDto calendarDto = new CalendarDto();
         Map<String, Integer> postsMap = new HashMap<>();
-        if(year == null || year == 0){
-            year = Calendar.getInstance().get(Calendar.YEAR);
-        }
-        postRepository.getPostsByYears(year)
+        postRepository.getPostsByYears(year == null || year == 0 ? Calendar.getInstance().get(Calendar.YEAR) : year)
                 .forEach(e-> postsMap.put((String) e.get(0), ((BigInteger) e.get(1)).intValue()));
         List<String> postsYearsList = postRepository.getAllYears();
         calendarDto.setPosts(postsMap);
@@ -227,21 +224,17 @@ public class PostServiceImpl implements PostService {
     }
 
     public PostDtoView populateMyVars(int userId, int offset, int limit, Post.Status status) {
-        List<Post> list;
         PostDtoView postDtoView = new PostDtoView();
         Pageable pageable = PageRequest.of(offset / limit, limit);
         postDtoView.setCount(postRepository.countMyPosts(userId));
-        if (status.equals(Post.Status.inactive)) {
-            list = postRepository.findInactivePosts(pageable, userId);
-        } else if (status.equals(Post.Status.pending)) {
-            list = postRepository.findPendingPosts(pageable, userId);
-        } else if (status.equals(Post.Status.declined)) {
-            list = postRepository.findDeclinedPosts(pageable, userId);
-        } else {
-            list = postRepository.findAcceptedPosts(pageable, userId);
-        }
         log.info("Populate my profile: userId:{} offset:{} limit:{} status:'{}'", userId, offset, limit, status);
-        return populateDtoViewWithStream(postDtoView, list);
+        return populateDtoViewWithStream(postDtoView,
+                switch (status) {
+                    case inactive -> postRepository.findInactivePosts(pageable, userId);
+                    case pending -> postRepository.findPendingPosts(pageable, userId);
+                    case declined -> postRepository.findDeclinedPosts(pageable, userId);
+                    default -> postRepository.findAcceptedPosts(pageable, userId);
+        });
     }
 
     public PostDtoView populateVarsModeration(int offset, int limit, String status) {
