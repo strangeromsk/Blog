@@ -21,7 +21,6 @@ public interface PostService {
     PostDtoView populateVarsModeration(int offset, int limit, String status);
     ResponseEntity<ResponseApi> makeNewPost(RequestApi post, User user);
     ResponseEntity<ResponseApi> changePost(int id, RequestApi post, User user);
-    ResponseEntity<ResponseApi> makeNewLike(int postId, User user);
-    ResponseEntity<ResponseApi> makeNewDisLike(int postId, User user);
+    ResponseEntity<ResponseApi> makeNewLikeDislike(int postId, User user, int likeVal);
     ResponseApi postModeration(RequestApi requestApi, User user);
 }

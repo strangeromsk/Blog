@@ -85,17 +85,15 @@ public class PostServiceImpl implements PostService {
     private PostDtoById getPostDtoById(int id, Post post) {
         PostDtoById postDtoById = mapPostById(post);
         List<PostComment> postCommentList = post.getPostComments();
-        if(postCommentList.size() == 0){
+        if(postCommentList.size() == 0) {
             postCommentList = new ArrayList<>();
         }
-        List<TagToPost> tagToPost = post.getTagToPosts();
-        List<Tag> tagResultList = new ArrayList<>();
-        if (tagToPost != null) {
-            tagResultList = post.getTagToPosts()
-                    .stream()
-                    .map(TagToPost::getTag)
-                    .collect(Collectors.toList());
-        }
+        List<String> tagResultList = Optional.ofNullable(post.getTagToPosts())
+                .map(t -> t.stream()
+                        .map(tp -> tp.getTag().getName())
+                        .collect(Collectors.toList()))
+                .orElse(new ArrayList<>());
+        postDtoById.setTags(tagResultList);
         postDtoById.setCommentCount(postCommentList.size());
         postDtoById.setLikeCount(toIntExact(post.getPostVotes().stream()
                 .filter(e -> e.getValue() == 1).count()));
@@ -103,9 +101,6 @@ public class PostServiceImpl implements PostService {
                 .filter(e -> e.getValue() == -1).count()));
         postDtoById.setComments(postCommentList.stream()
                 .map(k -> postCommentServiceImpl.mapCommentPostById(k.getId()))
-                .collect(Collectors.toList()));
-        postDtoById.setTags(tagResultList.stream()
-                .map(Tag::getName)
                 .collect(Collectors.toList()));
         postDtoById.setAnnounce(Jsoup.parse(post.getText()
                 .substring(0, Math.min(post.getText().length(), 200))).text());
@@ -117,14 +112,19 @@ public class PostServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(offset / limit, limit);
         PostDtoView postDtoView = new PostDtoView();
         List<Post> list;
-        if (mode.equals(ModePostDto.early)) {
-            list = postRepository.findPostByDateAsc(pageable);
-        } else if (mode.equals(ModePostDto.recent)) {
-            list = postRepository.findPostByDateDesc(pageable);
-        } else if (mode.equals(ModePostDto.popular)) {
-            list = postRepository.findPostByCommentCount(pageable);
-        } else {
-            list = postRepository.findPostByLikeCount(pageable);
+        switch (mode){
+            case early:
+                list = postRepository.findPostByDateAsc(pageable);
+                break;
+            case recent:
+                list = postRepository.findPostByDateDesc(pageable);
+                break;
+            case popular:
+                list = postRepository.findPostByCommentCount(pageable);
+                break;
+            default:
+                list = postRepository.findPostByLikeCount(pageable);
+                break;
         }
         postDtoView.setCount(list.size());
         log.info("Populate all posts: offset:{} limit:{} mode:'{}'", offset, limit, mode);
@@ -135,12 +135,10 @@ public class PostServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(offset / limit, limit);
         PostDtoView postDtoView = new PostDtoView();
         postDtoView.setCount(postRepository.countPostWithSearchQuery(query));
-        List<Post> list;
-        if (query == null || query.equals("")) {
-            list = postRepository.findPostByDateAsc(pageable);
-        } else {
-            list = postRepository.findPostBySearchQuery(pageable, query);
-        }
+        List<Post> list = Optional.ofNullable(query)
+                .filter(q -> !q.isEmpty())
+                .map(q -> postRepository.findPostBySearchQuery(pageable, q))
+                .orElse(postRepository.findPostByDateAsc(pageable));
         log.info("Populate posts with search: offset:{} limit:{} query:'{}'", offset, limit, query);
         return populateDtoViewWithStream(postDtoView, list);
     }
@@ -150,6 +148,7 @@ public class PostServiceImpl implements PostService {
         Optional<Post> post = Optional.ofNullable(postRepository.getPostById(id));
         Optional<Integer> userId = Optional.ofNullable(userService.getSessionIds().get(session));
         boolean userAuthorized = userId.isPresent();
+        post.ifPresentOrElse(e-> getPostDtoById(id, e), PostDtoById::new);
         if(post.isPresent()){
             boolean postIsActive = post.get().getIsActive() == 1 &&
                     post.get().getStatus().equals(Post.Status.ACCEPTED) &&
@@ -382,15 +381,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Transactional
-    public ResponseEntity<ResponseApi> makeNewLike(int postId, User user){
+    public ResponseEntity<ResponseApi> makeNewLikeDislike(int postId, User user, int likeVal){
         Post post = postRepository.getPostById(postId);
         int userId = user.getId();
         Optional<PostVote> postVote = postVotesRepository.getLikeByUserAndPost(postId, userId);
         if(postVote.isPresent()){
-            if(postVote.get().getValue() == 1){
+            if(postVote.get().getValue() == likeVal){
                 return new ResponseEntity<>(ResponseApi.builder().result(false).build(), HttpStatus.OK);
             }else {
-                postVote.get().setValue(1);
+                postVote.get().setValue(likeVal);
                 postVotesRepository.save(postVote.get());
                 return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
             }
@@ -399,31 +398,7 @@ public class PostServiceImpl implements PostService {
             postVoteNew.setPost(post);
             postVoteNew.setTimestamp(new Date().getTime());
             postVoteNew.setUser(user);
-            postVoteNew.setValue(1);
-            postVotesRepository.save(postVoteNew);
-            return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
-        }
-    }
-
-    @Transactional
-    public ResponseEntity<ResponseApi> makeNewDisLike(int postId, User user){
-        Post post = postRepository.getPostById(postId);
-        int userId = user.getId();
-        Optional<PostVote> postVote = postVotesRepository.getLikeByUserAndPost(postId, userId);
-        if(postVote.isPresent()){
-            if(postVote.get().getValue() == -1){
-                return new ResponseEntity<>(ResponseApi.builder().result(false).build(), HttpStatus.OK);
-            }else {
-                postVote.get().setValue(-1);
-                postVotesRepository.save(postVote.get());
-                return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
-            }
-        }else {
-            PostVote postVoteNew = new PostVote();
-            postVoteNew.setPost(post);
-            postVoteNew.setTimestamp(new Date().getTime());
-            postVoteNew.setUser(user);
-            postVoteNew.setValue(-1);
+            postVoteNew.setValue(likeVal);
             postVotesRepository.save(postVoteNew);
             return new ResponseEntity<>(ResponseApi.builder().result(true).build(), HttpStatus.OK);
         }
@@ -433,9 +408,8 @@ public class PostServiceImpl implements PostService {
     public ResponseApi postModeration(RequestApi requestApi, User user){
         Integer postId = requestApi.getPostId();
         Post post = postRepository.getPostById(postId);
-        int userId = user.getId();
 
-        post.setModeratorId(userId);
+        post.setModeratorId(user.getId());
         if(requestApi.getDecision().equals("accept")){
             post.setStatus(Post.Status.ACCEPTED);
         }else {
